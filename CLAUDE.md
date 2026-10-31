@@ -14,12 +14,12 @@ GitHub Actions, 3x/dia, e publica os JSON em `public/dados/`.
 
 ## Como rodar
 
-- Testes: `npm test` (`node --test tests/*.test.mjs`).
+- Testes: `npm test` (`node --test --test-concurrency=4 tests/*.test.mjs`).
 - Navegador (Playwright, já instalado na máquina): `npm run test:navegador`.
 - Robô: `npm run robo -- --saida public/dados --limite 2`.
 - Ver o site: `python3 -m http.server` dentro de `public/`.
 - Limite de paralelismo: máquina de 16 GB com várias sessões abertas; não
-  use mais de 4 workers em nenhum runner.
+  use mais de 4 workers em nenhum runner (os scripts já limitam a 4).
 
 ## Convenções
 

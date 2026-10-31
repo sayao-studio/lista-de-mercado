@@ -4,8 +4,8 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
-    "test:navegador": "node --test tests/navegador.mjs",
+    "test": "node --test --test-concurrency=4 tests/*.test.mjs",
+    "test:navegador": "node --test --test-concurrency=1 tests/navegador.mjs",
     "robo": "node robo/catalogo.mjs"
   }
 }
