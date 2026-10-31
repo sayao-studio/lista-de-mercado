@@ -3,13 +3,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { pesoGramas, eanValido, hostFoto, linhasDoProduto } from "../robo/produto.js";
 
-// Fixture (JSON da loja como veio, sem edição):
+// Fixture pagina-vtex.json (JSON das lojas como veio, sem edição):
 //   [0] Bebida Vegetal Banana Milk 1l (Bistek): o produto com promoção (22,65 -> 19,47)
 //   [1] Banana Caturra Kg (Giassi): o granel, vendido por quilo em passos de 1,4 kg.
 //       O Bistek não expõe nenhum produto com unidade "kg" na API, então o granel
 //       vem de outra loja VTEX; o formato do JSON é o mesmo.
 //   [2] Mamão Papaia Unid. (Bistek): o sem peso no nome, com código interno 3000...
-const fixture = JSON.parse(readFileSync(new URL("./fixtures/vtex/pagina-bistek.json", import.meta.url), "utf8"));
+const fixture = JSON.parse(readFileSync(new URL("./fixtures/vtex/pagina-vtex.json", import.meta.url), "utf8"));
 
 test("pesoGramas lê kg, g, ml, kit 2x e nome sem peso", () => {
   assert.equal(pesoGramas("Arroz Tio João 5kg"), 5000);
@@ -51,7 +51,7 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
     id: "10544",
     nome: "Banana Caturra Kg",
     marca: "Giassi",
-    ean: "5127",
+    ean: "",
     gramas: 1400,
     granel: true,
     preco: 685,
@@ -64,6 +64,7 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
   const [mamao] = linhasDoProduto(fixture[2]);
   assert.equal(mamao.gramas, null);
   assert.equal(mamao.granel, false);
+  assert.equal(mamao.ean, ""); // código interno 3000... não vira EAN
   assert.equal(mamao.preco, 823);
   assert.equal(mamao.promocao, 0);
   assert.equal(mamao.foto, "201788");

@@ -23,7 +23,6 @@ export function pesoGramas(nome) {
   return /^(kg|quilos?|l|lt|litros?)$/.test(m.unidade) ? valor * 1000 : valor;
 }
 
-
 // Prefixo 2 é peso variável (o preço muda por balança) e 3000 é código interno
 // do Bistek: passam na conta do dígito, mas não identificam o mesmo produto
 // entre lojas, então não servem de chave.
@@ -72,13 +71,13 @@ export function linhasDoProduto(produto) {
       id: String(item.itemId),
       nome,
       marca: produto.brand || "",
-      ean: item.ean || "",
+      ean: eanValido(item.ean) ? item.ean : "", // código interno não identifica o produto entre lojas
       gramas: granel ? Math.round(item.unitMultiplier * 1000) : pesoGramas(nome),
       granel,
       preco,
       promocao: de > preco ? de : 0,
       foto: imagem ? imagem[1] : "",
-      link: produto.linkText,
+      link: produto.linkText || "",
     });
   }
   return linhas;
