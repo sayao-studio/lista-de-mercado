@@ -54,8 +54,9 @@ Publicação (`.github/workflows/atualizar.yml`):
 
 - Cache de ~10 min do Pages; o `?v=` no `resumo.json` fura o do navegador.
 - `TZ: America/Sao_Paulo` no workflow: o log e o "ontem 18h" dependem dele.
-- Primeira publicação não tem anterior: com `--so-anterior` a saída 1 é
-  tolerada e o site sobe sem preços; rastreando, 1 falha o job. 2 sempre falha.
+- Primeira publicação não tem anterior: com `--so-anterior` a saída 1 só é
+  tolerada se `dados/resumo.json` publicado der 404 (site sobe sem preços);
+  senão, e rastreando, 1 falha o job. 2 sempre falha.
 - `public/dados/` fica fora do git; o dado vai só no artefato do Pages.
 
 Testes:

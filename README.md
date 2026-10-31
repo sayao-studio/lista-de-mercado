@@ -48,8 +48,10 @@ O `resumo.json` aponta cada mercado como `<id>.json?v=<hora em que ele foi
 baixado>`, então catálogo novo tem endereço novo e fura o cache. O Pages ainda guarda cache por
 cerca de 10 minutos: um preço novo pode levar esse tempo pra aparecer.
 
-Para configurar: em Settings > Pages, "Source" = "GitHub Actions" (o passo
-`configure-pages` com `enablement: true` tenta ligar sozinho).
+Para configurar: **antes do primeiro run**, o dono liga o Pages em Settings >
+Pages com "Source" = "GitHub Actions". O `enablement: true` do
+`configure-pages` fica só como tentativa: o `GITHUB_TOKEN` padrão em geral não
+tem permissão pra ligar o Pages sozinho.
 
 ## Gatilhos
 
@@ -63,10 +65,13 @@ O minuto 17 é de propósito: o GitHub atrasa os agendamentos no minuto 0. O job
 tem `timeout-minutes: 50` (cada mercado tem prazo de 40 min) e o log do robô
 sai no horário de Brasília (`TZ: America/Sao_Paulo`).
 
-Na primeira publicação ainda não existe site, então não há dados anteriores:
-só republicando, o workflow aceita a saída 1 do robô ("nenhum mercado com
-dados") e sobe o site sem preços, que avisa "ainda sem preços". Rastreando,
-saída 1 é falha e o site anterior continua no ar.
+Na primeira publicação ainda não existe site, então não há dados anteriores.
+Só republicando, o workflow consulta `$SITE_URL/dados/resumo.json` antes: se
+der 404, aceita a saída 1 do robô ("nenhum mercado com dados") e sobe o site
+sem preços, que avisa "ainda sem preços". Se o resumo existir (ou der outro
+erro) e o robô sair com 1, é falha: o job para e o site anterior continua no
+ar, em vez de um site vazio por cima de um bom. Rastreando, saída 1 sempre é
+falha.
 
 ## Quando um mercado falha
 
@@ -86,10 +91,14 @@ Se um mercado ficar em falha por dias (VTEX bloqueando o GitHub, API mudou):
 2. Rodar o robô na máquina e disparar o manual "só republicar" **não
    resolve**: `--so-anterior` baixa os dados do site publicado, não os da sua
    máquina.
-3. O plano B é commitar os dados temporariamente numa branch e publicar a
-   partir dela (exige ajustar o workflow pra não sobrescrever `public/dados/`),
-   ou aceitar o buraco: o mercado fica com o último catálogo bom e a data
-   velha até a fonte voltar.
+3. O plano B é commitar os dados temporariamente e publicar a partir deles
+   (exige ajustar o workflow pra não sobrescrever `public/dados/`), ou aceitar
+   o buraco: o mercado fica com o último catálogo bom e a data velha até a
+   fonte voltar. Detalhes do plano B:
+   - os dados estão no `.gitignore`, então precisam de `git add -f public/dados/*.json`;
+   - o environment `github-pages` por padrão só publica da branch padrão, então
+     o caminho real é commitar os dados temporariamente na `main` (ou mudar a
+     regra do environment) e tirá-los de novo quando a fonte voltar.
 
 ## Testado em 01/11/2026 (rodada completa de verdade)
 

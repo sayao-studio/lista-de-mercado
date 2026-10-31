@@ -4,7 +4,7 @@ name: Atualizar preços e publicar
 
 on:
   schedule:
-    # 6h, 12h e 18h de Brasília. Fora do minuto 0, que o GitHub atrasa.
+    # 6h17, 12h17 e 18h17 de Brasília. Fora do minuto 0, que o GitHub atrasa.
     - cron: "17 9,15,21 * * *"
   # Ajuste de código vai ao ar sem rastrear: só republica os dados publicados.
   push:
@@ -63,14 +63,23 @@ jobs:
             extra="--so-anterior"
           fi
 
+          # Republicando, saber se o site já existe: 404 no resumo é a primeira
+          # publicação; qualquer outro status quer dizer que há (ou deveria haver)
+          # dados, e uma falha ao baixá-los não pode virar site vazio por cima.
+          status_anterior=""
+          if [[ -n "$extra" ]]; then
+            status_anterior=$(curl -s -o /dev/null -w "%{http_code}" "$SITE_URL/dados/resumo.json" || true)
+            echo "resumo publicado: HTTP $status_anterior"
+          fi
+
           codigo=0
           node robo/catalogo.mjs --saida public/dados --anterior "$SITE_URL/dados" $extra || codigo=$?
 
-          # Só republicando, sair com 1 quer dizer que ainda não há site publicado
-          # (primeira publicação): sobe sem dados e o site avisa "ainda sem preços".
-          # Rastreando, 1 é falha de verdade e o site anterior continua no ar.
+          # Saída 1 só é aceita na primeira publicação (republicando e resumo 404):
+          # sobe sem dados e o site avisa "ainda sem preços". Em qualquer outro
+          # caso 1 é falha de verdade e o site anterior continua no ar.
           # 2 é erro de uso, sempre falha.
-          if [[ $codigo -eq 1 && -n "$extra" ]]; then
+          if [[ $codigo -eq 1 && -n "$extra" && "$status_anterior" == "404" ]]; then
             echo "::warning::Nenhum dado publicado ainda; o site sobe sem preços."
             mkdir -p public/dados
             codigo=0
