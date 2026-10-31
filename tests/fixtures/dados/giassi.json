@@ -1,0 +1,14 @@
+{
+  "versao": 1,
+  "mercado": "giassi",
+  "nome": "Giassi",
+  "site": "https://www.giassi.com.br",
+  "fotos": "https://giassi.vteximg.com.br/arquivos/ids/",
+  "atualizadoEm": "2026-10-30T12:00:00.000Z",
+  "categorias": ["Mercearia > Arroz", "Mercearia > Café", "Limpeza > Sabão"],
+  "produtos": [
+    { "id": "g1", "nome": "Arroz Tio João 1kg", "marca": "Tio João", "ean": "7896006700029", "gramas": null, "granel": false, "preco": 1090, "promocao": 0, "foto": "201", "link": "arroz-tio-joao-1kg-g1", "categoria": 0 },
+    { "id": "g2", "nome": "Café Melitta 500g", "marca": "Melitta", "ean": "7891021006729", "gramas": 500, "granel": false, "preco": 1890, "promocao": 2290, "foto": "202", "link": "cafe-melitta-500g-g2", "categoria": 1 },
+    { "id": "g3", "nome": "Sabão em Pó Omo 800g", "marca": "Omo", "ean": "", "gramas": 800, "granel": false, "preco": 1590, "promocao": 0, "foto": "", "link": "sabao-em-po-omo-800g-g3", "categoria": 2 }
+  ]
+}

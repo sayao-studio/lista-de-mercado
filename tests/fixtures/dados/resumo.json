@@ -1,0 +1,9 @@
+{
+  "versao": 1,
+  "geradoEm": "2026-10-31T12:00:00.000Z",
+  "mercados": {
+    "bistek": { "nome": "Bistek", "atualizadoEm": "{{HOJE}}", "produtos": 4, "arquivo": "bistek.json?v=1" },
+    "giassi": { "nome": "Giassi", "atualizadoEm": "{{ONTEM}}", "produtos": 3, "arquivo": "giassi.json?v=1" },
+    "angeloni": { "nome": "Angeloni", "atualizadoEm": "{{HOJE}}", "produtos": 4, "arquivo": "angeloni.json?v=1" }
+  }
+}

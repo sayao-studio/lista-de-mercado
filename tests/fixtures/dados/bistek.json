@@ -1,0 +1,15 @@
+{
+  "versao": 1,
+  "mercado": "bistek",
+  "nome": "Bistek",
+  "site": "https://www.bistek.com.br",
+  "fotos": "https://bistek.vteximg.com.br/arquivos/ids/",
+  "atualizadoEm": "2026-10-31T12:00:00.000Z",
+  "categorias": ["Mercearia > Arroz", "Mercearia > Feijão", "Hortifruti > Frutas", "Mercearia > Biscoitos"],
+  "produtos": [
+    { "id": "b1", "nome": "Arroz Tio João 1kg", "marca": "Tio João", "ean": "7896006700029", "gramas": 1000, "granel": false, "preco": 1198, "promocao": 1399, "foto": "101", "link": "arroz-tio-joao-1kg-b1", "categoria": 0 },
+    { "id": "b2", "nome": "Feijão Carioca Camil 1kg", "marca": "Camil", "ean": "7896006711117", "gramas": 1000, "granel": false, "preco": 899, "promocao": 0, "foto": "102", "link": "feijao-carioca-camil-1kg-b2", "categoria": 1 },
+    { "id": "b3", "nome": "Banana Caturra Kg", "marca": "", "ean": "", "gramas": 1000, "granel": true, "preco": 489, "promocao": 0, "foto": "103", "link": "banana-caturra-kg-b3", "categoria": 2 },
+    { "id": "b4", "nome": "Biscoito de Arroz Camil 150g", "marca": "Camil", "ean": "", "gramas": 150, "granel": false, "preco": 399, "promocao": 0, "foto": "104", "link": "biscoito-de-arroz-camil-150g-b4", "categoria": 3 }
+  ]
+}

@@ -1,0 +1,122 @@
+// Índice e busca do site. Roda no navegador e no Node (sem imports): o site é
+// servido sozinho, então não pode depender de nada de `robo/`.
+
+// NFD separa a letra do acento; tirando os acentos, "Feijão" e "feijao" viram
+// a mesma coisa, que é como a pessoa digita no celular.
+export function normalizar(s) {
+  return String(s ?? "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Só o EAN junta produtos de lojas diferentes; sem ele (granel, código
+// interno) cada linha fica sozinha, presa ao mercado, pra não misturar coisas
+// diferentes que por acaso têm o mesmo id.
+export function chaveDe(mercadoId, linha) {
+  return linha.ean ? linha.ean : `${mercadoId}:${linha.id}`;
+}
+
+function porKgDe(preco, gramas) {
+  return gramas > 0 ? Math.round((preco / gramas) * 1000) : null;
+}
+
+export function indexar(catalogos) {
+  const grupos = [];
+  const porChave = new Map();
+  const porMercado = new Map();
+
+  for (const [mercadoId, arquivo] of Object.entries(catalogos)) {
+    for (const linha of arquivo.produtos) {
+      const chave = chaveDe(mercadoId, linha);
+      let grupo = porChave.get(chave);
+      if (!grupo) {
+        grupo = {
+          chave,
+          ean: linha.ean,
+          nome: linha.nome,
+          marca: linha.marca ?? "",
+          gramas: null,
+          granel: linha.granel,
+          foto: null,
+          categoria: arquivo.categorias[linha.categoria] ?? "",
+          texto: normalizar(`${linha.nome} ${linha.marca ?? ""}`),
+          ofertas: {},
+          menor: Infinity,
+          porKg: null,
+        };
+        porChave.set(chave, grupo);
+        grupos.push(grupo);
+      }
+      // Uma loja pode não informar o peso de um produto que outra informa;
+      // pegar o primeiro não-nulo evita perder o R$/kg do grupo inteiro.
+      if (grupo.gramas == null && linha.gramas != null) grupo.gramas = linha.gramas;
+      if (grupo.foto == null && linha.foto) grupo.foto = `${arquivo.fotos}${linha.foto}-120-120`;
+      grupo.ofertas[mercadoId] = {
+        id: linha.id,
+        preco: linha.preco,
+        promocao: linha.promocao,
+        link: `${arquivo.site}/${linha.link}/p`,
+        nome: linha.nome,
+        gramas: linha.gramas,
+      };
+      if (linha.preco < grupo.menor) grupo.menor = linha.preco;
+      porMercado.set(`${mercadoId}:${linha.id}`, grupo);
+    }
+  }
+
+  // O R$/kg só fecha depois de ver todas as lojas: depende do menor preço e
+  // do peso, que podem ter vindo de lojas diferentes.
+  for (const grupo of grupos) grupo.porKg = porKgDe(grupo.menor, grupo.gramas);
+
+  return { grupos, porChave, porMercado, mercados: Object.keys(catalogos) };
+}
+
+// Mesmo efeito de `(" " + texto).includes(" " + palavra)`, sem criar uma
+// string nova por grupo: a busca roda a cada tecla sobre ~54 mil grupos.
+function temPrefixo(texto, palavra) {
+  return texto.startsWith(palavra) || texto.includes(" " + palavra);
+}
+
+const quantasOfertas = (g) => Object.keys(g.ofertas).length;
+
+export function buscar(indice, termo, { promocao = false, ordem = "relevancia", mercados = null } = {}) {
+  const normal = normalizar(termo);
+  if (!normal) return [];
+  const palavras = normal.split(" ");
+
+  const achados = [];
+  indice.grupos.forEach((grupo, posicao) => {
+    for (const palavra of palavras) if (!temPrefixo(grupo.texto, palavra)) return;
+    if (mercados && !mercados.some((m) => m in grupo.ofertas)) return;
+    if (promocao && !Object.values(grupo.ofertas).some((o) => o.promocao > 0)) return;
+    achados.push({ grupo, posicao });
+  });
+
+  // Empate cai na posição original do índice, pra a lista não pular de lugar
+  // entre uma tecla e outra.
+  const desempate = (a, b) => a.posicao - b.posicao;
+  let comparar;
+  if (ordem === "preco") {
+    comparar = (a, b) => a.grupo.menor - b.grupo.menor || desempate(a, b);
+  } else if (ordem === "porKg") {
+    comparar = (a, b) => {
+      const x = a.grupo.porKg, y = b.grupo.porKg;
+      if (x == null || y == null) return (x == null) - (y == null) || desempate(a, b);
+      return x - y || desempate(a, b);
+    };
+  } else {
+    // Quem começa pelo que foi digitado é o que a pessoa quis dizer; depois,
+    // produto em mais lojas, porque é o que dá pra comparar.
+    for (const a of achados) {
+      a.comeca = a.grupo.texto.startsWith(normal);
+      a.lojas = quantasOfertas(a.grupo);
+    }
+    comparar = (a, b) =>
+      b.comeca - a.comeca || b.lojas - a.lojas || a.grupo.menor - b.grupo.menor || desempate(a, b);
+  }
+
+  return achados.sort(comparar).map((a) => a.grupo);
+}
