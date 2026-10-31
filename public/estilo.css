@@ -7,6 +7,8 @@
   --cinza: #6b6b6b;
   --borda: #e2e0da;
   --cartao: #ffffff;
+  --verde-fundo: #e3f4e8;
+  --pilula: #f0eee8;
   --altura-barra: 56px;
   --respiro: 16px;
 }
@@ -19,6 +21,8 @@
     --cinza: #a0a0a0;
     --borda: #2a2a2a;
     --cartao: #1c1c1c;
+    --verde-fundo: #16351f;
+    --pilula: #262626;
   }
 }
 
@@ -182,6 +186,188 @@ section[data-tela] { min-width: 0; }
 
 #aviso:empty { display: none; }
 
+/* Chips: uma linha só que rola de lado no celular, pra não empurrar os
+   resultados pra baixo da dobra. */
+#chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Folga em cima e embaixo pra a área de toque de 44 px dos chips não ser cortada pela rolagem. */
+  padding: 6px 0;
+  /* Encosta nas bordas da tela pra indicar que há mais chips ao rolar. */
+  margin: 0 calc(-1 * var(--respiro));
+  padding-left: var(--respiro);
+  padding-right: var(--respiro);
+  scroll-padding-inline: var(--respiro);
+}
+
+#chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: none;
+  /* 32 px visíveis; a área de toque cresce até 44 px pela margem vertical
+     transparente (o padrão de 44 px do button valeria só pro desenho). */
+  min-height: 32px;
+  min-width: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: var(--cartao);
+  color: var(--tinta);
+  font-size: 14px;
+  white-space: nowrap;
+  position: relative;
+}
+
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--verde);
+  border-color: var(--verde);
+  color: var(--fundo);
+  font-weight: 600;
+}
+
+.chip:focus-visible,
+.cartao .adicionar:focus-visible,
+.rodape-busca button:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+}
+
+/* Cartão em linha no celular: foto, texto e o "+" sempre ao alcance do polegar. */
+.cartao {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cartao:active { border-color: var(--verde); }
+
+.cartao .foto {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: contain;
+  /* Mesmo tom do quadro sem foto: enquanto carrega (ou se a loja tirar a
+     foto do ar) fica um quadro neutro, não um buraco branco no modo escuro. */
+  background: var(--pilula);
+  align-self: start;
+}
+
+.cartao .texto { min-width: 0; }
+
+.cartao .nome {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.cartao .marca-peso {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--cinza);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.precos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 6px;
+}
+
+.preco {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pilula);
+  font-size: 13px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.preco .mercado { color: var(--cinza); }
+.preco b { font-weight: 600; }
+.preco s { color: var(--cinza); font-size: 12px; }
+
+.preco.melhor {
+  background: var(--verde-fundo);
+  color: var(--verde);
+}
+
+.preco.melhor .mercado { color: inherit; }
+
+.cartao .adicionar {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 2px solid var(--verde);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--verde);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cartao .adicionar.na-lista {
+  background: var(--verde);
+  color: var(--fundo);
+  font-size: 15px;
+}
+
+.rodape-busca {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.rodape-busca button {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+  background: var(--cartao);
+  overflow-wrap: anywhere;
+}
+
+#adicionar-texto {
+  border-style: dashed;
+  color: var(--cinza);
+}
+
+#mostrar-mais {
+  font-weight: 600;
+  color: var(--verde);
+}
+
 @media (min-width: 900px) {
   /* Tela larga: Buscar à esquerda e Lista à direita, sem barra. */
   main {
@@ -205,6 +391,14 @@ section[data-tela] { min-width: 0; }
   }
 
   #aviso { bottom: 24px; }
+
+  /* Com mouse, rolar de lado é ruim: os chips quebram linha. */
+  #chips {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin: 0;
+    padding: 2px 0 10px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

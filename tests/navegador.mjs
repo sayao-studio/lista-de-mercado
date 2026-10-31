@@ -112,4 +112,88 @@ describe("site", () => {
     assert.equal(angeloni.sumiu, undefined);
     assert.equal(angeloni.preco, 1249);
   });
+
+  // A busca tem debounce de 120 ms: espera o cartão aparecer em vez de dormir.
+  async function buscarPor(page, termo) {
+    await page.locator('[data-ir="buscar"]').click();
+    await page.locator("#busca").fill(termo);
+    await page.waitForFunction(
+      (t) => document.querySelector("#resultados")?.dataset.termo === t,
+      termo,
+    );
+  }
+
+  test("buscar 'arroz' mostra o Tio João primeiro, com os três preços e o Giassi em destaque", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    const cartoes = page.locator("#resultados .cartao");
+    assert.equal(await cartoes.count(), 3);
+    const primeiro = cartoes.first();
+    assert.equal(await primeiro.getAttribute("data-chave"), "7896006700029");
+    assert.match(await primeiro.locator(".nome").textContent(), /Arroz Tio João 1kg/);
+    assert.equal(await primeiro.locator(".preco").count(), 3);
+    assert.equal(await primeiro.locator(".preco.melhor").count(), 1);
+    assert.equal(await primeiro.locator('.preco.melhor[data-mercado="giassi"]').count(), 1);
+    assert.match(await primeiro.locator('.preco[data-mercado="giassi"]').textContent(), /Giassi\s+R\$ 10,90/);
+    assert.equal(await primeiro.locator('.preco[data-mercado="bistek"] s').textContent(), "R$ 13,99");
+    // Com termo, sempre há como pôr o texto livre na lista.
+    assert.match(await page.locator("#adicionar-texto").textContent(), /Adicionar "arroz" sem preço/);
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(largura <= 390, `scrollWidth ${largura} > 390`);
+  });
+
+  test("tocar no + adiciona à lista, o contador sobe e o botão mostra ×1 e depois ×2", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    const cartao = () => page.locator('#resultados .cartao[data-chave="7896006700029"]');
+    await cartao().locator(".adicionar").click();
+    assert.equal(await page.locator("#contador-lista").textContent(), "1");
+    assert.equal((await cartao().locator(".adicionar").textContent()).trim(), "×1");
+    assert.match(await page.locator("#aviso").textContent(), /Arroz Tio João 1kg na lista/);
+    await cartao().locator(".adicionar").click();
+    assert.equal(await page.locator("#contador-lista").textContent(), "1");
+    assert.equal((await cartao().locator(".adicionar").textContent()).trim(), "×2");
+    const itens = await page.evaluate(() => window.app.estado.itens);
+    assert.equal(itens.length, 1);
+    assert.equal(itens[0].quantidade, 2);
+    // Salvo no aparelho, não só na memória.
+    const salvo = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
+    assert.equal(salvo.itens[0].quantidade, 2);
+  });
+
+  test("chip 'Só promoções' e chip de mercado filtram", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    const promo = page.locator('#chips [data-filtro="promocao"]');
+    await promo.click();
+    assert.equal(await promo.getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#resultados .cartao").count(), 1);
+    await promo.click();
+    assert.equal(await page.locator("#resultados .cartao").count(), 3);
+
+    const angeloni = page.locator('#chips [data-mercado="angeloni"]');
+    assert.equal((await angeloni.textContent()).trim(), "Angeloni");
+    await angeloni.click();
+    assert.equal(await angeloni.getAttribute("aria-pressed"), "true");
+    const chaves = await page.locator("#resultados .cartao").evaluateAll((cs) => cs.map((c) => c.dataset.chave));
+    assert.deepEqual(chaves.sort(), ["7896006700029", "angeloni:a4"]);
+
+    await buscarPor(page, "café");
+    assert.equal(await page.locator("#resultados .cartao").count(), 0);
+    await angeloni.click();
+    assert.match(await page.locator("#resultados .cartao .nome").textContent(), /Café Melitta/);
+  });
+
+  test("sem resultado, 'Adicionar sem preço' cria item de texto", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "pão de queijo");
+    assert.equal(await page.locator("#resultados .cartao").count(), 0);
+    assert.match(await page.locator("#resultados").textContent(), /Nada com “pão de queijo”/);
+    await page.locator("#adicionar-texto").click();
+    const itens = await page.evaluate(() => window.app.estado.itens);
+    assert.equal(itens.length, 1);
+    assert.equal(itens[0].tipo, "texto");
+    assert.equal(itens[0].nome, "pão de queijo");
+    assert.equal(await page.locator("#contador-lista").textContent(), "1");
+  });
 });

@@ -3,7 +3,7 @@
 import { carregar, salvar } from "./armazenamento.js";
 import { carregarResumo, carregarMercado } from "./dados.js";
 import { indexar } from "./busca.js";
-import { refrescar } from "./lista.js";
+import { refrescar, novoItemProduto, novoItemTexto, alterarQuantidade } from "./lista.js";
 import { quandoFoi } from "./formato.js";
 import { el } from "./dom.js";
 import { renderizarBusca, ligarBusca } from "./tela-busca.js";
@@ -84,9 +84,46 @@ function renderizarTudo() {
   renderizarContador();
 }
 
+let fimDoAviso;
+
 function avisar(texto) {
+  clearTimeout(fimDoAviso);
   el("#aviso").textContent = texto;
 }
+
+// Recado que some sozinho: confirma o toque sem ficar tampando a tela.
+export function mostrarAviso(texto, ms = 1500) {
+  avisar(texto);
+  fimDoAviso = setTimeout(() => avisar(""), ms);
+}
+
+// Único lugar que muda a lista: toda mudança salva, redesenha as duas telas e
+// atualiza o contador, pra nenhuma das telas ficar mostrando uma lista velha.
+function mudarItens(itens) {
+  estado.itens = itens;
+  salvar({ ...guardado, itens: estado.itens }, localStorage);
+  renderizarTudo();
+}
+
+const acoesDaBusca = {
+  adicionarProduto(grupo) {
+    mudarItens([...estado.itens, novoItemProduto(grupo)]);
+    mostrarAviso(`${grupo.nome} na lista`);
+  },
+  adicionarTexto(nome) {
+    mudarItens([...estado.itens, novoItemTexto(nome)]);
+    mostrarAviso(`${nome} na lista`);
+  },
+  incrementar(chave) {
+    let atualizado;
+    mudarItens(estado.itens.map((i) => {
+      if (i.tipo !== "produto" || i.chave !== chave) return i;
+      atualizado = alterarQuantidade(i, 1);
+      return atualizado;
+    }));
+    if (atualizado) mostrarAviso(`${atualizado.nome} ×${atualizado.quantidade} na lista`);
+  },
+};
 
 function avisoDeCarga() {
   const chegaram = estado.mercados.filter((m) => m.carregado).map((m) => `${m.nome} ✓`);
@@ -188,7 +225,7 @@ async function iniciar() {
   estado.itens = guardado.itens;
   irPara(telaInicial());
   renderizarTudo();
-  ligarBusca(estado);
+  ligarBusca(estado, acoesDaBusca);
   ligarLista(estado);
   try {
     await carregarPrecos();
