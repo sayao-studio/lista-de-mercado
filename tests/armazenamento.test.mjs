@@ -14,7 +14,11 @@ function storageFalso(inicial = {}, { estourado = false } = {}) {
   };
 }
 
-const item = (extra = {}) => ({ id: "a1", tipo: "produto", nome: "Arroz", quantidade: 2, marcado: false, ...extra });
+const item = (extra = {}) => ({
+  id: "a1", tipo: "produto", chave: "7896006700029", nome: "Arroz", gramas: 1000, quantidade: 2, marcado: false,
+  ofertas: { bistek: { id: "b1", preco: 1198, promocao: 0, link: "https://www.bistek.com.br/arroz/p" } },
+  ...extra,
+});
 
 test("carregar devolve vazio quando não há nada", () => {
   const s = storageFalso();
@@ -77,4 +81,49 @@ test("salvar devolve false quando o storage estoura", () => {
   const s = storageFalso();
   assert.equal(salvar(estado, s), true);
   assert.deepEqual(JSON.parse(s.mapa.get(CHAVE)), estado);
+});
+
+// Lista mexida à mão (ou por versão velha com bug) não pode derrubar as duas
+// telas: o produto sem ofertas válidas chegava até Object.keys(undefined).
+test("migrar conserta produto sem ofertas e manda o original pro backup", () => {
+  const { ofertas, ...semOfertas } = item();
+  for (const quebrado of [semOfertas, item({ ofertas: null }), item({ ofertas: [1, 2] }), item({ ofertas: "x" })]) {
+    const { estado, descartou } = migrar(JSON.stringify({ versao: 1, itens: [quebrado] }));
+    assert.equal(descartou, true, JSON.stringify(quebrado));
+    assert.deepEqual(estado.itens[0].ofertas, {});
+  }
+});
+
+test("migrar tira só a oferta com preço que não é número", () => {
+  const { estado, descartou } = migrar(JSON.stringify({
+    versao: 1,
+    itens: [item({ ofertas: { bistek: { id: "b1", preco: "x" }, giassi: { id: "g1", preco: 1090 }, angeloni: null } })],
+  }));
+  assert.equal(descartou, true);
+  assert.deepEqual(Object.keys(estado.itens[0].ofertas), ["giassi"]);
+});
+
+test("migrar troca gramas inválido por null e recusa produto sem chave", () => {
+  const r = migrar(JSON.stringify({ versao: 1, itens: [item({ gramas: "abc" })] }));
+  assert.equal(r.descartou, true);
+  assert.equal(r.estado.itens[0].gramas, null);
+
+  const semChave = migrar(JSON.stringify({ versao: 1, itens: [item({ chave: 42 }), item({ id: "b" })] }));
+  assert.equal(semChave.descartou, true);
+  assert.deepEqual(semChave.estado.itens.map((i) => i.id), ["b"]);
+
+  // Produto bom (gramas nulo, líquido) passa sem ir pro backup.
+  const bom = migrar(JSON.stringify({ versao: 1, itens: [item({ gramas: null, liquido: true })] }));
+  assert.equal(bom.descartou, false);
+  assert.equal(bom.estado.itens[0].liquido, true);
+});
+
+test("migrar aceita item de texto com chave e tira chave que não é texto", () => {
+  const texto = { id: "t1", tipo: "texto", nome: "Arroz", quantidade: 1, marcado: false };
+  const bom = migrar(JSON.stringify({ versao: 1, itens: [{ ...texto, chave: "7896006700029" }] }));
+  assert.equal(bom.descartou, false);
+  assert.equal(bom.estado.itens[0].chave, "7896006700029");
+  const ruim = migrar(JSON.stringify({ versao: 1, itens: [{ ...texto, chave: 7 }] }));
+  assert.equal(ruim.descartou, true);
+  assert.equal("chave" in ruim.estado.itens[0], false);
 });

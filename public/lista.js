@@ -12,7 +12,7 @@ function copiarOferta(oferta) {
 
 export function novoItemProduto(grupo, agora = new Date()) {
   const ofertas = {};
-  for (const [m, oferta] of Object.entries(grupo.ofertas)) ofertas[m] = copiarOferta(oferta);
+  for (const [m, oferta] of Object.entries(grupo.ofertas ?? {})) ofertas[m] = copiarOferta(oferta);
   return {
     id: crypto.randomUUID(),
     tipo: "produto",
@@ -22,6 +22,8 @@ export function novoItemProduto(grupo, agora = new Date()) {
     marca: grupo.marca,
     gramas: grupo.gramas,
     granel: grupo.granel,
+    // Diz se o peso é em ml/l: muda a unidade na tela e o "/kg" vira "/l".
+    liquido: Boolean(grupo.liquido),
     foto: grupo.foto,
     quantidade: 1,
     marcado: false,
@@ -53,7 +55,8 @@ export function marcar(item, marcado) {
 // comprável com certeza: mostrar o preço velho como "mais barato" mandaria a
 // pessoa atrás de algo que talvez não exista.
 function ofertaViva(item, mercado) {
-  const oferta = item.tipo === "produto" ? item.ofertas[mercado] : null;
+  // `?.`: item mexido à mão pode chegar sem ofertas; melhor "sem preço" que tela morta.
+  const oferta = item.tipo === "produto" ? item.ofertas?.[mercado] : null;
   return oferta && !oferta.sumiu && !oferta.indisponivel ? oferta : null;
 }
 
@@ -62,7 +65,7 @@ export function melhorOferta(item) {
   let melhor = null;
   // `<` estrito: no empate fica o primeiro mercado, sempre o mesmo entre
   // uma atualização e outra.
-  for (const mercado of Object.keys(item.ofertas)) {
+  for (const mercado of Object.keys(item.ofertas ?? {})) {
     const oferta = ofertaViva(item, mercado);
     if (oferta && (!melhor || oferta.preco < melhor.preco)) {
       melhor = { mercado, preco: oferta.preco, promocao: oferta.promocao };
@@ -104,11 +107,21 @@ function acharGrupo(item, indice) {
   if (porChave) return porChave;
   // A chave pode mudar (a loja passou a informar o EAN, por exemplo); o id
   // da loja continua o mesmo e reencontra o produto.
-  for (const [m, oferta] of Object.entries(item.ofertas)) {
+  for (const [m, oferta] of Object.entries(item.ofertas ?? {})) {
     const grupo = indice.porMercado.get(`${m}:${oferta.id}`);
     if (grupo) return grupo;
   }
   return null;
+}
+
+// Item de texto com `#chave` veio de uma colagem feita antes do catálogo
+// chegar: quando a chave aparece no catálogo, vira o produto que a pessoa
+// copiou, sem mudar de lugar, de quantidade nem de marcado.
+function promover(item, indice) {
+  const grupo = item.chave ? indice.porChave.get(item.chave) : null;
+  if (!grupo) return item;
+  const { id, quantidade, marcado, adicionadoEm } = item;
+  return { ...novoItemProduto(grupo), id, quantidade, marcado, adicionadoEm };
 }
 
 // Nunca tira item da lista: a pessoa pôs lá de propósito. Duas marcas, com o
@@ -121,12 +134,12 @@ export function refrescar(itens, indice) {
   // Sem catálogo ainda (primeira carga ou falha de rede), a lista aparece como
   // estava; marcar tudo como "sumiu" seria mentir.
   if (!indice) return itens;
+  const carregados = new Set(indice.mercados);
   return itens.map((item) => {
-    if (item.tipo !== "produto") return item;
+    if (item.tipo !== "produto") return promover(item, indice);
     const grupo = acharGrupo(item, indice);
     const ofertas = {};
-    const carregados = new Set(indice.mercados);
-    for (const [m, antiga] of Object.entries(item.ofertas)) {
+    for (const [m, antiga] of Object.entries(item.ofertas ?? {})) {
       // Tira as marcas da carga anterior antes de pôr a de hoje.
       const { sumiu, indisponivel, ...oferta } = antiga;
       ofertas[m] = carregados.has(m) ? { ...oferta, sumiu: true } : { ...oferta, indisponivel: true };
@@ -143,6 +156,9 @@ export function refrescar(itens, indice) {
       // completado se faltava, pra o R$/kg aparecer quando a loja passar a informar.
       gramas: item.gramas ?? grupo?.gramas ?? null,
       granel: item.granel ?? grupo?.granel ?? null,
+      // A unidade segue o catálogo: item salvo antes do campo existir mostrava
+      // leite em "kg"; sem grupo, fica o que já sabia.
+      liquido: grupo ? Boolean(grupo.liquido) : Boolean(item.liquido),
       ofertas,
     };
   });
@@ -165,7 +181,9 @@ export function comoTexto(itens, nomes, agora = new Date()) {
   for (const item of itens) {
     const inicio = `${item.marcado ? "✓" : "•"} ${item.quantidade}× ${item.nome}`;
     if (item.tipo !== "produto") {
-      linhas.push(inicio);
+      // Texto que ainda espera o catálogo leva a chave adiante, senão copiar
+      // de novo antes da carga perderia o produto.
+      linhas.push(item.chave ? `${inicio} #${item.chave}` : inicio);
       continue;
     }
     const melhor = melhorOferta(item);
@@ -232,6 +250,9 @@ export function deTexto(texto, indice, agora = new Date()) {
       const semChave = comChave ? resto.slice(0, comChave.index) : resto;
       const nome = semChave.split(" — ")[0].trim() || semChave.trim() || linha;
       item = novoItemTexto(nome, agora);
+      // Sem catálogo (ainda carregando) ou produto fora dele hoje: a chave
+      // fica guardada e o refrescar transforma em produto quando ela aparecer.
+      if (comChave) item.chave = comChave[1];
     }
     itens.push({ ...item, quantidade, marcado });
   }

@@ -165,6 +165,52 @@ test("deTexto lê o próprio texto de volta e liga pelo índice", () => {
   ]);
 });
 
+// Colar antes do catálogo chegar não pode perder o `#chave`: é ele que
+// transforma a linha de volta em produto quando os preços carregam.
+test("deTexto sem índice guarda a chave e refrescar promove a produto", () => {
+  const semIndice = deTexto(textoEsperado, null, agora);
+  assert.deepEqual(semIndice.map((i) => [i.tipo, i.chave ?? null]), [
+    ["texto", "7896006700029"],
+    ["texto", "bistek:b3"],
+    ["texto", null],
+  ]);
+  // O texto copiado de novo antes da carga continua levando a chave.
+  assert.match(comoTexto(semIndice, nomes, agora), /• 2× Arroz Tio João 1kg #7896006700029/);
+
+  const depois = refrescar(semIndice, indice);
+  assert.equal(depois[0].tipo, "produto");
+  assert.equal(depois[0].id, semIndice[0].id);
+  assert.equal(depois[0].quantidade, 2);
+  assert.equal(depois[0].adicionadoEm, semIndice[0].adicionadoEm);
+  assert.deepEqual(Object.keys(depois[0].ofertas), ["bistek", "giassi", "angeloni"]);
+  assert.equal(depois[1].tipo, "produto");
+  assert.equal(depois[1].marcado, true);
+  assert.equal(depois[2].tipo, "texto");
+  assert.equal(comoTexto(depois, nomes, agora), textoEsperado);
+
+  // Chave que o catálogo não tem fica como texto, ainda com a chave.
+  const fantasma = deTexto("• 1× Sumido #nao-existe", indice, agora);
+  assert.deepEqual([fantasma[0].tipo, fantasma[0].chave], ["texto", "nao-existe"]);
+  assert.equal(refrescar(fantasma, indice)[0].tipo, "texto");
+});
+
+test("item sem ofertas (lista velha ou mexida) não quebra as contas", () => {
+  const { ofertas, ...semOfertas } = novoItemProduto(arroz, agora);
+  assert.equal(melhorOferta(semOfertas), null);
+  assert.equal(totais([semOfertas], mercados).semPreco, 1);
+  assert.equal(refrescar([semOfertas], indice)[0].ofertas.giassi.preco, 1090);
+});
+
+test("item de produto leva o líquido do grupo", () => {
+  const leite = indice.porChave.get("7896043400012");
+  assert.equal(leite.liquido, true);
+  assert.equal(novoItemProduto(leite, agora).liquido, true);
+  assert.equal(novoItemProduto(arroz, agora).liquido, false);
+  // Item salvo antes do campo existir passa a saber que é líquido na próxima carga.
+  const { liquido, ...velho } = novoItemProduto(leite, agora);
+  assert.equal(refrescar([velho], indice)[0].liquido, true);
+});
+
 test("deTexto com conversa de WhatsApp vira itens de texto sem travar", () => {
   const conversa = [
     "[31/10 09:12] Ana: amor traz isso aqui",
