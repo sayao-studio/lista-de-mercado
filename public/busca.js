@@ -1,16 +1,10 @@
 // Índice e busca do site. Roda no navegador e no Node (sem imports): o site é
 // servido sozinho, então não pode depender de nada de `robo/`.
 
-// NFD separa a letra do acento; tirando os acentos, "Feijão" e "feijao" viram
-// a mesma coisa, que é como a pessoa digita no celular.
-export function normalizar(s) {
-  return String(s ?? "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
+import { normalizar } from "./texto.js";
+
+// Quem já importava daqui continua funcionando.
+export { normalizar };
 
 // Só o EAN junta produtos de lojas diferentes; sem ele (granel, código
 // interno) cada linha fica sozinha, presa ao mercado, pra não misturar coisas

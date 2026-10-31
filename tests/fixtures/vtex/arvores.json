@@ -1,0 +1,3727 @@
+{
+ "bistek": [
+  {
+   "id": 2,
+   "nome": "Bebidas",
+   "filhos": [
+    {
+     "id": 7,
+     "nome": "Refrigerantes",
+     "netos": [
+      "Zero, Light e Diet",
+      "Guaraná",
+      "Laranja",
+      "Cola",
+      "Limão",
+      "Outros Sabores"
+     ]
+    },
+    {
+     "id": 8,
+     "nome": "Cervejas",
+     "netos": [
+      "Sem Álcool",
+      "Artesanais",
+      "Tradicionais",
+      "Importadas"
+     ]
+    },
+    {
+     "id": 22,
+     "nome": "Étnicos",
+     "netos": []
+    },
+    {
+     "id": 34,
+     "nome": "Sucos e Néctares",
+     "netos": [
+      "Sucos Funcionais Integrais",
+      "Refrescos em Pó",
+      "Sucos Concentrados",
+      "Sucos em Lata",
+      "Néctares",
+      "Bebidas à Base de Soja"
+     ]
+    },
+    {
+     "id": 49,
+     "nome": "Destilados",
+     "netos": [
+      "Gins",
+      "Licores",
+      "Runs",
+      "Vodkas",
+      "Drinks Prontos",
+      "Conhaques",
+      "Tequilas",
+      "Aperitivos",
+      "Outros Destilados",
+      "Whiskys",
+      "Cachaças"
+     ]
+    },
+    {
+     "id": 62,
+     "nome": "Chás e Mates",
+     "netos": []
+    },
+    {
+     "id": 73,
+     "nome": "Vinhos e Espumantes",
+     "netos": [
+      "Vinhos Nacionais",
+      "Quentão",
+      "Espumantes Importados",
+      "Espumantes Nacionais",
+      "Vinhos Importados"
+     ]
+    },
+    {
+     "id": 84,
+     "nome": "Energéticos e Isotônicos",
+     "netos": [
+      "Energéticos",
+      "Isotônicos"
+     ]
+    },
+    {
+     "id": 85,
+     "nome": "Leites e Bebidas Lácteas",
+     "netos": [
+      "Achocolatados e outros a base de Leite",
+      "Leites Semidesnatados",
+      "Leites Integrais",
+      "Leites Sem Lactose",
+      "Leites Desnatados"
+     ]
+    },
+    {
+     "id": 102,
+     "nome": "Bebidas Refrigeradas",
+     "netos": [
+      "Detox e Cia",
+      "Sucos Refrigerados"
+     ]
+    },
+    {
+     "id": 103,
+     "nome": "Águas",
+     "netos": [
+      "De Coco",
+      "Com Gás",
+      "Sem Gás",
+      "Tônicas",
+      "Saborizadas"
+     ]
+    },
+    {
+     "id": 104,
+     "nome": "Drinks Prontos",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "nome": "Mercearia",
+   "filhos": [
+    {
+     "id": 21,
+     "nome": "Molhos, Temperos e Condimentos",
+     "netos": [
+      "Outros",
+      "Temperos",
+      "Ketchups",
+      "Mostardas",
+      "Maioneses",
+      "Especiarias",
+      "Molhos de Pimenta",
+      "Sal",
+      "Molhos de Tomate"
+     ]
+    },
+    {
+     "id": 30,
+     "nome": "Étnicos",
+     "netos": [
+      "Mexicanos",
+      "Orientais"
+     ]
+    },
+    {
+     "id": 31,
+     "nome": "Biscoitos, Salgados e Snacks",
+     "netos": [
+      "Caseiros, Finos e Amanteigados",
+      "Biscoitos",
+      "Recheados, Wafers, Cookies",
+      "Torradas",
+      "Salgados e Aperitivos",
+      "Maizena, Maria, Leite",
+      "Roscas e Biscoitos de Polvilho"
+     ]
+    },
+    {
+     "id": 32,
+     "nome": "Mel, Compotas e Geleias",
+     "netos": [
+      "Compotas e Doces",
+      "Geleias",
+      "Pastas de Amendoim",
+      "Creme de Avelã",
+      "Mel"
+     ]
+    },
+    {
+     "id": 33,
+     "nome": "Cremes de Leite e Leites Condensados",
+     "netos": [
+      "Cremes de Leite",
+      "Leites Condensados",
+      "Doce de leite"
+     ]
+    },
+    {
+     "id": 47,
+     "nome": "Chocolates, Doces e Salgadinhos",
+     "netos": [
+      "Chocolates em Barra e Tabletes",
+      "Batatas Palhas",
+      "Amendoins",
+      "Salgadinhos",
+      "Doces Caseiros",
+      "Bombons",
+      "Pipocas",
+      "Chocolates Snacks",
+      "Balas, Pastilhas e Confeitos",
+      "Chocolates Finos e Importados",
+      "Balas de Gelatina Marshmellows",
+      "Mistura para Bolo"
+     ]
+    },
+    {
+     "id": 59,
+     "nome": "Alimentos Básicos",
+     "netos": [
+      "Farinhas",
+      "Feijões",
+      "Polvilhos",
+      "Tapiocas",
+      "Farofas",
+      "Arroz",
+      "Milhos"
+     ]
+    },
+    {
+     "id": 60,
+     "nome": "Conservas e Enlatados",
+     "netos": [
+      "Pepinos, Cebolas e Beterrabas",
+      "Milhos Verdes e Ervilhas",
+      "Atum e Sardinha",
+      "Outras Conservas",
+      "Palmitos e Champignons",
+      "Pimentas",
+      "Azeitonas, Pepinos e Ovos de Codorna"
+     ]
+    },
+    {
+     "id": 71,
+     "nome": "Dietéticos",
+     "netos": [
+      "Guloseimas"
+     ]
+    },
+    {
+     "id": 81,
+     "nome": "Grãos e Sementes",
+     "netos": []
+    },
+    {
+     "id": 82,
+     "nome": "Massas",
+     "netos": [
+      "Caseiras",
+      "Instantâneas",
+      "Sêmola",
+      "Especiais e Grano Duro",
+      "Lasanhas, Nhoques e Outros",
+      "Com Ovos",
+      "Integrais"
+     ]
+    },
+    {
+     "id": 83,
+     "nome": "Matinais, Chás e Mates",
+     "netos": [
+      "Cereais Matinais",
+      "Ervas Mate",
+      "Achocolatados",
+      "Leites em Pó",
+      "Chás"
+     ]
+    },
+    {
+     "id": 100,
+     "nome": "Cestas",
+     "netos": [
+      "Básica",
+      "Comemorativas"
+     ]
+    },
+    {
+     "id": 101,
+     "nome": "Sopas, Pratos Prontos e Caldos",
+     "netos": [
+      "Caldos",
+      "Sopas e Cremes",
+      "Pratos Prontos"
+     ]
+    },
+    {
+     "id": 115,
+     "nome": "Barras de Cereais e Nuts",
+     "netos": []
+    },
+    {
+     "id": 116,
+     "nome": "Azeites, Vinagres e Óleos",
+     "netos": [
+      "Óleos de Soja, Canola, Milho e Girassol",
+      "Vinagres Tradicionais",
+      "Vinagres Balsâmicos",
+      "Azeites e Vinagres Orgânicos",
+      "Azeites de Oliva",
+      "Outros Óleos"
+     ]
+    },
+    {
+     "id": 117,
+     "nome": "Açúcares e Adoçantes",
+     "netos": [
+      "Orgânicos",
+      "Cristais",
+      "Especiais",
+      "Tradicionais"
+     ]
+    },
+    {
+     "id": 455,
+     "nome": "Cafés",
+     "netos": [
+      "Tradicionais",
+      "Descafeinados",
+      "Especiais",
+      "Solúveis",
+      "Em Grãos e Moídos",
+      "Cappuccinos e Com Leite",
+      "Cápsulas Tres",
+      "Cápsulas Dolce Gusto",
+      "Cápsulas Nespresso",
+      "Cápsulas Senseo",
+      "Filtros e Coadores"
+     ]
+    },
+    {
+     "id": 603,
+     "nome": "Doces e Confeitaria",
+     "netos": [
+      "Fermentos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "nome": "Bazar",
+   "filhos": [
+    {
+     "id": 28,
+     "nome": "Automotivo",
+     "netos": []
+    },
+    {
+     "id": 43,
+     "nome": "Conveniências",
+     "netos": [
+      "Fósforos Isqueiros e Velas",
+      "Pilhas e Lanternas"
+     ]
+    },
+    {
+     "id": 44,
+     "nome": "Panelas Formas e Assadeiras",
+     "netos": []
+    },
+    {
+     "id": 56,
+     "nome": "Têxtil",
+     "netos": []
+    },
+    {
+     "id": 57,
+     "nome": "Lâmpadas",
+     "netos": []
+    },
+    {
+     "id": 58,
+     "nome": "Papelaria",
+     "netos": []
+    },
+    {
+     "id": 68,
+     "nome": "Eletro",
+     "netos": []
+    },
+    {
+     "id": 69,
+     "nome": "Outras Utilidades para o Lar",
+     "netos": []
+    },
+    {
+     "id": 97,
+     "nome": "Utilidades para a Cozinha",
+     "netos": []
+    },
+    {
+     "id": 111,
+     "nome": "Lazer",
+     "netos": [
+      "Malas e Nécessaires",
+      "Praia e Piscina",
+      "Camping",
+      "Caixas térmicas",
+      "Itens para Churrasco"
+     ]
+    },
+    {
+     "id": 112,
+     "nome": "Brinquedos",
+     "netos": []
+    },
+    {
+     "id": 113,
+     "nome": "Descartáveis",
+     "netos": [
+      "Copos, Pratos e Talheres",
+      "Papéis Toalha e Guardanapos",
+      "Papéis Alumínio e Pvc",
+      "Palitos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "nome": "Frios e Laticínios",
+   "filhos": [
+    {
+     "id": 50,
+     "nome": "Massas Frescas",
+     "netos": [
+      "Lasanhas",
+      "Pizzas",
+      "Pastéis",
+      "Raviolis, Capeletes e outras"
+     ]
+    },
+    {
+     "id": 63,
+     "nome": "Manteigas, Margarinas e Requeijões",
+     "netos": [
+      "Margarinas",
+      "Manteigas",
+      "Requeijões",
+      "Gorduras vegetais",
+      "Cream Cheese"
+     ]
+    },
+    {
+     "id": 74,
+     "nome": "Queijos",
+     "netos": [
+      "Processados",
+      "Muçarela",
+      "Prato",
+      "Especiais e Coloniais",
+      "Ricotas e Queijos Minas",
+      "Fondue",
+      "Parmesão e Ralados",
+      "Provolone"
+     ]
+    },
+    {
+     "id": 75,
+     "nome": "Iogurtes e Sobremesas",
+     "netos": [
+      "Iogurtes Funcionais",
+      "Iogurtes Gregos",
+      "Bebidas Lácteas",
+      "Sobremesas",
+      "Petit Suisses",
+      "Chantillys",
+      "Iogurtes Naturais",
+      "Leites Fermentados",
+      "Iogurtes Tradicionais",
+      "Iogurtes Especiais"
+     ]
+    },
+    {
+     "id": 86,
+     "nome": "Congelados",
+     "netos": [
+      "Vegetais",
+      "Batatas Pré Fritas",
+      "Pães de Queijo",
+      "Pratos Prontos",
+      "Petiscos e Empanados",
+      "Hambúrgueres, Kibes e Almôndegas",
+      "Tortas Congeladas",
+      "Sucos e Polpas",
+      "Pizzas, Lasanhas e Sanduíches",
+      "Bolos, Pães"
+     ]
+    },
+    {
+     "id": 87,
+     "nome": "Embutidos e Defumados",
+     "netos": [
+      "Linguiças",
+      "Salsichas",
+      "Bacon",
+      "Presuntos",
+      "Patês",
+      "Salames",
+      "Outros Embutidos e Defumados",
+      "Mortadelas"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "nome": "Floricultura e Jardim",
+   "filhos": [
+    {
+     "id": 76,
+     "nome": "fertilizantes e substratos",
+     "netos": [
+      "Fertilizantes",
+      "Defensivos",
+      "Substratos"
+     ]
+    },
+    {
+     "id": 89,
+     "nome": "Acessórios de jardim",
+     "netos": [
+      "Vasos e suportes",
+      "Irrigação",
+      "Outros acessórios",
+      "Manutenção"
+     ]
+    },
+    {
+     "id": 106,
+     "nome": "Plantas",
+     "netos": [
+      "Suculentas",
+      "Flores",
+      "Horta",
+      "Sementes",
+      "Mudas",
+      "Folhagens"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "nome": "Pet Shop",
+   "filhos": [
+    {
+     "id": 29,
+     "nome": "Rações para Gatos",
+     "netos": [
+      "Petiscos de gatos",
+      "Rações Secas de gatos",
+      "Rações Úmidas gatos"
+     ]
+    },
+    {
+     "id": 70,
+     "nome": "Higiene e Limpeza",
+     "netos": [
+      "Areias e Tapetes Higiênicos",
+      "Shampoo e Condicionadores Pet",
+      "Sabonetes",
+      "Outros Itens de Higiene"
+     ]
+    },
+    {
+     "id": 98,
+     "nome": "Rações para Cães",
+     "netos": [
+      "Rações Úmidas cães",
+      "Rações Secas de cães",
+      "Petiscos de cães"
+     ]
+    },
+    {
+     "id": 99,
+     "nome": "Rações para Aves e Peixes",
+     "netos": [
+      "Ração"
+     ]
+    },
+    {
+     "id": 114,
+     "nome": "Acessórios",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "nome": "Higiene e Beleza",
+   "filhos": [
+    {
+     "id": 36,
+     "nome": "Fraldas Geriátricas",
+     "netos": []
+    },
+    {
+     "id": 37,
+     "nome": "Higiene Bucal",
+     "netos": [
+      "Escovas de Dente",
+      "Outros itens para Higiene Oral",
+      "Antissépticos Bucais",
+      "Cremes e Géis Dentais",
+      "Fios e Fitas Dentais"
+     ]
+    },
+    {
+     "id": 38,
+     "nome": "Desodorantes",
+     "netos": [
+      "Aerossóis e Sprays",
+      "Cremes Desodorantes",
+      "Roll Ons",
+      "Barra"
+     ]
+    },
+    {
+     "id": 39,
+     "nome": "Sabonetes e Buchas",
+     "netos": [
+      "Sabonetes Íntimos",
+      "Sabonetes em Barra",
+      "Sabonetes Líquidos",
+      "Buchas Esponjas e Acessórios"
+     ]
+    },
+    {
+     "id": 40,
+     "nome": "Absorventes e Higiene Íntima",
+     "netos": [
+      "Protetores Diários",
+      "Absorventes Internos",
+      "Sabonetes Íntimos",
+      "Absorventes Externos"
+     ]
+    },
+    {
+     "id": 41,
+     "nome": "Preservativos e Lubrificantes Íntimos",
+     "netos": [
+      "Preservativos",
+      "Lubrificantes Íntimos"
+     ]
+    },
+    {
+     "id": 52,
+     "nome": "Barba e Depilação",
+     "netos": [
+      "Pós Barba",
+      "Ceras",
+      "Espumas e Cremes",
+      "Lâminas e Aparelhos"
+     ]
+    },
+    {
+     "id": 77,
+     "nome": "Lenços Umedecidos",
+     "netos": []
+    },
+    {
+     "id": 78,
+     "nome": "Algodões, Hastes Flexíveis e Curativos",
+     "netos": [
+      "Algodões",
+      "Curativos",
+      "Hastes Flexíveis"
+     ]
+    },
+    {
+     "id": 90,
+     "nome": "Papéis Higiênicos",
+     "netos": [
+      "Folhas Triplas",
+      "Folhas Duplas",
+      "Folhas Simples"
+     ]
+    },
+    {
+     "id": 91,
+     "nome": "Protetores Solares",
+     "netos": [
+      "Pós Sol",
+      "Aceleradores"
+     ]
+    },
+    {
+     "id": 107,
+     "nome": "Para a Pele",
+     "netos": [
+      "Lenços de Papel",
+      "Cremes e Loções"
+     ]
+    },
+    {
+     "id": 108,
+     "nome": "Para o Rosto",
+     "netos": [
+      "Outros Acessórios para o Rosto",
+      "Maquiagem para a Boca",
+      "Cremes e Loções",
+      "Maquiagem para o Rosto",
+      "Para Barba"
+     ]
+    },
+    {
+     "id": 119,
+     "nome": "Para o Cabelo",
+     "netos": [
+      "Condicionadores",
+      "Tinturas",
+      "Outros Acessórios para o Cabelo",
+      "Modeladores",
+      "Shampoos",
+      "Kits Shampoo e Condicionador",
+      "Tratamentos"
+     ]
+    },
+    {
+     "id": 120,
+     "nome": "Para Mãos e Pés",
+     "netos": [
+      "Removedores",
+      "Antissépticos",
+      "Outros itens para Unhas",
+      "Talcos e Desodorantes",
+      "Esmaltes"
+     ]
+    },
+    {
+     "id": 469,
+     "nome": "Perfumes",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "nome": "Padaria",
+   "filhos": [
+    {
+     "id": 48,
+     "nome": "Panetones e sazonais",
+     "netos": []
+    },
+    {
+     "id": 61,
+     "nome": "Canudos, Massas Para Pizzas",
+     "netos": []
+    },
+    {
+     "id": 72,
+     "nome": "Pães",
+     "netos": [
+      "Funcionais e Integrais",
+      "Caseiros e Rústicos",
+      "Tradicionais",
+      "Bisnaguinhas",
+      "Doces",
+      "Hambúrguer e Cachorro Quente",
+      "Pão Francês"
+     ]
+    },
+    {
+     "id": 118,
+     "nome": "Bolos e Confeitaria",
+     "netos": [
+      "Sonhos",
+      "Cucas",
+      "Outros Doces",
+      "Bolos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "nome": "Bebês",
+   "filhos": [
+    {
+     "id": 24,
+     "nome": "Para o Banho",
+     "netos": [
+      "Sabonetes"
+     ]
+    },
+    {
+     "id": 65,
+     "nome": "Mamadeiras e Chupetas",
+     "netos": []
+    },
+    {
+     "id": 66,
+     "nome": "Fraldas Infantis",
+     "netos": []
+    },
+    {
+     "id": 79,
+     "nome": "Lenços Umedecidos",
+     "netos": []
+    },
+    {
+     "id": 80,
+     "nome": "Escovas de Dente e Higiene Bucal",
+     "netos": []
+    },
+    {
+     "id": 92,
+     "nome": "Para o Cabelo",
+     "netos": [
+      "Shampoos para Bebês",
+      "Condicionadores  para Bebês"
+     ]
+    },
+    {
+     "id": 93,
+     "nome": "Colônias e Loções",
+     "netos": []
+    },
+    {
+     "id": 109,
+     "nome": "Alimentação",
+     "netos": [
+      "Papinhas e Outros Alimentos",
+      "Fórmulas infantis",
+      "Leites e Mingaus"
+     ]
+    },
+    {
+     "id": 121,
+     "nome": "Acessórios Para Alimentação",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "nome": "Hortifrúti",
+   "filhos": [
+    {
+     "id": 35,
+     "nome": "Frutas",
+     "netos": []
+    },
+    {
+     "id": 51,
+     "nome": "Ovos",
+     "netos": []
+    },
+    {
+     "id": 64,
+     "nome": "Legumes",
+     "netos": []
+    },
+    {
+     "id": 88,
+     "nome": "Frutas Secas & Castanhas",
+     "netos": []
+    },
+    {
+     "id": 105,
+     "nome": "Verduras",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "nome": "Limpeza",
+   "filhos": [
+    {
+     "id": 20,
+     "nome": "Roupas e Sapatos",
+     "netos": [
+      "Sabão Em Barra",
+      "Lava Roupas Pó",
+      "Lava Roupas Líquido",
+      "Outras Utilidades",
+      "Tira Manchas",
+      "Para Sapatos",
+      "Amaciantes"
+     ]
+    },
+    {
+     "id": 25,
+     "nome": "Banheiro",
+     "netos": [
+      "Desinfetantes",
+      "Águas Sanitárias, Alvejantes",
+      "Tira Limo",
+      "Pedras Sanitárias e Odorizadores"
+     ]
+    },
+    {
+     "id": 26,
+     "nome": "Cozinha",
+     "netos": [
+      "Esponjas e Palhas de Aço",
+      "Detergentes",
+      "Máquina de Lavar Louça",
+      "Polidores de Louça",
+      "Desengordurantes",
+      "Saponáceos",
+      "Limpa Forno e Desentupidores"
+     ]
+    },
+    {
+     "id": 67,
+     "nome": "Toda a Casa",
+     "netos": [
+      "Limpadores Multiuso",
+      "Limpa Vidros",
+      "Sacos de Lixo",
+      "Vassouras Rodos e Desentupidores",
+      "Odorizadores",
+      "Ceras Polidores de Chão",
+      "Panos Flanelas e Luvas",
+      "Álcoois",
+      "Baldes Bacias e Lixeiras",
+      "Antimofo"
+     ]
+    },
+    {
+     "id": 94,
+     "nome": "Inseticidas e Repelentes",
+     "netos": [
+      "Inseticidas",
+      "Repelentes",
+      "Iscas",
+      "Aparelhos Elétricos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "nome": "Carnes",
+   "filhos": [
+    {
+     "id": 27,
+     "nome": "Suínos",
+     "netos": [
+      "Sazonais e Festas de Fim de Ano",
+      "Cortes Tradicionais",
+      "Temperados"
+     ]
+    },
+    {
+     "id": 42,
+     "nome": "Aves",
+     "netos": [
+      "Cortes de Frango Resfriados",
+      "Cortes de Frango Congelados",
+      "Aves Exóticas e Natalinas"
+     ]
+    },
+    {
+     "id": 53,
+     "nome": "Carnes Exóticas",
+     "netos": []
+    },
+    {
+     "id": 54,
+     "nome": "Bovinos",
+     "netos": [
+      "Atmosfera Modificada",
+      "Raças Britânicas",
+      "Frescal",
+      "Cortes Tradicionais",
+      "Bifes",
+      "Carne Moída"
+     ]
+    },
+    {
+     "id": 55,
+     "nome": "Pão de Alho",
+     "netos": []
+    },
+    {
+     "id": 95,
+     "nome": "Linguiças",
+     "netos": [
+      "Linguiças Toscanas",
+      "Linguiças de Frango",
+      "Outras Linguiças",
+      "Linguiças de Pernil Suíno"
+     ]
+    },
+    {
+     "id": 96,
+     "nome": "Peixes e Frutos Do Mar",
+     "netos": [
+      "Caldos",
+      "Frutos Do Mar",
+      "Peixes",
+      "Empanados"
+     ]
+    },
+    {
+     "id": 110,
+     "nome": "Carvões",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 17,
+   "nome": "Bistek",
+   "filhos": []
+  },
+  {
+   "id": 472,
+   "nome": "Bem Estar e Equilíbrio",
+   "filhos": [
+    {
+     "id": 473,
+     "nome": "Alimentos em Barras",
+     "netos": [
+      "Barras de Cereais",
+      "Barras de Fibras",
+      "Barras de Frutas",
+      "Barras de Nuts",
+      "Barras de Sementes"
+     ]
+    },
+    {
+     "id": 475,
+     "nome": "Bebida Vegetal",
+     "netos": [
+      "Bebida Vegetal de Amêndoas",
+      "Bebida Vegetal de Arroz",
+      "Bebida Vegetal de Aveia",
+      "Bebida Vegetal de Castanha de Caju",
+      "Bebida Vegetal de Coco",
+      "Outras Bebida Vegetais"
+     ]
+    },
+    {
+     "id": 486,
+     "nome": "Diet",
+     "netos": [
+      "Alimentos em Barras Diet",
+      "Biscoitos Diet",
+      "Bomboniere Diet",
+      "Guloseimas Diet",
+      "Matinais Diet",
+      "Molhos Diet",
+      "Sobremesas Diet"
+     ]
+    },
+    {
+     "id": 494,
+     "nome": "Adoçantes e Edulcorantes",
+     "netos": []
+    },
+    {
+     "id": 495,
+     "nome": "Granolas",
+     "netos": [
+      "Granolas Light",
+      "Granolas  Salgadas",
+      "Granolas  Tradicionais"
+     ]
+    },
+    {
+     "id": 499,
+     "nome": "Orgânicos",
+     "netos": [
+      "Açúcares Orgânicos",
+      "Azeites Orgânicos",
+      "Biomassas Orgânicas",
+      "Ervas-Mate Orgânicas",
+      "Aveias Orgânicas",
+      "Arroz Orgânico",
+      "Biscoitos Orgânicos",
+      "Cafés Orgânicos",
+      "Chás Orgânicos",
+      "Geleias Orgânicas",
+      "Granolas Orgânicas",
+      "Mel Orgânico",
+      "Molhos Orgânicos",
+      "Muffis Orgânicos",
+      "Salgadinhos Orgânicos",
+      "Vinagres Orgânicos",
+      "Alimentação Infantil"
+     ]
+    },
+    {
+     "id": 516,
+     "nome": "Saudabilidade",
+     "netos": [
+      "Aveias",
+      "Caldos",
+      "Cremes e Sopas",
+      "Farinhas",
+      "Grãos",
+      "Biscoitos",
+      "Mel",
+      "Mingau",
+      "Óleos Especiais",
+      "Risoto",
+      "Sementes",
+      "Snacks",
+      "Temperos",
+      "Vegano",
+      "Açúcar",
+      "Massas"
+     ]
+    },
+    {
+     "id": 548,
+     "nome": "Suplemento Nutricional",
+     "netos": [
+      "Suplementos em Pó",
+      "Pasta de Castanha de Caju",
+      "Pasta de Amendoim",
+      "Suplementos Líquidos",
+      "Suplementos em Cápsulas",
+      "SuperCoffee",
+      "Doces",
+      "Biscoitos",
+      "Barras de Proteína"
+     ]
+    },
+    {
+     "id": 568,
+     "nome": "Sem Glúten e sem Lactose",
+     "netos": [
+      "Sem Glúten",
+      "Sem lactose",
+      "Sem Glúten e sem Lactose"
+     ]
+    }
+   ]
+  }
+ ],
+ "giassi": [
+  {
+   "id": 11,
+   "nome": "Mercearia",
+   "filhos": [
+    {
+     "id": 82,
+     "nome": "Açúcar",
+     "netos": [
+      "Cristal",
+      "Demerara",
+      "Mascavo",
+      "Refinado",
+      "Orgânico"
+     ]
+    },
+    {
+     "id": 83,
+     "nome": "Adoçantes",
+     "netos": []
+    },
+    {
+     "id": 84,
+     "nome": "Alimentos Básicos",
+     "netos": [
+      "Arroz",
+      "Farináceos",
+      "Feijão",
+      "Grãos",
+      "Óleos"
+     ]
+    },
+    {
+     "id": 85,
+     "nome": "Alimentos Infantis",
+     "netos": [
+      "Fórmulas",
+      "Compostos",
+      "Leite em Pó",
+      "Papinhas",
+      "Cereais"
+     ]
+    },
+    {
+     "id": 86,
+     "nome": "Bomboniere",
+     "netos": [
+      "Balas e Gomas",
+      "Barras de Cereais",
+      "Chocolates",
+      "Pão de Mel"
+     ]
+    },
+    {
+     "id": 87,
+     "nome": "Biscoitos e Torradas",
+     "netos": [
+      "Biscoitos Doces",
+      "Biscoitos Salgados",
+      "Torradas"
+     ]
+    },
+    {
+     "id": 88,
+     "nome": "Conservas",
+     "netos": [
+      "Pescados",
+      "Azeitonas e Pepinos",
+      "Milhos e Ervilhas",
+      "Ovos de Codorna e Palmitos",
+      "Cogumelos"
+     ]
+    },
+    {
+     "id": 89,
+     "nome": "Étnicos",
+     "netos": [
+      "Mexicanos",
+      "Orientais"
+     ]
+    },
+    {
+     "id": 90,
+     "nome": "Massas",
+     "netos": [
+      "Lasanhas",
+      "Macarrão Instantâneo",
+      "Massas Frescas",
+      "Massas Secas"
+     ]
+    },
+    {
+     "id": 91,
+     "nome": "Matinal",
+     "netos": [
+      "Achocolatados",
+      "Cereais Matinais",
+      "Cafés",
+      "Doces e Geleias",
+      "Chás e Mates"
+     ]
+    },
+    {
+     "id": 92,
+     "nome": "Molhos",
+     "netos": [
+      "Mostarda",
+      "Ketchup",
+      "Maionese",
+      "Outros Molhos"
+     ]
+    },
+    {
+     "id": 93,
+     "nome": "Preparo para Sobremesas",
+     "netos": [
+      "Leite Condensado",
+      "Creme de Leite",
+      "Gelatinas",
+      "Chocolate Cobertura",
+      "Misturas para Bolo"
+     ]
+    },
+    {
+     "id": 94,
+     "nome": "Salgadinhos e Snacks",
+     "netos": [
+      "amendoim",
+      "Batata Frita",
+      "Batata Palha",
+      "Snack",
+      "Salgadinho"
+     ]
+    },
+    {
+     "id": 95,
+     "nome": "Sopas e Cremes",
+     "netos": []
+    },
+    {
+     "id": 96,
+     "nome": "Suplementação Alimentar",
+     "netos": [
+      "Infantil",
+      "Sênior",
+      "Fitness"
+     ]
+    },
+    {
+     "id": 97,
+     "nome": "Temperos",
+     "netos": [
+      "Ervas e Especiarias",
+      "Caldos",
+      "Sal",
+      "Azeites",
+      "Vinagres"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "nome": "Padaria e Confeitaria",
+   "filhos": [
+    {
+     "id": 98,
+     "nome": "Bolos e Confeitaria",
+     "netos": [
+      "Bolos",
+      "Doces",
+      "Panetones e Colombas"
+     ]
+    },
+    {
+     "id": 99,
+     "nome": "Pães",
+     "netos": [
+      "Pão de Sanduíche e de Forma",
+      "Hambúrguer e Hot Dog",
+      "Pão Francês e Pão de Queijo",
+      "Bisnagas",
+      "Especiais e Integrais"
+     ]
+    },
+    {
+     "id": 404,
+     "nome": "Lanchonete",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "nome": "Bebidas Alcoólicas",
+   "filhos": [
+    {
+     "id": 24,
+     "nome": "Aperitivos",
+     "netos": [
+      "Catuaba",
+      "Coquetéis",
+      "Licores",
+      "Margaritas",
+      "Vermutes"
+     ]
+    },
+    {
+     "id": 25,
+     "nome": "Cervejas",
+     "netos": [
+      "Artesanais",
+      "Malzbiers",
+      "Sem Álcool",
+      "Premium"
+     ]
+    },
+    {
+     "id": 26,
+     "nome": "Destilados",
+     "netos": [
+      "Aguardentes e Cachaças",
+      "Vodcas",
+      "Uísques",
+      "Gins",
+      "Tequilas"
+     ]
+    },
+    {
+     "id": 27,
+     "nome": "Champagnes e Espumantes",
+     "netos": []
+    },
+    {
+     "id": 28,
+     "nome": "Vinhos",
+     "netos": [
+      "Brancos",
+      "Do Porto",
+      "Rosés",
+      "Tintos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "nome": "Bebidas não alcoólicas",
+   "filhos": [
+    {
+     "id": 29,
+     "nome": "Água",
+     "netos": [
+      "Água de Coco",
+      "Água Com Gás",
+      "Água Sem Gás",
+      "Saborizadas",
+      "Água Tônica"
+     ]
+    },
+    {
+     "id": 30,
+     "nome": "Bebida Láctea",
+     "netos": []
+    },
+    {
+     "id": 31,
+     "nome": "Bebidas Vegetais",
+     "netos": [
+      "Coco",
+      "Soja",
+      "Amêndoas",
+      "Arroz",
+      "Aveia",
+      "Caju",
+      "Barista"
+     ]
+    },
+    {
+     "id": 32,
+     "nome": "Chás Prontos",
+     "netos": []
+    },
+    {
+     "id": 33,
+     "nome": "Energéticos",
+     "netos": []
+    },
+    {
+     "id": 34,
+     "nome": "Isotônicos e Hidrotônicos",
+     "netos": []
+    },
+    {
+     "id": 35,
+     "nome": "Refrigerantes",
+     "netos": [
+      "Limão",
+      "Outros Refrigerantes",
+      "Cola",
+      "Guaraná",
+      "Laranja"
+     ]
+    },
+    {
+     "id": 36,
+     "nome": "Sucos",
+     "netos": [
+      "Concentrados",
+      "Integrais",
+      "Néctares",
+      "Refrescos em Pó"
+     ]
+    },
+    {
+     "id": 37,
+     "nome": "Xaropes",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "nome": "Carnes e Aves",
+   "filhos": [
+    {
+     "id": 38,
+     "nome": "Bovinos",
+     "netos": [
+      "Bifes",
+      "Britânicas Giassi",
+      "Carne Moída",
+      "Churrasco",
+      "Panela"
+     ]
+    },
+    {
+     "id": 39,
+     "nome": "Cordeiro",
+     "netos": []
+    },
+    {
+     "id": 40,
+     "nome": "Exóticas",
+     "netos": []
+    },
+    {
+     "id": 41,
+     "nome": "Frango",
+     "netos": [
+      "Caipira",
+      "Cortes da Asa",
+      "Cortes da Coxa",
+      "Cortes do Peito",
+      "Miúdos"
+     ]
+    },
+    {
+     "id": 42,
+     "nome": "Pato",
+     "netos": []
+    },
+    {
+     "id": 43,
+     "nome": "Linguiças",
+     "netos": [
+      "Calabresa",
+      "Frango",
+      "Pernil",
+      "Toscana"
+     ]
+    },
+    {
+     "id": 44,
+     "nome": "Peru",
+     "netos": []
+    },
+    {
+     "id": 45,
+     "nome": "Suínas",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "nome": "Hortifrúti",
+   "filhos": [
+    {
+     "id": 72,
+     "nome": "Frutas",
+     "netos": [
+      "Frutas Secas",
+      "Frutas Orgânicas"
+     ]
+    },
+    {
+     "id": 73,
+     "nome": "Legumes",
+     "netos": []
+    },
+    {
+     "id": 74,
+     "nome": "Ovos",
+     "netos": []
+    },
+    {
+     "id": 75,
+     "nome": "Temperos",
+     "netos": []
+    },
+    {
+     "id": 76,
+     "nome": "Hortaliças",
+     "netos": []
+    },
+    {
+     "id": 77,
+     "nome": "Prontos para Consumo",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "nome": "Frios e Laticínios",
+   "filhos": [
+    {
+     "id": 59,
+     "nome": "Frios",
+     "netos": [
+      "Mortadelas",
+      "Peito de Peru",
+      "Presuntos",
+      "Salames"
+     ]
+    },
+    {
+     "id": 60,
+     "nome": "Iogurtes",
+     "netos": [
+      "Naturais",
+      "Sobremesas",
+      "Leite Fermentado",
+      "Infantis",
+      "Protéicos",
+      "Grego",
+      "Funcionais"
+     ]
+    },
+    {
+     "id": 61,
+     "nome": "Lácteos",
+     "netos": [
+      "Chantilly",
+      "Manteigas",
+      "Margarinas e Cremes Vegetais",
+      "Requeijão"
+     ]
+    },
+    {
+     "id": 62,
+     "nome": "Leite",
+     "netos": [
+      "Desnatado",
+      "Integral",
+      "Semidesnatado",
+      "Zero Lactose",
+      "Especiais"
+     ]
+    },
+    {
+     "id": 63,
+     "nome": "Queijos",
+     "netos": [
+      "Muçarela",
+      "Prato",
+      "Cheddar",
+      "Especiais",
+      "Ralado"
+     ]
+    },
+    {
+     "id": 64,
+     "nome": "Salsichas",
+     "netos": [
+      "Frango",
+      "Hot Dog",
+      "Peru",
+      "Vegetal"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "nome": "Congelados",
+   "filhos": [
+    {
+     "id": 51,
+     "nome": "Hambúrguer",
+     "netos": [
+      "Bovino",
+      "Frango",
+      "Vegetais"
+     ]
+    },
+    {
+     "id": 52,
+     "nome": "Pratos Prontos",
+     "netos": [
+      "Almôndegas",
+      "Escondidinho",
+      "Lasanhas",
+      "Pizzas",
+      "Sanduíche",
+      "Tortas",
+      "Orientais"
+     ]
+    },
+    {
+     "id": 53,
+     "nome": "Sobremesas",
+     "netos": [
+      "Açai",
+      "Petit Gateu",
+      "Sorvetes",
+      "Tortas"
+     ]
+    },
+    {
+     "id": 54,
+     "nome": "Vegetais",
+     "netos": [
+      "Anel de Cebola",
+      "Batatas",
+      "Ervilhas",
+      "Mandioca",
+      "Brócolis"
+     ]
+    },
+    {
+     "id": 55,
+     "nome": "Petiscos",
+     "netos": [
+      "Pão de Queijo",
+      "Bolinho de Queijo",
+      "Casquinha de Siri",
+      "Salgadinhos",
+      "Polenta"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "nome": "Higiene e Beleza",
+   "filhos": [
+    {
+     "id": 65,
+     "nome": "Barbearia",
+     "netos": [
+      "Aparelho de Barbear",
+      "Carga",
+      "Espuma de Barbear",
+      "Loção",
+      "Xampus"
+     ]
+    },
+    {
+     "id": 66,
+     "nome": "Cabelo",
+     "netos": [
+      "Acessórios",
+      "Gel e Fixador",
+      "Tratamento Capilar",
+      "Xampus",
+      "Condicionador"
+     ]
+    },
+    {
+     "id": 67,
+     "nome": "Corpo",
+     "netos": [
+      "Desodorantes",
+      "Hidratantes",
+      "Sabonetes",
+      "Repelentes",
+      "Protetor Solar"
+     ]
+    },
+    {
+     "id": 68,
+     "nome": "Cuidado Facial",
+     "netos": [
+      "Demaquilantes",
+      "Maquiagens"
+     ]
+    },
+    {
+     "id": 69,
+     "nome": "Higiene Bucal",
+     "netos": [
+      "Creme Dental",
+      "Escova Dental",
+      "Enxaguante Bucal",
+      "Fio Dental"
+     ]
+    },
+    {
+     "id": 70,
+     "nome": "Higiene Pessoal",
+     "netos": [
+      "Absorventes",
+      "Incontinência",
+      "Lenços",
+      "Papel Higiênico",
+      "Sabonetes Íntimos"
+     ]
+    },
+    {
+     "id": 71,
+     "nome": "Infantil",
+     "netos": [
+      "Fraldas",
+      "Lenços Umedecidos",
+      "Banho",
+      "Higiene Oral",
+      "Acessórios"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "nome": "Limpeza",
+   "filhos": [
+    {
+     "id": 78,
+     "nome": "Banheiro",
+     "netos": [
+      "Acessórios",
+      "Desinfetante",
+      "Limpadores Sanitários",
+      "Tira Limo",
+      "Purificadores"
+     ]
+    },
+    {
+     "id": 79,
+     "nome": "Casa em Geral",
+     "netos": [
+      "Água Sanitária",
+      "Limpeza de Piso",
+      "Desodorizadores",
+      "Inseticidas",
+      "Limpadores"
+     ]
+    },
+    {
+     "id": 80,
+     "nome": "Cozinha",
+     "netos": [
+      "Acessórios",
+      "Desengordurantes",
+      "Detergentes",
+      "Esponjas e lãs de Aço",
+      "Saponáceos"
+     ]
+    },
+    {
+     "id": 81,
+     "nome": "Roupas",
+     "netos": [
+      "Alvejantes e Tira Manchas",
+      "Amaciantes",
+      "Lava Roupas",
+      "Passa Roupas"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 409,
+   "nome": "Cantinho do Bebê",
+   "filhos": [
+    {
+     "id": 410,
+     "nome": "Higiene Bucal",
+     "netos": []
+    },
+    {
+     "id": 411,
+     "nome": "Fraldas e Lenços",
+     "netos": [
+      "Lenços",
+      "Fraldas"
+     ]
+    },
+    {
+     "id": 412,
+     "nome": "Banho e Pós-Banho",
+     "netos": [
+      "Cabelos",
+      "Sabonetes",
+      "Loções"
+     ]
+    },
+    {
+     "id": 413,
+     "nome": "Alimentação",
+     "netos": [
+      "Fórmulas",
+      "Compostos",
+      "Papinhas"
+     ]
+    },
+    {
+     "id": 414,
+     "nome": "Acessórios",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "nome": "Churrasco",
+   "filhos": [
+    {
+     "id": 46,
+     "nome": "Acessórios",
+     "netos": []
+    },
+    {
+     "id": 47,
+     "nome": "Acompanhamentos",
+     "netos": []
+    },
+    {
+     "id": 48,
+     "nome": "Carnes",
+     "netos": [
+      "Aves",
+      "Bovina",
+      "Cordeiro",
+      "Linguiças",
+      "Suína"
+     ]
+    },
+    {
+     "id": 49,
+     "nome": "Descartáveis",
+     "netos": []
+    },
+    {
+     "id": 50,
+     "nome": "Temperos",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "nome": "Peixaria",
+   "filhos": [
+    {
+     "id": 101,
+     "nome": "Bacalhau",
+     "netos": []
+    },
+    {
+     "id": 102,
+     "nome": "Frutos do Mar",
+     "netos": []
+    },
+    {
+     "id": 103,
+     "nome": "Pescados",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "nome": "Alimentos Especiais",
+   "filhos": [
+    {
+     "id": 17,
+     "nome": "Zero Açúcar",
+     "netos": [
+      "Chocolates",
+      "Biscoitos e Torradas",
+      "Doces e Geleias",
+      "Iogurtes",
+      "Refrigerantes",
+      "Bolos"
+     ]
+    },
+    {
+     "id": 18,
+     "nome": "Light",
+     "netos": [
+      "Biscoitos e Torradas",
+      "Doces e Geleias",
+      "Iogurtes",
+      "Refrigerantes",
+      "Adoçantes"
+     ]
+    },
+    {
+     "id": 19,
+     "nome": "Integrais",
+     "netos": [
+      "Arroz",
+      "Biscoitos e Torradas",
+      "Massas",
+      "Pães",
+      "Granolas e Aveias"
+     ]
+    },
+    {
+     "id": 20,
+     "nome": "Orgânicos",
+     "netos": [
+      "Açúcar",
+      "Hortifrúti",
+      "Biscoitos e Torradas",
+      "Cafés",
+      "Bebidas"
+     ]
+    },
+    {
+     "id": 21,
+     "nome": "Zero Glúten",
+     "netos": [
+      "Farinhas",
+      "Massas",
+      "Pães",
+      "Biscoitos e Torradas",
+      "Cervejas"
+     ]
+    },
+    {
+     "id": 22,
+     "nome": "Zero Lactose",
+     "netos": [
+      "Chocolates",
+      "Biscoitos e Torradas",
+      "Iogurtes",
+      "Queijos",
+      "Leites",
+      "Bolos"
+     ]
+    },
+    {
+     "id": 23,
+     "nome": "Veganos",
+     "netos": []
+    },
+    {
+     "id": 405,
+     "nome": "Fitness",
+     "netos": [
+      "Suplementos",
+      "Barras Protéicas",
+      "Bebidas Protéicas"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "nome": "Pet Shop",
+   "filhos": [
+    {
+     "id": 104,
+     "nome": "Cães",
+     "netos": [
+      "Alimentação",
+      "Acessórios",
+      "Produtos de Higiene"
+     ]
+    },
+    {
+     "id": 105,
+     "nome": "Gatos",
+     "netos": [
+      "Alimentação",
+      "Acessórios",
+      "Produtos de Higiene"
+     ]
+    },
+    {
+     "id": 106,
+     "nome": "Outros Animais",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "nome": "Descartáveis",
+   "filhos": [
+    {
+     "id": 56,
+     "nome": "Descartáveis de Papel",
+     "netos": [
+      "Guardanapos",
+      "Papel Toalha",
+      "Copos",
+      "Canudos"
+     ]
+    },
+    {
+     "id": 57,
+     "nome": "Descartáveis de Plástico",
+     "netos": [
+      "Copos",
+      "Pratos",
+      "Talheres",
+      "Bandejas",
+      "Canudos"
+     ]
+    },
+    {
+     "id": 58,
+     "nome": "Embalagens",
+     "netos": [
+      "Filme PVC",
+      "Papel Alumínio",
+      "Microondas e Freezer",
+      "Papel"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "nome": "Utensílios",
+   "filhos": [
+    {
+     "id": 107,
+     "nome": "Para Cozinha",
+     "netos": [
+      "Assadeira e Formas",
+      "Copos",
+      "Garrafa Térmica",
+      "Panelas e Frigideiras",
+      "Pratos",
+      "Acessórios Cozinha",
+      "Talheres"
+     ]
+    },
+    {
+     "id": 108,
+     "nome": "Para Lavanderia",
+     "netos": [
+      "Baldes e Bacias",
+      "Prendedor de Roupas",
+      "Varal",
+      "Cestos"
+     ]
+    },
+    {
+     "id": 109,
+     "nome": "Para Casa",
+     "netos": [
+      "Rodos",
+      "Vassouras",
+      "Luvas",
+      "Panos"
+     ]
+    },
+    {
+     "id": 110,
+     "nome": "Para Automóvel",
+     "netos": [
+      "Acessórios",
+      "Limpeza",
+      "Manutenção"
+     ]
+    },
+    {
+     "id": 111,
+     "nome": "Para Banheiro",
+     "netos": [
+      "Lixeira",
+      "Acessórios"
+     ]
+    },
+    {
+     "id": 112,
+     "nome": "Iluminação",
+     "netos": [
+      "Lâmpadas",
+      "Pilhas"
+     ]
+    },
+    {
+     "id": 457,
+     "nome": "Para Jardinagem",
+     "netos": [
+      "Acessórios"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 166,
+   "nome": "Eletrônicos",
+   "filhos": []
+  },
+  {
+   "id": 447,
+   "nome": "Vestuário",
+   "filhos": [
+    {
+     "id": 448,
+     "nome": "Calçados",
+     "netos": [
+      "Sandália"
+     ]
+    },
+    {
+     "id": 459,
+     "nome": "Textil",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 465,
+   "nome": "Ferramentas",
+   "filhos": []
+  },
+  {
+   "id": 466,
+   "nome": "Lazer",
+   "filhos": [
+    {
+     "id": 470,
+     "nome": "Praia & Piscina",
+     "netos": []
+    },
+    {
+     "id": 471,
+     "nome": "Camping",
+     "netos": []
+    },
+    {
+     "id": 472,
+     "nome": "Viagem",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 467,
+   "nome": "Papelaria",
+   "filhos": []
+  },
+  {
+   "id": 468,
+   "nome": "Casa",
+   "filhos": []
+  },
+  {
+   "id": 469,
+   "nome": "Festa",
+   "filhos": []
+  },
+  {
+   "id": 167,
+   "nome": "Brinquedos",
+   "filhos": []
+  }
+ ],
+ "angeloni": [
+  {
+   "id": 1,
+   "nome": "Z: Category",
+   "filhos": []
+  },
+  {
+   "id": 2,
+   "nome": "Mercearia",
+   "filhos": [
+    {
+     "id": 43,
+     "nome": "Arroz",
+     "netos": []
+    },
+    {
+     "id": 231,
+     "nome": "Achocolatado Em Pó",
+     "netos": []
+    },
+    {
+     "id": 239,
+     "nome": "Açúcar e Adoçantes",
+     "netos": [
+      "Açúcar",
+      "Adoçante"
+     ]
+    },
+    {
+     "id": 240,
+     "nome": "Feijão",
+     "netos": []
+    },
+    {
+     "id": 241,
+     "nome": "Lentilha",
+     "netos": []
+    },
+    {
+     "id": 242,
+     "nome": "Massas",
+     "netos": [
+      "Massas secas"
+     ]
+    },
+    {
+     "id": 243,
+     "nome": "Azeites",
+     "netos": [
+      "Azeite"
+     ]
+    },
+    {
+     "id": 244,
+     "nome": "Óleos",
+     "netos": []
+    },
+    {
+     "id": 245,
+     "nome": "Vinagre e Aceto",
+     "netos": []
+    },
+    {
+     "id": 246,
+     "nome": "Biscoitos e Snacks",
+     "netos": [
+      "Biscoitos Salgados",
+      "Biscoitos Doces",
+      "Pipoca",
+      "Salgadinhos",
+      "Torradas",
+      "Wafer",
+      "Barras de Cereal, Nuts e Energéticas",
+      "Batata Palha"
+     ]
+    },
+    {
+     "id": 247,
+     "nome": "Balas e Guloseimas",
+     "netos": []
+    },
+    {
+     "id": 248,
+     "nome": "Goma de Mascar",
+     "netos": []
+    },
+    {
+     "id": 249,
+     "nome": "Chocolates",
+     "netos": [
+      "Páscoa",
+      "Barras",
+      "Bombons",
+      "Confeitos",
+      "Tabletes",
+      "Wafers",
+      "Natal"
+     ]
+    },
+    {
+     "id": 250,
+     "nome": "Cafés e Chás",
+     "netos": [
+      "Cafés",
+      "Filtros de Papel",
+      "Chás"
+     ]
+    },
+    {
+     "id": 251,
+     "nome": "Cereais e Farináceos",
+     "netos": [
+      "Amido de Milho",
+      "Aveia",
+      "Canjica e Amendoim",
+      "Cereal Matinal",
+      "Farinhas",
+      "Farofas",
+      "Flocos de Milho",
+      "Granolas",
+      "Grãos",
+      "Milho de Pipoca",
+      "Mingau",
+      "Polenta",
+      "Polvilho"
+     ]
+    },
+    {
+     "id": 252,
+     "nome": "Conservas e Enlatados",
+     "netos": [
+      "Atum",
+      "Azeitona",
+      "Conservas Diversas",
+      "Milho e Ervilha",
+      "Palmito",
+      "Patê",
+      "Pepino",
+      "Salsicha e Chucrute",
+      "Sardinha"
+     ]
+    },
+    {
+     "id": 253,
+     "nome": "Doces e Confeitaria",
+     "netos": [
+      "Bolo de Caneca",
+      "Coberturas",
+      "Coco Ralado",
+      "Compota",
+      "Creme de Leite",
+      "Doce de Leite e Creme de Avelã",
+      "Doces Coloniais",
+      "Doces Diversos",
+      "Essências",
+      "Fermento",
+      "Gelatina",
+      "Geleia",
+      "Goiabada e Marmelada",
+      "Leite Condensado",
+      "Leite de Coco",
+      "Mel e Melado",
+      "Mistura para Bolo",
+      "Sagu",
+      "Sobremesa em Pó",
+      "Pasta de Amendoim"
+     ]
+    },
+    {
+     "id": 254,
+     "nome": "Erva Mate",
+     "netos": []
+    },
+    {
+     "id": 255,
+     "nome": "Leite em Pó",
+     "netos": []
+    },
+    {
+     "id": 256,
+     "nome": "Molhos, Temperos e Condimentos",
+     "netos": [
+      "Extrato e Polpa de Tomate",
+      "Ketchup e Mostarda",
+      "Maionese",
+      "Molho de Pimenta",
+      "Molho de Tomate",
+      "Molho para Salada",
+      "Sal",
+      "Temperos e Especiarias",
+      "Molhos Diversos"
+     ]
+    },
+    {
+     "id": 257,
+     "nome": "Sopas e Cremes",
+     "netos": []
+    },
+    {
+     "id": 258,
+     "nome": "Suplemento Alimentar",
+     "netos": []
+    },
+    {
+     "id": 392,
+     "nome": "Produtos Orientais e Mexicanos",
+     "netos": [
+      "Produtos Orientais",
+      "Produtos Mexicanos"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "nome": "Bazar",
+   "filhos": [
+    {
+     "id": 5,
+     "nome": "Artigos Para Festa",
+     "netos": []
+    },
+    {
+     "id": 6,
+     "nome": "Automotivo",
+     "netos": [
+      "Aromatizadores Automotivos",
+      "Cera Automotiva",
+      "Acessórios Automotivos",
+      "Limpeza Automotiva",
+      "Lubrificante Automotivo",
+      "Baterias"
+     ]
+    },
+    {
+     "id": 10,
+     "nome": "Descartáveis",
+     "netos": [
+      "Copos, Pratos e Talheres",
+      "Guardanapo",
+      "Papel Toalha",
+      "Sacos Plásticos e Filme PVC",
+      "Embalagens",
+      "Canudos",
+      "Palitos de Dente",
+      "Forro de Papel"
+     ]
+    },
+    {
+     "id": 11,
+     "nome": "Instalações e Ferramentas",
+     "netos": [
+      "Elétrica",
+      "Iluminação",
+      "Pilhas",
+      "Fitas, Adesivos e Colas",
+      "Chuveiros e Resistência",
+      "Torneira Elétrica",
+      "Utensílios Diversos Instalações"
+     ]
+    },
+    {
+     "id": 12,
+     "nome": "Lavanderia e Organização",
+     "netos": [
+      "Cabide",
+      "Cesto de Roupa",
+      "Lixeiras",
+      "Organizadores",
+      "Prendedores",
+      "Sacola Retornável",
+      "Tábua de Passar",
+      "Utensílios Diversos de Lavanderia",
+      "Varal"
+     ]
+    },
+    {
+     "id": 13,
+     "nome": "Papelaria",
+     "netos": [
+      "Embalagem para Presente",
+      "Material Escolar",
+      "Material Escritório",
+      "Jogos",
+      "Leitura"
+     ]
+    },
+    {
+     "id": 14,
+     "nome": "Brinquedos",
+     "netos": []
+    },
+    {
+     "id": 15,
+     "nome": "Vestuário",
+     "netos": [
+      "Chinelos",
+      "Meias",
+      "Pantufas",
+      "Roupão"
+     ]
+    },
+    {
+     "id": 408,
+     "nome": "Jardinagem",
+     "netos": [
+      "Flores e Plantas",
+      "Cachepôs",
+      "Utensílios Diversos Jardinagem"
+     ]
+    },
+    {
+     "id": 495,
+     "nome": "Chimarrão",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 40,
+   "nome": "Bebê e Crianças",
+   "filhos": [
+    {
+     "id": 41,
+     "nome": "Alimento Infantil",
+     "netos": [
+      "Composto Lácteo",
+      "Fórmula",
+      "Papinha e Sopinha"
+     ]
+    },
+    {
+     "id": 42,
+     "nome": "Utensílios",
+     "netos": [
+      "Alimentação"
+     ]
+    },
+    {
+     "id": 44,
+     "nome": "Decoração Infantil",
+     "netos": []
+    },
+    {
+     "id": 45,
+     "nome": "Mantinhas, Cobertores e Toalhas",
+     "netos": []
+    },
+    {
+     "id": 46,
+     "nome": "Roupinhas",
+     "netos": []
+    },
+    {
+     "id": 47,
+     "nome": "Almofadas Baby",
+     "netos": []
+    },
+    {
+     "id": 48,
+     "nome": "Lençóis para Berço",
+     "netos": []
+    },
+    {
+     "id": 49,
+     "nome": "Trocadores",
+     "netos": []
+    },
+    {
+     "id": 50,
+     "nome": "Higiene e Cuidados",
+     "netos": [
+      "Acessórios Mamãe e Bebê",
+      "Chupetas",
+      "Mamadeiras"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 58,
+   "nome": "Bebidas",
+   "filhos": [
+    {
+     "id": 61,
+     "nome": "Água",
+     "netos": []
+    },
+    {
+     "id": 62,
+     "nome": "Água de Coco",
+     "netos": []
+    },
+    {
+     "id": 63,
+     "nome": "Bebida Vegetal",
+     "netos": []
+    },
+    {
+     "id": 64,
+     "nome": "Cafés e Chás Prontos",
+     "netos": []
+    },
+    {
+     "id": 65,
+     "nome": "Energético",
+     "netos": []
+    },
+    {
+     "id": 66,
+     "nome": "Isotônicos",
+     "netos": []
+    },
+    {
+     "id": 67,
+     "nome": "Refrigerante",
+     "netos": []
+    },
+    {
+     "id": 68,
+     "nome": "Suco e Néctar",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 59,
+   "nome": "Bebidas Alcoólicas",
+   "filhos": [
+    {
+     "id": 69,
+     "nome": "Cervejas",
+     "netos": []
+    },
+    {
+     "id": 70,
+     "nome": "Destilados",
+     "netos": []
+    },
+    {
+     "id": 71,
+     "nome": "Drinks",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 72,
+   "nome": "Adega",
+   "filhos": [
+    {
+     "id": 73,
+     "nome": "Vinhos",
+     "netos": []
+    },
+    {
+     "id": 74,
+     "nome": "Frisantes",
+     "netos": []
+    },
+    {
+     "id": 75,
+     "nome": "Espumante e Champagne",
+     "netos": []
+    },
+    {
+     "id": 76,
+     "nome": "Sidras",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 77,
+   "nome": "Cama e Banho",
+   "filhos": [
+    {
+     "id": 78,
+     "nome": "Banho",
+     "netos": [
+      "Toalhas",
+      "Acessórios de Banheiro"
+     ]
+    },
+    {
+     "id": 79,
+     "nome": "Cama",
+     "netos": [
+      "Travesseiros",
+      "Cobertor",
+      "Colchas",
+      "Edredom",
+      "Lençóis Avulsos",
+      "Mantas",
+      "Jogos de Cama",
+      "Fronhas Avulsas"
+     ]
+    },
+    {
+     "id": 81,
+     "nome": "Tapetes e Pisos",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 82,
+   "nome": "Carnes, Aves e Peixes",
+   "filhos": [
+    {
+     "id": 83,
+     "nome": "Aves",
+     "netos": []
+    },
+    {
+     "id": 84,
+     "nome": "Carnes Bovinas",
+     "netos": []
+    },
+    {
+     "id": 85,
+     "nome": "Carnes Exóticas",
+     "netos": []
+    },
+    {
+     "id": 86,
+     "nome": "Peixes e Frutos Do Mar",
+     "netos": []
+    },
+    {
+     "id": 87,
+     "nome": "Linguiça",
+     "netos": []
+    },
+    {
+     "id": 88,
+     "nome": "Carnes Suínas",
+     "netos": []
+    },
+    {
+     "id": 399,
+     "nome": "Pão de Alho",
+     "netos": []
+    },
+    {
+     "id": 400,
+     "nome": "Espetinho",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 89,
+   "nome": "Congelados",
+   "filhos": [
+    {
+     "id": 90,
+     "nome": "Gelo",
+     "netos": []
+    },
+    {
+     "id": 91,
+     "nome": "Polpa e Suco de Fruta",
+     "netos": []
+    },
+    {
+     "id": 92,
+     "nome": "Pratos Prontos Congelados",
+     "netos": []
+    },
+    {
+     "id": 93,
+     "nome": "Hamburguer",
+     "netos": []
+    },
+    {
+     "id": 94,
+     "nome": "Pizzas",
+     "netos": []
+    },
+    {
+     "id": 95,
+     "nome": "Massas e Lasanhas",
+     "netos": []
+    },
+    {
+     "id": 96,
+     "nome": "Empanados",
+     "netos": []
+    },
+    {
+     "id": 97,
+     "nome": "Pão de Queijo Congelado",
+     "netos": []
+    },
+    {
+     "id": 98,
+     "nome": "Sorvete, Torta e Picolé",
+     "netos": []
+    },
+    {
+     "id": 99,
+     "nome": "Vegetais Congelados",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 100,
+   "nome": "Eletro",
+   "filhos": [
+    {
+     "id": 101,
+     "nome": "Aquecedor",
+     "netos": []
+    },
+    {
+     "id": 102,
+     "nome": "Aspirador de Pó",
+     "netos": [
+      "Robô Aspirador",
+      "Aspirador de Pó Vertical",
+      "Aspirador de Pó Convencional",
+      "Aspirador de Pó e Água",
+      "Aspirador de Pó Portátil"
+     ]
+    },
+    {
+     "id": 103,
+     "nome": "Balança",
+     "netos": []
+    },
+    {
+     "id": 104,
+     "nome": "Barbeador e Depilador Elétrico",
+     "netos": []
+    },
+    {
+     "id": 105,
+     "nome": "Batedeira",
+     "netos": []
+    },
+    {
+     "id": 106,
+     "nome": "Cafeteiras",
+     "netos": []
+    },
+    {
+     "id": 107,
+     "nome": "Chaleira e Jarra Elétrica",
+     "netos": []
+    },
+    {
+     "id": 108,
+     "nome": "Chapinha e Modelador",
+     "netos": []
+    },
+    {
+     "id": 109,
+     "nome": "Churrasqueira",
+     "netos": []
+    },
+    {
+     "id": 110,
+     "nome": "Crepeira",
+     "netos": []
+    },
+    {
+     "id": 111,
+     "nome": "Espremedor de Fruta",
+     "netos": []
+    },
+    {
+     "id": 112,
+     "nome": "Faca Elétrica",
+     "netos": []
+    },
+    {
+     "id": 113,
+     "nome": "Ferro de Passar",
+     "netos": []
+    },
+    {
+     "id": 114,
+     "nome": "Forno Elétrico",
+     "netos": []
+    },
+    {
+     "id": 115,
+     "nome": "Fritadeira Elétrica",
+     "netos": []
+    },
+    {
+     "id": 116,
+     "nome": "Grill e Sanduicheira",
+     "netos": []
+    },
+    {
+     "id": 117,
+     "nome": "Higienizador",
+     "netos": []
+    },
+    {
+     "id": 118,
+     "nome": "Liquidificador",
+     "netos": []
+    },
+    {
+     "id": 119,
+     "nome": "Máquina de Corte",
+     "netos": []
+    },
+    {
+     "id": 120,
+     "nome": "Máquina de Waffle",
+     "netos": []
+    },
+    {
+     "id": 121,
+     "nome": "Mini Geladeira",
+     "netos": []
+    },
+    {
+     "id": 122,
+     "nome": "Mixer",
+     "netos": []
+    },
+    {
+     "id": 123,
+     "nome": "Omeleteira",
+     "netos": []
+    },
+    {
+     "id": 124,
+     "nome": "Panela Elétrica",
+     "netos": []
+    },
+    {
+     "id": 125,
+     "nome": "Panificadora",
+     "netos": []
+    },
+    {
+     "id": 126,
+     "nome": "Panquequeira",
+     "netos": []
+    },
+    {
+     "id": 127,
+     "nome": "Pipoqueira",
+     "netos": []
+    },
+    {
+     "id": 128,
+     "nome": "Processador",
+     "netos": []
+    },
+    {
+     "id": 129,
+     "nome": "Ralador e Moedor",
+     "netos": []
+    },
+    {
+     "id": 130,
+     "nome": "Secador de Cabelo",
+     "netos": []
+    },
+    {
+     "id": 131,
+     "nome": "Torradeira",
+     "netos": []
+    },
+    {
+     "id": 132,
+     "nome": "Vaporizador",
+     "netos": []
+    },
+    {
+     "id": 133,
+     "nome": "Ventilador",
+     "netos": []
+    },
+    {
+     "id": 441,
+     "nome": "Acessórios de Informática",
+     "netos": []
+    },
+    {
+     "id": 503,
+     "nome": "Áudio",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 134,
+   "nome": "Esporte e Lazer",
+   "filhos": [
+    {
+     "id": 135,
+     "nome": "Acessórios Para Churrasco",
+     "netos": []
+    },
+    {
+     "id": 136,
+     "nome": "Praia e Piscina",
+     "netos": []
+    },
+    {
+     "id": 137,
+     "nome": "Viagem",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 138,
+   "nome": "Frios e Laticínios",
+   "filhos": [
+    {
+     "id": 139,
+     "nome": "Bebida Láctea",
+     "netos": []
+    },
+    {
+     "id": 140,
+     "nome": "Carne Seca e Charque",
+     "netos": []
+    },
+    {
+     "id": 141,
+     "nome": "Creme de Leite e Nata",
+     "netos": []
+    },
+    {
+     "id": 142,
+     "nome": "Defumados e Embutidos",
+     "netos": []
+    },
+    {
+     "id": 143,
+     "nome": "Fondue",
+     "netos": []
+    },
+    {
+     "id": 144,
+     "nome": "Iogurte",
+     "netos": []
+    },
+    {
+     "id": 145,
+     "nome": "Leite Fermentado",
+     "netos": []
+    },
+    {
+     "id": 146,
+     "nome": "Manteiga e Margarina",
+     "netos": []
+    },
+    {
+     "id": 147,
+     "nome": "Massas Frescas",
+     "netos": []
+    },
+    {
+     "id": 148,
+     "nome": "Pratos Prontos Refrigerados",
+     "netos": []
+    },
+    {
+     "id": 149,
+     "nome": "Queijos",
+     "netos": []
+    },
+    {
+     "id": 150,
+     "nome": "Requeijão",
+     "netos": []
+    },
+    {
+     "id": 151,
+     "nome": "Patê e Tofu",
+     "netos": []
+    },
+    {
+     "id": 390,
+     "nome": "Leite",
+     "netos": []
+    },
+    {
+     "id": 391,
+     "nome": "Tábuas de Frios",
+     "netos": []
+    },
+    {
+     "id": 477,
+     "nome": "Culinários",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 152,
+   "nome": "Higiene e Beleza",
+   "filhos": [
+    {
+     "id": 154,
+     "nome": "Acessórios de Higiene",
+     "netos": []
+    },
+    {
+     "id": 155,
+     "nome": "Barbearia",
+     "netos": []
+    },
+    {
+     "id": 156,
+     "nome": "Para Cabelos",
+     "netos": [
+      "Shampoos",
+      "Condicionadores",
+      "Cremes e Máscaras",
+      "Acessórios para Cabelo",
+      "Gel e Pomadas",
+      "Colorações",
+      "Óleos de Tratamento",
+      "Finalizadores"
+     ]
+    },
+    {
+     "id": 157,
+     "nome": "Desodorantes",
+     "netos": []
+    },
+    {
+     "id": 158,
+     "nome": "Algodão, Hastes Flexíveis e Curativos",
+     "netos": []
+    },
+    {
+     "id": 159,
+     "nome": "Higiene Bucal",
+     "netos": [
+      "Creme Dental",
+      "Enxaguante Bucal",
+      "Escova Dental",
+      "Fio Dental"
+     ]
+    },
+    {
+     "id": 160,
+     "nome": "Higiene Infantil",
+     "netos": [
+      "Fraldas e lenços umedecidos",
+      "Cabelos",
+      "Sabonetes",
+      "Bucal",
+      "Talcos e Cremes de Assaduras",
+      "Hidratante Infantil"
+     ]
+    },
+    {
+     "id": 161,
+     "nome": "Higiene Íntima",
+     "netos": [
+      "Absorvente",
+      "Desodorante Íntimo",
+      "Fraldas e Absorventes para Adultos",
+      "Gel Íntimo",
+      "Lenços Íntimos",
+      "Preservativos",
+      "Sabonete Íntimo"
+     ]
+    },
+    {
+     "id": 162,
+     "nome": "Máscara de Proteção",
+     "netos": []
+    },
+    {
+     "id": 163,
+     "nome": "Papel Higiênico",
+     "netos": []
+    },
+    {
+     "id": 164,
+     "nome": "Para o Corpo",
+     "netos": [
+      "Tratamento Corporal",
+      "Depilação",
+      "Protetor solar Corporal",
+      "Antisséptico",
+      "Hidratante",
+      "Bronzeador"
+     ]
+    },
+    {
+     "id": 166,
+     "nome": "Sabonetes em Barra",
+     "netos": []
+    },
+    {
+     "id": 167,
+     "nome": "Talcos",
+     "netos": []
+    },
+    {
+     "id": 393,
+     "nome": "Maquiagem",
+     "netos": []
+    },
+    {
+     "id": 394,
+     "nome": "Manicure e Pedicure",
+     "netos": []
+    },
+    {
+     "id": 452,
+     "nome": "Papel Toalha - intimo",
+     "netos": []
+    },
+    {
+     "id": 480,
+     "nome": "Sabonetes Líquidos",
+     "netos": []
+    },
+    {
+     "id": 484,
+     "nome": "Para o Rosto",
+     "netos": [
+      "Tratamento Facial",
+      "Protetor solar Facial",
+      "Demaquilante"
+     ]
+    },
+    {
+     "id": 502,
+     "nome": "Acessórios para Banho",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 153,
+   "nome": "Hortifruti",
+   "filhos": [
+    {
+     "id": 180,
+     "nome": "Brotos",
+     "netos": []
+    },
+    {
+     "id": 181,
+     "nome": "Cogumelos",
+     "netos": []
+    },
+    {
+     "id": 182,
+     "nome": "Ervas e Temperos",
+     "netos": []
+    },
+    {
+     "id": 183,
+     "nome": "Frutas",
+     "netos": []
+    },
+    {
+     "id": 184,
+     "nome": "Frutas Secas",
+     "netos": []
+    },
+    {
+     "id": 185,
+     "nome": "Legumes",
+     "netos": []
+    },
+    {
+     "id": 186,
+     "nome": "Nozes, Castanhas e Sementes",
+     "netos": []
+    },
+    {
+     "id": 187,
+     "nome": "Ovos",
+     "netos": []
+    },
+    {
+     "id": 188,
+     "nome": "Pamonha e Milho Verde",
+     "netos": []
+    },
+    {
+     "id": 189,
+     "nome": "Polpa e Suco de Fruta",
+     "netos": []
+    },
+    {
+     "id": 190,
+     "nome": "Verduras",
+     "netos": []
+    },
+    {
+     "id": 440,
+     "nome": "Higienizador de Hortifruti",
+     "netos": []
+    },
+    {
+     "id": 453,
+     "nome": "Pratos prontos",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 191,
+   "nome": "Cestas e Kits",
+   "filhos": [
+    {
+     "id": 192,
+     "nome": "Cesta Básica",
+     "netos": []
+    },
+    {
+     "id": 193,
+     "nome": "Cestas de Natal",
+     "netos": []
+    },
+    {
+     "id": 194,
+     "nome": "Cestas Especiais",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 195,
+   "nome": "Limpeza e Lavanderia",
+   "filhos": [
+    {
+     "id": 196,
+     "nome": "Água Sanitária",
+     "netos": []
+    },
+    {
+     "id": 197,
+     "nome": "Álcool e Querosene",
+     "netos": []
+    },
+    {
+     "id": 198,
+     "nome": "Alvejante",
+     "netos": []
+    },
+    {
+     "id": 199,
+     "nome": "Amaciante",
+     "netos": []
+    },
+    {
+     "id": 200,
+     "nome": "Antimofo",
+     "netos": []
+    },
+    {
+     "id": 201,
+     "nome": "Cera e Lustrador",
+     "netos": []
+    },
+    {
+     "id": 202,
+     "nome": "Desengordurante",
+     "netos": []
+    },
+    {
+     "id": 203,
+     "nome": "Desinfetante",
+     "netos": []
+    },
+    {
+     "id": 204,
+     "nome": "Desodorizador",
+     "netos": []
+    },
+    {
+     "id": 205,
+     "nome": "Detergente e Lava-louças",
+     "netos": []
+    },
+    {
+     "id": 206,
+     "nome": "Inseticidas e Repelentes",
+     "netos": [
+      "Repelentes",
+      "Inseticidas"
+     ]
+    },
+    {
+     "id": 207,
+     "nome": "Lava-Roupas",
+     "netos": []
+    },
+    {
+     "id": 208,
+     "nome": "Limpadores",
+     "netos": []
+    },
+    {
+     "id": 209,
+     "nome": "Limpador Sanitário",
+     "netos": []
+    },
+    {
+     "id": 210,
+     "nome": "Acessórios de Limpeza",
+     "netos": [
+      "Baldes e Bacias",
+      "Desentupidores",
+      "Luvas",
+      "Rodos, Vassouras e Mops",
+      "Sacos de Lixo",
+      "Esponjas e Escovas",
+      "Panos e Flanelas"
+     ]
+    },
+    {
+     "id": 211,
+     "nome": "Lustra Móveis",
+     "netos": []
+    },
+    {
+     "id": 212,
+     "nome": "Passa-Roupas",
+     "netos": []
+    },
+    {
+     "id": 213,
+     "nome": "Polimento para Calçados",
+     "netos": []
+    },
+    {
+     "id": 214,
+     "nome": "Polimento para Pisos",
+     "netos": []
+    },
+    {
+     "id": 215,
+     "nome": "Removedores para Limpeza",
+     "netos": []
+    },
+    {
+     "id": 216,
+     "nome": "Sabão em Barra",
+     "netos": []
+    },
+    {
+     "id": 217,
+     "nome": "Tira-Manchas",
+     "netos": []
+    },
+    {
+     "id": 395,
+     "nome": "Saponáceos",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 218,
+   "nome": "Padaria",
+   "filhos": [
+    {
+     "id": 219,
+     "nome": "Bolos e Tortas",
+     "netos": []
+    },
+    {
+     "id": 220,
+     "nome": "Alfajor",
+     "netos": []
+    },
+    {
+     "id": 221,
+     "nome": "Cucas",
+     "netos": []
+    },
+    {
+     "id": 222,
+     "nome": "Docinhos",
+     "netos": []
+    },
+    {
+     "id": 223,
+     "nome": "Donuts e Sonhos",
+     "netos": []
+    },
+    {
+     "id": 224,
+     "nome": "Folhados",
+     "netos": []
+    },
+    {
+     "id": 225,
+     "nome": "Muffins e Bolinhos",
+     "netos": []
+    },
+    {
+     "id": 226,
+     "nome": "Pães",
+     "netos": []
+    },
+    {
+     "id": 227,
+     "nome": "Pão de Mel",
+     "netos": []
+    },
+    {
+     "id": 228,
+     "nome": "Panettone e Chocottone",
+     "netos": []
+    },
+    {
+     "id": 229,
+     "nome": "Pão de Queijo",
+     "netos": []
+    },
+    {
+     "id": 230,
+     "nome": "Roscas e Biscoitos Caseiros",
+     "netos": []
+    },
+    {
+     "id": 396,
+     "nome": "Wrap",
+     "netos": []
+    },
+    {
+     "id": 412,
+     "nome": "Lanches",
+     "netos": []
+    },
+    {
+     "id": 413,
+     "nome": "Massas para Pizza",
+     "netos": []
+    },
+    {
+     "id": 439,
+     "nome": "Colomba Pascal",
+     "netos": []
+    },
+    {
+     "id": 451,
+     "nome": "Salgados",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 259,
+   "nome": "Pet Shop",
+   "filhos": [
+    {
+     "id": 326,
+     "nome": "Cachorros",
+     "netos": [
+      "Petiscos para Cães",
+      "Ração para Cães"
+     ]
+    },
+    {
+     "id": 327,
+     "nome": "Gatos",
+     "netos": [
+      "Petiscos para Gatos",
+      "Ração para Gatos"
+     ]
+    },
+    {
+     "id": 328,
+     "nome": "Pássaros",
+     "netos": []
+    },
+    {
+     "id": 329,
+     "nome": "Peixes, Hamsters e Tartarugas",
+     "netos": []
+    },
+    {
+     "id": 330,
+     "nome": "Acessórios e Brinquedos",
+     "netos": []
+    },
+    {
+     "id": 331,
+     "nome": "Higiene e Cuidados",
+     "netos": []
+    }
+   ]
+  },
+  {
+   "id": 337,
+   "nome": "Utilidades Domésticas",
+   "filhos": [
+    {
+     "id": 338,
+     "nome": "Acessórios Para Bar",
+     "netos": []
+    },
+    {
+     "id": 339,
+     "nome": "Copa e Cozinha",
+     "netos": [
+      "Abridor e Amassador",
+      "Acendedor e Fósforo",
+      "Acessórios para Mesa",
+      "Acessórios para Pia",
+      "Bandeja e Baixela",
+      "Bowls e Tigelas",
+      "Bule e Chaleira",
+      "Linha Café e Chá",
+      "Conjunto de Jantar",
+      "Conjunto de Sobremesa",
+      "Copos e Taças",
+      "Cortador e Ralador",
+      "Espagueteira",
+      "Fondue e Rechaud",
+      "Fruteira e Saladeira",
+      "Garrafa Térmica",
+      "Jarras e Garrafas",
+      "Panelas e Frigideiras",
+      "Porta Condimentos e Galheteiro",
+      "Potes",
+      "Prato para Bolo",
+      "Pratos",
+      "Tábuas",
+      "Talheres",
+      "Travessa, Assadeira e Forma",
+      "Utensílios de Cozinha",
+      "Xícara e Caneca",
+      "Acessórios Para Cozinha"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 367,
+   "nome": "Decoração",
+   "filhos": [
+    {
+     "id": 368,
+     "nome": "Capas e Almofadas",
+     "netos": []
+    },
+    {
+     "id": 370,
+     "nome": "Luminárias",
+     "netos": []
+    },
+    {
+     "id": 371,
+     "nome": "Móveis",
+     "netos": []
+    },
+    {
+     "id": 372,
+     "nome": "Objetos Decorativos",
+     "netos": []
+    },
+    {
+     "id": 373,
+     "nome": "Decoração de Parede",
+     "netos": []
+    },
+    {
+     "id": 374,
+     "nome": "Porta Retrato",
+     "netos": []
+    },
+    {
+     "id": 375,
+     "nome": "Puffs",
+     "netos": []
+    },
+    {
+     "id": 376,
+     "nome": "Vasos e Cestos",
+     "netos": []
+    },
+    {
+     "id": 401,
+     "nome": "Mantas Decorativas",
+     "netos": []
+    },
+    {
+     "id": 402,
+     "nome": "Tapetes",
+     "netos": []
+    },
+    {
+     "id": 403,
+     "nome": "Velas e Aromas",
+     "netos": []
+    },
+    {
+     "id": 411,
+     "nome": "Datas Comemorativas",
+     "netos": [
+      "Festa Junina",
+      "Halloween",
+      "Natal",
+      "Páscoa",
+      "Ano Novo"
+     ]
+    }
+   ]
+  }
+ ]
+}
