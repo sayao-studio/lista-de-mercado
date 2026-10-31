@@ -1,0 +1,598 @@
+[
+ {
+  "id": 2,
+  "name": "Bebidas",
+  "hasChildren": true,
+  "url": "https://www.bistek.com.br/bebidas",
+  "children": [
+   {
+    "id": 7,
+    "name": "Refrigerantes",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/refrigerantes",
+    "children": [
+     {
+      "id": 10,
+      "name": "Zero, Light e Diet",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/zero-light-e-diet",
+      "children": [],
+      "Title": "Zero, Light e Diet | Bistek",
+      "MetaTagDescription": ""
+     },
+     {
+      "id": 178,
+      "name": "Guaraná",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/guarana",
+      "children": [],
+      "Title": "Guaraná",
+      "MetaTagDescription": "Guaraná"
+     },
+     {
+      "id": 179,
+      "name": "Laranja",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/laranja",
+      "children": [],
+      "Title": "Laranja",
+      "MetaTagDescription": "Laranja"
+     },
+     {
+      "id": 212,
+      "name": "Cola",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/cola",
+      "children": [],
+      "Title": "Cola",
+      "MetaTagDescription": "Cola"
+     },
+     {
+      "id": 213,
+      "name": "Limão",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/limao",
+      "children": [],
+      "Title": "Limão",
+      "MetaTagDescription": "Limão"
+     },
+     {
+      "id": 252,
+      "name": "Outros Sabores",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/refrigerantes/outros-sabores",
+      "children": [],
+      "Title": "Outros Sabores",
+      "MetaTagDescription": "Outros Sabores"
+     }
+    ],
+    "Title": "Refrigerantes: Cola, Guaraná e Mais | Bistek Supermercados",
+    "MetaTagDescription": "Refrigerantes cola, guaraná, limão, laranja e diversos sabores você encontra no Bistek, com opções zero, light e diet. Confira agora as ofertas especiais!"
+   },
+   {
+    "id": 8,
+    "name": "Cervejas",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/cervejas",
+    "children": [
+     {
+      "id": 9,
+      "name": "Sem Álcool",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/cervejas/sem-alcool",
+      "children": [],
+      "Title": "Sem Álcool | Bistek",
+      "MetaTagDescription": ""
+     },
+     {
+      "id": 251,
+      "name": "Artesanais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/cervejas/artesanais",
+      "children": [],
+      "Title": "Cervejas Artesanais",
+      "MetaTagDescription": "Cervejas Artesanais"
+     },
+     {
+      "id": 433,
+      "name": "Tradicionais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/cervejas/tradicionais",
+      "children": [],
+      "Title": "Cervejas Tradicionais",
+      "MetaTagDescription": "Cervejas Tradicionais"
+     },
+     {
+      "id": 434,
+      "name": "Importadas",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/cervejas/importadas",
+      "children": [],
+      "Title": "Cervejas Importadas",
+      "MetaTagDescription": "Cervejas Importadas"
+     }
+    ],
+    "Title": "Cervejas Tradicionais, Artesanais e Importadas | Bistek",
+    "MetaTagDescription": "Cervejas tradicionais, artesanais, importadas e sem álcool você encontra no Bistek. Qualidade e ótimos preços. Aproveite as promoções exclusivas do site!"
+   },
+   {
+    "id": 22,
+    "name": "Étnicos",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/bebidas/etnicos",
+    "children": [],
+    "Title": "Étnicos",
+    "MetaTagDescription": "Étnicos"
+   },
+   {
+    "id": 34,
+    "name": "Sucos e Néctares",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares",
+    "children": [
+     {
+      "id": 141,
+      "name": "Sucos Funcionais Integrais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/sucos-funcionais-integrais",
+      "children": [],
+      "Title": "Sucos Funcionais Integrais",
+      "MetaTagDescription": "Sucos Funcionais Integrais"
+     },
+     {
+      "id": 250,
+      "name": "Refrescos em Pó",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/refrescos-em-po",
+      "children": [],
+      "Title": "Refrescos Em Pó",
+      "MetaTagDescription": "Refrescos Em Pó"
+     },
+     {
+      "id": 292,
+      "name": "Sucos Concentrados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/sucos-concentrados",
+      "children": [],
+      "Title": "Sucos Concentrados",
+      "MetaTagDescription": "Sucos Concentrados"
+     },
+     {
+      "id": 293,
+      "name": "Sucos em Lata",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/sucos-em-lata",
+      "children": [],
+      "Title": "Sucos em Lata",
+      "MetaTagDescription": "Sucos em Lata"
+     },
+     {
+      "id": 388,
+      "name": "Néctares",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/nectares",
+      "children": [],
+      "Title": "Néctares",
+      "MetaTagDescription": "Néctares"
+     },
+     {
+      "id": 432,
+      "name": "Bebidas à Base de Soja",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/sucos-e-nectares/bebidas-a-base-de-soja",
+      "children": [],
+      "Title": "Bebidas à Base de Soja",
+      "MetaTagDescription": "Bebidas à Base de Soja"
+     }
+    ],
+    "Title": "Sucos, Néctares e Refrescos em Pó | Bistek",
+    "MetaTagDescription": "Do suco integral ao refresco em pó, o Bistek tem opções para toda a família com praticidade e sabor para o dia a dia. Veja mais."
+   },
+   {
+    "id": 49,
+    "name": "Destilados",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/destilados",
+    "children": [
+     {
+      "id": 143,
+      "name": "Gins",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/gins",
+      "children": [],
+      "Title": "Gins",
+      "MetaTagDescription": "Gins"
+     },
+     {
+      "id": 182,
+      "name": "Licores",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/licores",
+      "children": [],
+      "Title": "Licores",
+      "MetaTagDescription": "Licores"
+     },
+     {
+      "id": 183,
+      "name": "Runs",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/runs",
+      "children": [],
+      "Title": "Runs",
+      "MetaTagDescription": "Runs"
+     },
+     {
+      "id": 184,
+      "name": "Vodkas",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/vodkas",
+      "children": [],
+      "Title": "Vodkas",
+      "MetaTagDescription": "Vodkas"
+     },
+     {
+      "id": 214,
+      "name": "Drinks Prontos",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/drinks-prontos",
+      "children": [],
+      "Title": "Drinks Prontos",
+      "MetaTagDescription": "Drinks Prontos"
+     },
+     {
+      "id": 296,
+      "name": "Conhaques",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/conhaques",
+      "children": [],
+      "Title": "Conhaques",
+      "MetaTagDescription": "Conhaques"
+     },
+     {
+      "id": 297,
+      "name": "Tequilas",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/tequilas",
+      "children": [],
+      "Title": "Tequilas",
+      "MetaTagDescription": "Tequilas"
+     },
+     {
+      "id": 339,
+      "name": "Aperitivos",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/aperitivos",
+      "children": [],
+      "Title": "Aperitivos",
+      "MetaTagDescription": "Aperitivos"
+     },
+     {
+      "id": 340,
+      "name": "Outros Destilados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/outros-destilados",
+      "children": [],
+      "Title": "Outros Destilados",
+      "MetaTagDescription": "Outros Destilados"
+     },
+     {
+      "id": 341,
+      "name": "Whiskys",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/whiskys",
+      "children": [],
+      "Title": "Whiskys",
+      "MetaTagDescription": "Whiskys"
+     },
+     {
+      "id": 435,
+      "name": "Cachaças",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/destilados/cachacas",
+      "children": [],
+      "Title": "Cachaças",
+      "MetaTagDescription": "Cachaças"
+     }
+    ],
+    "Title": "Destilados",
+    "MetaTagDescription": "Destilados"
+   },
+   {
+    "id": 62,
+    "name": "Chás e Mates",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/bebidas/chas-e-mates",
+    "children": [],
+    "Title": "Chás e Mates",
+    "MetaTagDescription": "Chás e Mates"
+   },
+   {
+    "id": 73,
+    "name": "Vinhos e Espumantes",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes",
+    "children": [
+     {
+      "id": 144,
+      "name": "Vinhos Nacionais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes/vinhos-nacionais",
+      "children": [],
+      "Title": "Vinhos Nacionais",
+      "MetaTagDescription": "Vinhos Nacionais"
+     },
+     {
+      "id": 215,
+      "name": "Quentão",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes/quentao",
+      "children": [],
+      "Title": "Quentão",
+      "MetaTagDescription": "Quentão"
+     },
+     {
+      "id": 298,
+      "name": "Espumantes Importados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes/espumantes-importados",
+      "children": [],
+      "Title": "Espumantes Importados",
+      "MetaTagDescription": "Espumantes Importados"
+     },
+     {
+      "id": 342,
+      "name": "Espumantes Nacionais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes/espumantes-nacionais",
+      "children": [],
+      "Title": "Espumantes Nacionais",
+      "MetaTagDescription": "Espumantes Nacionais"
+     },
+     {
+      "id": 343,
+      "name": "Vinhos Importados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/vinhos-e-espumantes/vinhos-importados",
+      "children": [],
+      "Title": "Vinhos Importados de Argentina, Chile e Europa | Bistek",
+      "MetaTagDescription": "Rótulos importados da Argentina, Chile, Itália e mais países do mundo com curadoria, qualidade e preço acessível no Bistek. Saiba mais."
+     }
+    ],
+    "Title": "Vinhos e Espumantes Nacionais e Importados | Bistek",
+    "MetaTagDescription": "A adega do Bistek reúne vinhos tintos, brancos, rosés, espumantes e rótulos importados com curadoria e preço justo para toda ocasião. Confira."
+   },
+   {
+    "id": 84,
+    "name": "Energéticos e Isotônicos",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/energeticos-e-isotonicos",
+    "children": [
+     {
+      "id": 181,
+      "name": "Energéticos",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/energeticos-e-isotonicos/energeticos",
+      "children": [],
+      "Title": "Energéticos",
+      "MetaTagDescription": "Energéticos"
+     },
+     {
+      "id": 338,
+      "name": "Isotônicos",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/energeticos-e-isotonicos/isotonicos",
+      "children": [],
+      "Title": "Isotônicos",
+      "MetaTagDescription": "Isotônicos"
+     }
+    ],
+    "Title": "Energéticos e Isotônicos",
+    "MetaTagDescription": "Energéticos e Isotônicos"
+   },
+   {
+    "id": 85,
+    "name": "Leites e Bebidas Lácteas",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas",
+    "children": [
+     {
+      "id": 185,
+      "name": "Achocolatados e outros a base de Leite",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas/achocolatados-e-outros-a-base-de-leite",
+      "children": [],
+      "Title": "Achocolatados e outros a base de Leite",
+      "MetaTagDescription": "Achocolatados e outros a base de Leite"
+     },
+     {
+      "id": 216,
+      "name": "Leites Semidesnatados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas/leites-semidesnatados",
+      "children": [],
+      "Title": "Leites Semidesnatados",
+      "MetaTagDescription": "Leites Semidesnatados"
+     },
+     {
+      "id": 253,
+      "name": "Leites Integrais",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas/leites-integrais",
+      "children": [],
+      "Title": "Leites Integrais",
+      "MetaTagDescription": "Leites Integrais"
+     },
+     {
+      "id": 254,
+      "name": "Leites Sem Lactose",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas/leites-sem-lactose",
+      "children": [],
+      "Title": "Leites Sem Lactose",
+      "MetaTagDescription": "Leites Sem Lactose"
+     },
+     {
+      "id": 436,
+      "name": "Leites Desnatados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/leites-e-bebidas-lacteas/leites-desnatados",
+      "children": [],
+      "Title": "Leites Desnatados",
+      "MetaTagDescription": "Leites Desnatados"
+     }
+    ],
+    "Title": "Leite e Bebidas Lácteas: Integral, Desnatado e Zero | Bistek",
+    "MetaTagDescription": "Encontre leite integral, desnatado, sem lactose e semidesnatado no Bistek. Compre também bebida láctea e achocolatados com ótimos preços!"
+   },
+   {
+    "id": 102,
+    "name": "Bebidas Refrigeradas",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/bebidas-refrigeradas",
+    "children": [
+     {
+      "id": 294,
+      "name": "Detox e Cia",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/bebidas-refrigeradas/detox-e-cia",
+      "children": [],
+      "Title": "Detox e Cia",
+      "MetaTagDescription": "Detox e Cia"
+     },
+     {
+      "id": 415,
+      "name": "Sucos Refrigerados",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/bebidas-refrigeradas/sucos-refrigerados",
+      "children": [],
+      "Title": "Sucos Refrigerados",
+      "MetaTagDescription": "Compre sucos refrigerados no Supermecados Bistek com opções naturais, integrais e refrescantes para o dia a dia. Mais sabor e praticidade para você. Veja no site!"
+     }
+    ],
+    "Title": "Bebidas Refrigeradas",
+    "MetaTagDescription": "Bebidas Refrigeradas"
+   },
+   {
+    "id": 103,
+    "name": "Águas",
+    "hasChildren": true,
+    "url": "https://www.bistek.com.br/bebidas/aguas",
+    "children": [
+     {
+      "id": 142,
+      "name": "De Coco",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/aguas/de-coco",
+      "children": [],
+      "Title": "Águas de Coco",
+      "MetaTagDescription": "Águas de Coco"
+     },
+     {
+      "id": 180,
+      "name": "Com Gás",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/aguas/com-gas",
+      "children": [],
+      "Title": "Águas com Gás",
+      "MetaTagDescription": "Águas com Gás"
+     },
+     {
+      "id": 337,
+      "name": "Sem Gás",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/aguas/sem-gas",
+      "children": [],
+      "Title": "Águas sem Gás",
+      "MetaTagDescription": "Águas sem Gás"
+     },
+     {
+      "id": 389,
+      "name": "Tônicas",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/aguas/tonicas",
+      "children": [],
+      "Title": "Águas Tônicas",
+      "MetaTagDescription": "Águas Tônicas"
+     },
+     {
+      "id": 605,
+      "name": "Saborizadas",
+      "hasChildren": false,
+      "url": "https://www.bistek.com.br/bebidas/aguas/saborizadas",
+      "children": [],
+      "Title": "",
+      "MetaTagDescription": ""
+     }
+    ],
+    "Title": "Águas: Com Gás, Sem Gás e de Coco | Supermercados Bistek",
+    "MetaTagDescription": "Águas"
+   },
+   {
+    "id": 104,
+    "name": "Drinks Prontos",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/bebidas/drinks-prontos",
+    "children": [],
+    "Title": "Drinks Prontos",
+    "MetaTagDescription": "Compre drinks prontos no Supermercados Bistek e aproveite bebidas práticas e refrescantes para festas, encontros e momentos especiais. Confira as opções!"
+   }
+  ],
+  "Title": "Bebidas - Cerveja, refrigerante, drinks... | Supermercado Bistek",
+  "MetaTagDescription": "Para animar a semana ou o fim de semana o Bistek tem as melhores cervejas e drinks ou se preferir água de coco, suco e refrigerante!"
+ },
+ {
+  "id": 14,
+  "name": "Hortifrúti",
+  "hasChildren": true,
+  "url": "https://www.bistek.com.br/hortifruti",
+  "children": [
+   {
+    "id": 35,
+    "name": "Frutas",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/hortifruti/frutas",
+    "children": [],
+    "Title": "Frutas Frescas Selecionadas no Hortifruti | Bistek",
+    "MetaTagDescription": "O hortifruti do Bistek traz frutas frescas e selecionadas para chegar com qualidade e sabor na mesa da sua família todos os dias. Acesse."
+   },
+   {
+    "id": 51,
+    "name": "Ovos",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/hortifruti/ovos",
+    "children": [],
+    "Title": "Ovos Frescos Brancos, Vermelhos e Orgânicos | Bistek",
+    "MetaTagDescription": "Bistek oferece ovos frescos e orgânicos com qualidade garantida para o café da manhã e as refeições da sua família. Aproveite."
+   },
+   {
+    "id": 64,
+    "name": "Legumes",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/hortifruti/legumes",
+    "children": [],
+    "Title": "Legumes",
+    "MetaTagDescription": "Legumes"
+   },
+   {
+    "id": 88,
+    "name": "Frutas Secas & Castanhas",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/hortifruti/frutas-secas---castanhas",
+    "children": [],
+    "Title": "Frutas Secas & Castanhas",
+    "MetaTagDescription": "Frutas Secas & Castanhas"
+   },
+   {
+    "id": 105,
+    "name": "Verduras",
+    "hasChildren": false,
+    "url": "https://www.bistek.com.br/hortifruti/verduras",
+    "children": [],
+    "Title": "Verduras",
+    "MetaTagDescription": "Verduras"
+   }
+  ],
+  "Title": "Hortifruti Bistek: Frutas, Verduras e Legumes e Ovos",
+  "MetaTagDescription": "Aproveite promoção de frutas, verduras, legumes e ovos frescos no hortifruti do Bistek. Veja ofertas!"
+ }
+]
