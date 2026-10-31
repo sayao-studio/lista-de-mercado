@@ -234,7 +234,7 @@ o mais barato em destaque, promoção com o preço "de" riscado. Ao lado de
 cada preço, quando o peso é conhecido, o preço por kg (ou por litro) daquela
 loja, pequeno e em cinza: é o que compara acém a R$ 5,39 por 100 g no
 Angeloni com acém a R$ 81,69 por 1,5 kg no Bistek. A granel o cartão diz o
-passo de venda ("a granel, 100 g por vez") em vez de parecer embalagem. Sem EAN, o
+passo de venda ("100 g a granel") em vez de parecer embalagem. Sem EAN, o
 cartão é de uma loja só. Ordem padrão: nome começa pelo que foi digitado
 primeiro, depois quem está em mais mercados, depois menor preço. Opções
 (chips): "Só promoções", "Menor preço", "Menor preço/kg", e um chip por

@@ -234,7 +234,7 @@ describe("site", () => {
     const { page } = await abrir();
     await buscarPor(page, "banana");
     const cartao = page.locator('#resultados .cartao[data-chave="bistek:b3"]');
-    assert.equal(await cartao.locator(".marca-peso").textContent(), "a granel, 1 kg por vez");
+    assert.equal(await cartao.locator(".marca-peso").textContent(), "1 kg a granel");
     assert.match(await cartao.locator(".preco").textContent(), /Bistek\s+R\$ 4,89\s+R\$ 4,89\/kg/);
   });
 

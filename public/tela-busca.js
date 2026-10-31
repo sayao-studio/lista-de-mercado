@@ -72,7 +72,7 @@ function filtros() {
 function marcaPeso(grupo) {
   // A granel o "peso" é o passo de venda (100 g no Angeloni, 1 kg no Giassi):
   // dito assim, "100 g" não passa por tamanho da embalagem.
-  const pesoTexto = grupo.granel ? `a granel, ${peso(grupo.gramas, grupo.liquido)} por vez` : peso(grupo.gramas, grupo.liquido);
+  const pesoTexto = grupo.granel ? `${peso(grupo.gramas, grupo.liquido)} a granel` : peso(grupo.gramas, grupo.liquido);
   return [grupo.marca, pesoTexto].filter(Boolean).map(escapar).join(" · ");
 }
 
