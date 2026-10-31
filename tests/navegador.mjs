@@ -147,6 +147,9 @@ describe("site", () => {
     assert.equal(await primeiro.locator('.preco.melhor[data-mercado="giassi"]').count(), 1);
     assert.match(await primeiro.locator('.preco[data-mercado="giassi"]').textContent(), /Giassi\s+R\$ 10,90/);
     assert.equal(await primeiro.locator('.preco[data-mercado="bistek"] s').textContent(), "R$ 13,99");
+    // R$/kg em cada loja; o Giassi não informa o peso, mas o EAN é o mesmo (1 kg pelo Bistek).
+    assert.equal(await primeiro.locator('.preco[data-mercado="giassi"] .por-kg').textContent(), "R$ 10,90/kg");
+    assert.equal(await primeiro.locator('.preco[data-mercado="angeloni"] .por-kg').textContent(), "R$ 12,49/kg");
     // Com termo, sempre há como pôr o texto livre na lista.
     assert.match(await page.locator("#adicionar-texto").textContent(), /Adicionar "arroz" sem preço/);
     const largura = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -223,6 +226,16 @@ describe("site", () => {
     const { page } = await abrir();
     await buscarPor(page, "arroz");
     assert.equal(await page.locator('.cartao[data-chave="angeloni:a4"] .preco.melhor').count(), 0);
+    // Sem peso no nome não há R$/kg pra mostrar.
+    assert.equal(await page.locator('.cartao[data-chave="angeloni:a4"] .por-kg').count(), 0);
+  });
+
+  test("a granel, o cartão diz o passo de venda e o preço por quilo", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "banana");
+    const cartao = page.locator('#resultados .cartao[data-chave="bistek:b3"]');
+    assert.equal(await cartao.locator(".marca-peso").textContent(), "a granel, 1 kg por vez");
+    assert.match(await cartao.locator(".preco").textContent(), /Bistek\s+R\$ 4,89\s+R\$ 4,89\/kg/);
   });
 
   test("o foco volta pro chip tocado depois do redesenho", async () => {
@@ -570,6 +583,7 @@ describe("site", () => {
     await buscarPor(page, "leite");
     const cartao = page.locator('#resultados .cartao[data-chave="7896043400012"]');
     assert.equal(await cartao.locator(".marca-peso").textContent(), "Tirol · 1 l");
+    assert.equal(await cartao.locator(".por-kg").textContent(), "R$ 5,49/l");
     assert.equal((await page.locator('#chips [data-ordem="porKg"]').textContent()).trim(), "Menor por kg/l");
     await cartao.locator(".adicionar").click();
     await irParaLista(page);

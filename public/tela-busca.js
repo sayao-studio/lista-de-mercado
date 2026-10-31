@@ -70,20 +70,29 @@ function filtros() {
 }
 
 function marcaPeso(grupo) {
-  return [grupo.marca, peso(grupo.gramas, grupo.liquido)].filter(Boolean).map(escapar).join(" · ");
+  // A granel o "peso" é o passo de venda (100 g no Angeloni, 1 kg no Giassi):
+  // dito assim, "100 g" não passa por tamanho da embalagem.
+  const pesoTexto = grupo.granel ? `a granel, ${peso(grupo.gramas, grupo.liquido)} por vez` : peso(grupo.gramas, grupo.liquido);
+  return [grupo.marca, pesoTexto].filter(Boolean).map(escapar).join(" · ");
 }
 
 function precos(grupo, nomes) {
   // Verde quer dizer "mais barato que os outros": com uma loja só não há
   // comparação, e o destaque passaria uma vantagem que não existe.
   const compara = Object.keys(grupo.ofertas).length > 1;
+  const unidade = grupo.liquido ? "l" : "kg";
   return Object.entries(grupo.ofertas)
     .map(([mercado, oferta]) => {
       const melhor = compara && oferta.preco === grupo.menor ? " melhor" : "";
       // Promoção vale só se o "de" for maior; a loja às vezes repete o preço.
       const de = oferta.promocao > oferta.preco ? `<s>${reais(oferta.promocao)}</s> ` : "";
+      // O preço por quilo (ou litro) de cada loja é o que compara acém a
+      // R$ 5,39 por 100 g com acém a R$ 81,69 por 1,5 kg. O peso pode ter
+      // vindo só de outra loja do mesmo EAN.
+      const gramas = oferta.gramas ?? grupo.gramas;
+      const porKg = gramas > 0 ? ` <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}/${unidade}</span>` : "";
       return `<span class="preco${melhor}" data-mercado="${escapar(mercado)}">`
-        + `<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b></span>`;
+        + `<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b>${porKg}</span>`;
     })
     .join("");
 }

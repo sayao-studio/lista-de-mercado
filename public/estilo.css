@@ -333,13 +333,16 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
 .preco .mercado { color: var(--cinza); }
 .preco b { font-weight: 600; }
 .preco s { color: var(--cinza); font-size: 12px; }
+/* R$/kg menor e em cinza: é a conta de apoio, não o que a pessoa vai pagar. */
+.preco .por-kg { color: var(--cinza); font-size: 12px; }
 
 .preco.melhor {
   background: var(--verde-fundo);
   color: var(--verde);
 }
 
-.preco.melhor .mercado { color: inherit; }
+.preco.melhor .mercado,
+.preco.melhor .por-kg { color: inherit; }
 
 .cartao .adicionar {
   width: 44px;
