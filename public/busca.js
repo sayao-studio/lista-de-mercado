@@ -2,6 +2,7 @@
 // servido sozinho, então não pode depender de nada de `robo/`.
 import { normalizar } from "./texto.js";
 import { DEPARTAMENTOS, classificar, forcaDe, secoesConhecidas } from "./departamentos.js";
+import { preparosDe } from "./preparo.js";
 
 // Quem já importava daqui continua funcionando.
 export { normalizar };
@@ -131,6 +132,8 @@ export function indexar(catalogos) {
   for (const grupo of grupos) {
     grupo.menor = Math.min(...Object.values(grupo.ofertas).map((o) => o.preco));
     grupo.porKg = porKgDe(grupo.menor, grupo.gramas);
+    // O departamento só fecha depois de ver todas as lojas; o preparo vale só em carnes.
+    grupo.preparos = grupo.departamento === "carnes" ? preparosDe(grupo.nome) : [];
   }
 
   return { grupos, porChave, porMercado, mercados: Object.keys(catalogos), catalogo: montarCatalogo(grupos) };
@@ -144,15 +147,17 @@ function temPrefixo(texto, palavra) {
 
 const quantasOfertas = (g) => Object.keys(g.ofertas).length;
 
-// Os chips valem igual na busca e no catálogo.
-function passa(grupo, { promocao, mercados }) {
+// Os chips valem igual na busca e no catálogo. `preparo` é o id de um
+// preparo de carne (bife, moida…): só passa quem o tem no nome.
+function passa(grupo, { promocao, mercados, preparo }) {
   if (mercados && !mercados.some((m) => m in grupo.ofertas)) return false;
   if (promocao && !Object.values(grupo.ofertas).some((o) => o.promocao > 0)) return false;
+  if (preparo && !grupo.preparos.includes(preparo)) return false;
   return true;
 }
 
-export function filtrar(grupos, { promocao = false, mercados = null } = {}) {
-  return grupos.filter((grupo) => passa(grupo, { promocao, mercados }));
+export function filtrar(grupos, { promocao = false, mercados = null, preparo = null } = {}) {
+  return grupos.filter((grupo) => passa(grupo, { promocao, mercados, preparo }));
 }
 
 // Ordena por preço ou por kg/l; qualquer outra ordem devolve a lista como
@@ -171,7 +176,7 @@ export function ordenar(grupos, ordem) {
   return grupos.map((grupo, posicao) => ({ grupo, posicao })).sort(comparar).map((a) => a.grupo);
 }
 
-export function buscar(indice, termo, { promocao = false, ordem = "relevancia", mercados = null } = {}) {
+export function buscar(indice, termo, { promocao = false, ordem = "relevancia", mercados = null, preparo = null } = {}) {
   const normal = normalizar(termo);
   if (!normal) return [];
   const palavras = normal.split(" ");
@@ -182,7 +187,7 @@ export function buscar(indice, termo, { promocao = false, ordem = "relevancia", 
     for (const palavra of palavras) {
       if (!temPrefixo(grupo.texto, palavra)) { bate = false; break; }
     }
-    if (bate && passa(grupo, { promocao, mercados })) achados.push(grupo);
+    if (bate && passa(grupo, { promocao, mercados, preparo })) achados.push(grupo);
   }
   if (ordem === "preco" || ordem === "porKg") return ordenar(achados, ordem);
 
@@ -196,9 +201,9 @@ export function buscar(indice, termo, { promocao = false, ordem = "relevancia", 
 
 // Produtos de um departamento (ou de uma seção dele) com os mesmos chips da
 // busca. Sem ordem de preço fica a ordem de nome do catálogo.
-export function catalogar(indice, { departamento, secao = null, promocao = false, ordem = "relevancia", mercados = null } = {}) {
+export function catalogar(indice, { departamento, secao = null, promocao = false, ordem = "relevancia", mercados = null, preparo = null } = {}) {
   const dep = indice.catalogo.find((d) => d.id === departamento);
   if (!dep) return [];
   const base = secao == null ? dep.grupos : (dep.secoes.find((s) => s.nome === secao)?.grupos ?? []);
-  return ordenar(filtrar(base, { promocao, mercados }), ordem);
+  return ordenar(filtrar(base, { promocao, mercados, preparo }), ordem);
 }

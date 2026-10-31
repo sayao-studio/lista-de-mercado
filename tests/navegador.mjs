@@ -355,6 +355,48 @@ describe("site", () => {
     assert.equal(await page.evaluate(() => document.activeElement?.dataset.departamento), "limpeza");
   });
 
+  // ---- Preparo das carnes ----
+
+  const CARNES = "tests/fixtures/carnes";
+  const chipsDePreparo = (page) => page.locator("#preparos .chip").allTextContents();
+
+  test("busca com carne mostra os chips de preparo com contagem, e o chip filtra", async () => {
+    const { page } = await abrir({ dados: CARNES });
+    await buscarPor(page, "acem");
+    assert.deepEqual(await chipsDePreparo(page), ["Bife (1)", "Moída (2)", "Cubos (1)", "Pedaço (1)"]);
+    await page.locator('#preparos [data-preparo="moida"]').click();
+    assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Acém Moído Bovino BEST BEEF Kg", "Acém Moído Bovino 500g"]);
+    assert.equal(await page.locator('#preparos [data-preparo="moida"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.preparo), "moida");
+    // Tocar de novo solta o filtro.
+    await page.locator('#preparos [data-preparo="moida"]').click();
+    assert.equal(await page.locator("#resultados .cartao").count(), 6);
+    await page.locator('#preparos [data-preparo="moida"]').click();
+    // Outra busca sem "moída": o chip some e o filtro solta, em vez de uma lista vazia.
+    await buscarPor(page, "frango");
+    assert.deepEqual(await chipsDePreparo(page), ["Tiras (1)", "Temperada (1)"]);
+    assert.equal(await page.locator("#resultados .cartao").count(), 1);
+    await buscarPor(page, "arroz");
+    assert.ok(await page.locator("#preparos").isHidden());
+    assert.equal(await page.locator("#resultados .cartao").count(), 1);
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(largura <= 390, `scrollWidth ${largura} > 390`);
+  });
+
+  test("no catálogo, a seção de carne também tem os chips de preparo", async () => {
+    const { page } = await abrir({ dados: CARNES });
+    await page.locator('#resultados .departamento[data-departamento="carnes"]').click();
+    // Lista de seções não é lista de produtos: sem chips de preparo.
+    assert.ok(await page.locator("#preparos").isHidden());
+    await page.locator('#resultados .secao[data-secao="Bovinos"]').click();
+    assert.deepEqual(await chipsDePreparo(page), ["Bife (1)", "Moída (2)", "Cubos (1)", "Pedaço (1)", "Espeto (1)"]);
+    await page.locator('#preparos [data-preparo="espeto"]').click();
+    assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Espetinho Bovino Giassi 500g"]);
+    await page.locator("#resultados .voltar").click();
+    await page.waitForSelector("#resultados .secoes");
+    assert.ok(await page.locator("#preparos").isHidden());
+  });
+
   // ---- Tela Lista ----
 
   const ARROZ = "7896006700029";

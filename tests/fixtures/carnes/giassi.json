@@ -1,0 +1,13 @@
+{
+  "versao": 1,
+  "mercado": "giassi",
+  "nome": "Giassi",
+  "site": "https://www.giassi.com.br",
+  "fotos": "https://giassi.vteximg.com.br/arquivos/ids/",
+  "atualizadoEm": "2026-10-31T12:00:00.000Z",
+  "categorias": ["Carnes e Aves > Bovinos"],
+  "produtos": [
+    { "id": "g10", "nome": "Acém Bovino Resfriado sem Osso Giassi Vácuo Kg", "marca": "Giassi", "ean": "", "gramas": 1700, "granel": true, "liquido": false, "preco": 6545, "promocao": 7123, "foto": "210", "link": "acem_bovino_vacuo_kg_g10", "categoria": 0 },
+    { "id": "g11", "nome": "Espetinho Bovino Giassi 500g", "marca": "Giassi", "ean": "", "gramas": 500, "granel": false, "liquido": false, "preco": 1990, "promocao": 0, "foto": "211", "link": "espetinho_bovino_500g_g11", "categoria": 0 }
+  ]
+}

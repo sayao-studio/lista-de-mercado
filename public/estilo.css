@@ -206,7 +206,7 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
 
 /* Chips: uma linha só que rola de lado no celular, pra não empurrar os
    resultados pra baixo da dobra. */
-#chips {
+#chips, #preparos {
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -221,7 +221,11 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
   scroll-padding-inline: var(--respiro);
 }
 
-#chips::-webkit-scrollbar { display: none; }
+#chips::-webkit-scrollbar, #preparos::-webkit-scrollbar { display: none; }
+
+/* Segunda linha, logo abaixo da primeira; `hidden` precisa vencer o display: flex. */
+#preparos { padding-top: 0; }
+#preparos[hidden] { display: none; }
 
 .chip {
   flex: none;
@@ -536,12 +540,14 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
   body:has([data-tela="lista"][data-ativa]) #aviso { bottom: calc(16px + var(--altura-totais, 0px) + 12px); }
 
   /* Com mouse, rolar de lado é ruim: os chips quebram linha. */
-  #chips {
+  #chips, #preparos {
     flex-wrap: wrap;
     overflow: visible;
     margin: 0;
     padding: 2px 0 10px;
   }
+
+  #preparos { padding-top: 0; }
 
   .departamentos { grid-template-columns: 1fr 1fr 1fr; }
 }

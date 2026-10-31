@@ -1,0 +1,14 @@
+{
+  "versao": 1,
+  "mercado": "bistek",
+  "nome": "Bistek",
+  "site": "https://www.bistek.com.br",
+  "fotos": "https://bistek.vteximg.com.br/arquivos/ids/",
+  "atualizadoEm": "2026-10-31T12:00:00.000Z",
+  "categorias": ["Carnes > Bovinos", "Mercearia > Alimentos Básicos"],
+  "produtos": [
+    { "id": "b10", "nome": "Acém Bovino em Bifes Kg", "marca": "Bistek", "ean": "", "gramas": 1000, "granel": true, "liquido": false, "preco": 5490, "promocao": 0, "foto": "110", "link": "acem-bovino-em-bifes-kg-b10", "categoria": 0 },
+    { "id": "b11", "nome": "Acém Moído Bovino 500g", "marca": "Bistek", "ean": "", "gramas": 500, "granel": false, "liquido": false, "preco": 2190, "promocao": 0, "foto": "111", "link": "acem-moido-bovino-500g-b11", "categoria": 0 },
+    { "id": "b12", "nome": "Arroz Tio João 1kg", "marca": "Tio João", "ean": "7896006700029", "gramas": 1000, "granel": false, "liquido": false, "preco": 1198, "promocao": 0, "foto": "112", "link": "arroz-tio-joao-1kg-b12", "categoria": 1 }
+  ]
+}

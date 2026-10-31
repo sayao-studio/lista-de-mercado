@@ -1,7 +1,8 @@
 // Tela Buscar: campo, chips, catálogo (com o campo vazio) e cartões. Não
 // mexe na lista nem salva nada: quem é dono de `estado.itens` é o app.js,
 // que recebe os pedidos por `acoes`.
-import { buscar, catalogar } from "./busca.js";
+import { buscar, catalogar, filtrar } from "./busca.js";
+import { PREPAROS } from "./preparo.js";
 import { reais, peso } from "./formato.js";
 import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
 // A mesma regra dos totais: chip de mercado sem catálogo filtraria pra lista
@@ -26,6 +27,8 @@ const ui = {
   promocao: false,
   ordem: "relevancia",
   mercados: new Set(),
+  // Preparo de carne escolhido (bife, moida…); só vale enquanto a lista tem carne.
+  preparo: null,
   mostrar: LOTE,
   // Onde a pessoa está no catálogo; vale enquanto o campo está vazio e
   // sobrevive a digitar e apagar, pra ela voltar pra prateleira onde estava.
@@ -64,9 +67,41 @@ function renderizarChips(estado) {
   ].join("");
 }
 
-// Os chips valem igual na busca e no catálogo.
+// Os chips valem igual na busca e no catálogo. O preparo fica de fora: a
+// tela aplica depois, pra contar o que cada chip de preparo tem.
 function filtros() {
   return { promocao: ui.promocao, ordem: ui.ordem, mercados: ui.mercados.size ? [...ui.mercados] : null };
+}
+
+// A lista de produtos que a tela está mostrando (busca ou seção do
+// catálogo), antes do filtro de preparo; null quando não há lista (raiz ou
+// departamento do catálogo, ou sem índice).
+function achadosAtuais(estado) {
+  if (!estado.indice) return null;
+  const termo = ui.termo.trim();
+  if (termo) return buscar(estado.indice, termo, filtros());
+  const { departamento, secao, tudo } = ui.catalogo;
+  if (!departamento || (secao == null && !tudo)) return null;
+  return catalogar(estado.indice, { departamento, secao: tudo ? null : secao, ...filtros() });
+}
+
+// Chips de preparo (bife, moída, cubos…) só quando a lista tem carne: o
+// açougue é o foco, e "acém" sem isso mistura bife com moída. A contagem
+// diz o que cada chip vai mostrar.
+function renderizarPreparos(achados) {
+  const caixa = el("#preparos");
+  const contagens = new Map();
+  for (const grupo of achados ?? []) {
+    for (const preparo of grupo.preparos) contagens.set(preparo, (contagens.get(preparo) || 0) + 1);
+  }
+  const disponiveis = PREPAROS.filter((p) => contagens.has(p.id));
+  // O preparo escolhido não existe nesta lista (outra busca): solta o filtro
+  // em vez de mostrar uma lista vazia sem o chip que explicaria por quê.
+  if (ui.preparo && !contagens.has(ui.preparo)) ui.preparo = null;
+  caixa.hidden = !disponiveis.length;
+  caixa.innerHTML = disponiveis
+    .map((p) => chip(`data-preparo="${escapar(p.id)}"`, `${p.nome} (${contagens.get(p.id)})`, ui.preparo === p.id))
+    .join("");
 }
 
 function marcaPeso(grupo) {
@@ -187,9 +222,8 @@ function departamentoDoCatalogo(estado, dep) {
 // linha seria um toque a mais sem escolha nenhuma.
 const umaSecaoSo = (dep) => dep.secoes.length === 1;
 
-function produtosDoCatalogo(estado, dep) {
+function produtosDoCatalogo(estado, dep, achados) {
   const secao = ui.catalogo.tudo ? null : ui.catalogo.secao;
-  const achados = catalogar(estado.indice, { departamento: dep.id, secao, ...filtros() });
   let titulo;
   let rotuloVoltar;
   if (umaSecaoSo(dep)) {
@@ -208,7 +242,7 @@ function produtosDoCatalogo(estado, dep) {
   return `<div class="catalogo">${cabecalho}${cartoes}${mais ? `<div class="rodape-busca">${mais}</div>` : ""}</div>`;
 }
 
-function conteudoDoCatalogo(estado) {
+function conteudoDoCatalogo(estado, achados) {
   const { departamento, secao, tudo } = ui.catalogo;
   if (!departamento) return raizDoCatalogo(estado);
   const dep = estado.indice.catalogo.find((d) => d.id === departamento);
@@ -218,10 +252,11 @@ function conteudoDoCatalogo(estado) {
     return raizDoCatalogo(estado);
   }
   if (secao == null && !tudo) return departamentoDoCatalogo(estado, dep);
-  return produtosDoCatalogo(estado, dep);
+  return produtosDoCatalogo(estado, dep, achados ?? []);
 }
 
-function conteudoResultados(estado) {
+// `achados`: a lista já filtrada (inclusive por preparo) quando há lista.
+function conteudoResultados(estado, achados) {
   const termo = ui.termo.trim();
   if (!estado.indice) {
     // Sem catálogo a lista ainda serve de lembrete: o texto livre continua possível.
@@ -232,9 +267,8 @@ function conteudoResultados(estado) {
   }
   // Campo vazio é o catálogo: a pessoa vai vendo o que tem, corredor por
   // corredor, e lembra o que esqueceu de digitar.
-  if (!termo) return conteudoDoCatalogo(estado);
+  if (!termo) return conteudoDoCatalogo(estado, achados);
 
-  const achados = buscar(estado.indice, termo, filtros());
   if (!achados.length) {
     return `<p class="vazio">Nada com “${escapar(termo)}”. Pode adicionar sem preço.</p>
       <div class="rodape-busca">${botaoTexto(termo)}</div>`;
@@ -249,11 +283,11 @@ function seletorDoFoco() {
   const ativo = document.activeElement;
   const cartaoFocado = ativo?.closest?.("#resultados .cartao");
   if (cartaoFocado) return `#resultados .cartao[data-chave="${CSS.escape(cartaoFocado.dataset.chave)}"] .adicionar`;
-  const chipFocado = ativo?.closest?.("#chips .chip");
+  const chipFocado = ativo?.closest?.("#chips .chip, #preparos .chip");
   if (chipFocado) {
-    for (const nome of ["filtro", "ordem", "mercado"]) {
+    for (const nome of ["filtro", "ordem", "mercado", "preparo"]) {
       const valor = chipFocado.dataset[nome];
-      if (valor) return `#chips .chip[data-${nome}="${CSS.escape(valor)}"]`;
+      if (valor) return `#${chipFocado.parentElement.id} .chip[data-${nome}="${CSS.escape(valor)}"]`;
     }
   }
   if (ativo?.closest?.("#resultados .catalogo")) {
@@ -275,7 +309,10 @@ export function renderizarBusca(estado, { focarCartao = null } = {}) {
   const foco = seletorDoFoco();
   gruposNaTela = new Map();
   renderizarChips(estado);
-  resultados.innerHTML = conteudoResultados(estado);
+  let achados = achadosAtuais(estado);
+  renderizarPreparos(achados);
+  if (achados && ui.preparo) achados = filtrar(achados, { preparo: ui.preparo });
+  resultados.innerHTML = conteudoResultados(estado, achados);
   // Marca o termo que este desenho reflete: com o debounce, quem espera (os
   // testes, por exemplo) sabe quando o resultado já é do que foi digitado.
   resultados.dataset.termo = ui.termo;
@@ -390,6 +427,15 @@ export function ligarBusca(estado, acoes) {
     }
     // O chip vale pra o que está digitado agora, mesmo antes do debounce.
     ui.termo = campo.value;
+    ui.mostrar = LOTE;
+    renderizarBusca(estado);
+  });
+
+  el("#preparos").addEventListener("click", (e) => {
+    const botao = e.target.closest(".chip");
+    if (!botao) return;
+    // Tocar de novo no preparo ativo solta o filtro.
+    ui.preparo = ui.preparo === botao.dataset.preparo ? null : botao.dataset.preparo;
     ui.mostrar = LOTE;
     renderizarBusca(estado);
   });

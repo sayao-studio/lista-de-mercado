@@ -22,6 +22,7 @@
        sequência; avisando antes, o navegador baixa tudo de uma vez. -->
   <link rel="modulepreload" href="busca.js">
   <link rel="modulepreload" href="departamentos.js">
+  <link rel="modulepreload" href="preparo.js">
   <link rel="modulepreload" href="texto.js">
   <script type="module" src="app.js"></script>
 </head>
@@ -39,6 +40,8 @@
                autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
       </div>
       <div id="chips"></div>
+      <!-- Preparo das carnes (bife, moída…): só aparece quando a lista tem carne. -->
+      <div id="preparos" aria-label="Preparo da carne" hidden></div>
       <div id="resultados"></div>
     </section>
 

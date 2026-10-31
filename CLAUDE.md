@@ -12,6 +12,8 @@ GitHub Actions, 3x/dia, e publica os JSON em `public/dados/`.
 - `robo/` baixa e normaliza os catálogos; `public/` é o site; `tests/` os testes.
 - `public/departamentos.js` é a taxonomia do catálogo (departamento → seção
   por palavra-chave sobre o caminho de categoria de cada mercado).
+- `public/preparo.js` lê o preparo das carnes do nome (bife, moída, cubos…)
+  pros chips de preparo; `tests/fixtures/carnes/` é a fixture só de carne.
 - `public/dados/` é gerado pelo robô e fica fora do git (só o `.gitkeep`).
 
 ## Como rodar

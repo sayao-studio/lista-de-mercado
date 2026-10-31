@@ -1,0 +1,15 @@
+{
+  "versao": 1,
+  "mercado": "angeloni",
+  "nome": "Angeloni",
+  "site": "https://super.angeloni.com.br",
+  "fotos": "https://superangeloni.vteximg.com.br/arquivos/ids/",
+  "atualizadoEm": "2026-10-31T12:00:00.000Z",
+  "categorias": ["Carnes, Aves e Peixes > Carnes Bovinas", "Carnes, Aves e Peixes > Aves"],
+  "produtos": [
+    { "id": "a10", "nome": "Acém Moído Bovino BEST BEEF Kg", "marca": "BEST BEEF", "ean": "", "gramas": 100, "granel": true, "liquido": false, "preco": 539, "promocao": 0, "foto": "310", "link": "acem-moido-bovino-best-beef-kg-a10", "categoria": 0 },
+    { "id": "a11", "nome": "Acém Bovino BEST BEEF Cubos Kg", "marca": "BEST BEEF", "ean": "", "gramas": 100, "granel": true, "liquido": false, "preco": 539, "promocao": 0, "foto": "311", "link": "acem-bovino-best-beef-cubos-kg-a11", "categoria": 0 },
+    { "id": "a12", "nome": "Acém Bovino BEST BEEF Pedaço Kg", "marca": "BEST BEEF", "ean": "", "gramas": 100, "granel": true, "liquido": false, "preco": 539, "promocao": 0, "foto": "312", "link": "acem-bovino-best-beef-pedaco-kg-a12", "categoria": 0 },
+    { "id": "a13", "nome": "Peito de Frango em Tiras Temperado Kg", "marca": "NAT", "ean": "", "gramas": 100, "granel": true, "liquido": false, "preco": 299, "promocao": 0, "foto": "313", "link": "peito-de-frango-em-tiras-temperado-kg-a13", "categoria": 1 }
+  ]
+}

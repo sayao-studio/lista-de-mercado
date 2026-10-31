@@ -306,3 +306,22 @@ test("filtrar e ordenar valem fora da busca e mantêm a ordem em empate", () => 
   assert.equal(porKg.at(-1).nome, "Farinha de Arroz Urbano");
   assert.ok(porKg[0].porKg <= porKg[1].porKg);
 });
+
+// ---- Preparo das carnes ----
+
+const carnes = Object.fromEntries(["bistek", "giassi", "angeloni"].map((id) =>
+  [id, JSON.parse(readFileSync(new URL(`./fixtures/carnes/${id}.json`, import.meta.url), "utf8"))]));
+
+test("preparos só em carnes, e o filtro de preparo vale na busca e no catálogo", () => {
+  const i = indexar(carnes);
+  assert.deepEqual(i.porMercado.get("bistek:b10").preparos, ["bife"]);
+  assert.deepEqual(i.porMercado.get("angeloni:a13").preparos, ["tiras", "temperada"]);
+  assert.deepEqual(i.porMercado.get("giassi:g10").preparos, []);
+  assert.deepEqual(i.porMercado.get("bistek:b12").preparos, []); // arroz: fora de carnes
+  // Relevância: os dois começam por "acem" e estão numa loja só; o mais barato primeiro.
+  assert.deepEqual(nomes(buscar(i, "acem", { preparo: "moida" })), ["Acém Moído Bovino BEST BEEF Kg", "Acém Moído Bovino 500g"]);
+  assert.equal(buscar(i, "acem").length, 6);
+  assert.deepEqual(nomes(catalogar(i, { departamento: "carnes", secao: "Bovinos", preparo: "espeto" })), ["Espetinho Bovino Giassi 500g"]);
+  assert.equal(filtrar(i.grupos, { preparo: "temperada" }).length, 1);
+  assert.equal(filtrar(i.grupos, { preparo: null }).length, 9);
+});

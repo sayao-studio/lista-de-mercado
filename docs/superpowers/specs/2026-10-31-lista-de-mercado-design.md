@@ -240,6 +240,16 @@ primeiro, depois quem está em mais mercados, depois menor preço. Opções
 (chips): "Só promoções", "Menor preço", "Menor preço/kg", e um chip por
 mercado pra filtrar. Mostra 30 resultados e "Mostrar mais".
 
+**Preparo das carnes:** o açougue é o foco de quem compara por quilo, e
+"acém" mistura bife com moída. Todo produto do departamento Carnes ganha
+os preparos lidos do nome (`public/preparo.js`): Bife, Moída, Cubos, Tiras,
+Pedaço, Espeto, Temperada (um produto pode ter mais de um). Quando a lista
+na tela (resultado da busca ou seção do catálogo) tem carne com preparo,
+aparece uma segunda linha de chips, um por preparo presente, com a
+contagem ("Moída (2)"); tocar filtra, tocar de novo solta. Preparo que não
+existe na lista atual (a pessoa buscou outra coisa) some e o filtro solta,
+em vez de mostrar uma lista vazia sem o chip que explicaria.
+
 **Catálogo (campo vazio):** a pessoa também monta a lista "vendo o que
 tem", pra lembrar o que esqueceu de digitar. Com o campo vazio a tela
 mostra o catálogo inteiro dos três mercados, separado por **departamento**
