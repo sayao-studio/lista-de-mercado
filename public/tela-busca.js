@@ -356,7 +356,8 @@ export function ligarBusca(estado, acoes) {
     // O voltar precisa ter efeito visível: com texto digitado (ou na aba
     // Lista) o nível mudaria às escuras e a pessoa apertaria de novo até
     // sair do site. Limpa a busca e traz pra tela Buscar.
-    if (ui.termo) {
+    // Lê o campo, não `ui.termo`: o debounce de 120 ms pode ainda não ter copiado o que foi digitado.
+    if (campo.value || ui.termo) {
       campo.value = "";
       ui.termo = "";
     }
