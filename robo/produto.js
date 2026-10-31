@@ -7,20 +7,29 @@ export const semAcento = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "
 // "Óleo 900ml", "Açúcar 1.000g", "Leite 1L x 12"), ou null quando não dá.
 const UNIDADE = "(kg|quilos?|g|gr|grs|gramas?|l|lt|litros?|ml)";
 export function pesoGramas(nome) {
+  return pesoDoNome(nome).gramas;
+}
+
+// Peso e se ele é de líquido (ml/l): o site mostra "900 ml" e R$/l em vez de
+// "900 g" e R$/kg. Granel e nome sem unidade não são líquido.
+export function pesoDoNome(nome) {
   const n = semAcento(nome)
     .replace(/(\d)\.(\d{3})(?=\s*(?:g|gr|grs|gramas?|ml)\b)/g, "$1$2") // 1.000g: ponto de milhar
     .replace(/(\d),(\d)/g, "$1.$2");
   const antes = n.match(new RegExp(`(\\d+)\\s*x\\s*(\\d+(?:\\.\\d+)?)\\s*${UNIDADE}\\b`));
   const um = [...n.matchAll(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*${UNIDADE}\\b`, "g"))].pop();
   const m = antes ? { valor: antes[2], unidade: antes[3], vezes: Number(antes[1]) } : um ? { valor: um[1], unidade: um[2], vezes: 1, fim: um.index + um[0].length } : null;
-  if (!m) return /\bkg$/.test(n.trim()) ? 1000 : null;
+  if (!m) return { gramas: /\bkg$/.test(n.trim()) ? 1000 : null, liquido: false };
   if (!antes) {
     // Quantidade depois do peso: "x 12", "c/ 3", "com 3 unidades".
     const depois = n.slice(m.fim).match(/^\s*(?:x\s*(\d+)\b|(?:c\/|com)\s*(\d+)\s*(?:un|unid|unidades|envelopes?|saches?|sachets?)?\b)/);
     if (depois) m.vezes = Number(depois[1] || depois[2]);
   }
   const valor = Number(m.valor) * m.vezes;
-  return /^(kg|quilos?|l|lt|litros?)$/.test(m.unidade) ? valor * 1000 : valor;
+  return {
+    gramas: /^(kg|quilos?|l|lt|litros?)$/.test(m.unidade) ? valor * 1000 : valor,
+    liquido: /^(ml|l|lt|litros?)$/.test(m.unidade),
+  };
 }
 
 // Prefixo 2 é peso variável (o preço muda por balança) e 3000 é código interno
@@ -44,7 +53,10 @@ export function eanValido(ean) {
 export function hostFoto(produto) {
   for (const item of produto.items || []) {
     const url = item.images?.[0]?.imageUrl;
-    if (url) return new URL(url).origin + "/arquivos/ids/";
+    if (!url) continue;
+    // URL torta da loja não pode derrubar o rastreio do mercado inteiro:
+    // tenta o próximo SKU e, sem nenhum bom, devolve null.
+    try { return new URL(url).origin + "/arquivos/ids/"; } catch { /* próximo */ }
   }
   return null;
 }
@@ -62,18 +74,22 @@ export function linhasDoProduto(produto) {
     if (!o || !(o.AvailableQuantity > 0) || !(o.Price > 0)) continue;
     const nome = item.nameComplete || produto.productName;
     const granel = item.measurementUnit === "kg";
-    const passo = granel ? item.unitMultiplier : 1;
+    // Granel sem multiplicador daria NaN no preço e no peso: vale 1 kg.
+    const passo = granel ? Number(item.unitMultiplier) || 1 : 1;
     // O preço "de" só conta quando é maior que o de hoje; senão não há promoção.
     const preco = centavos(o.Price * passo);
     const de = centavos((o.ListPrice || 0) * passo);
     const imagem = item.images?.[0]?.imageUrl?.match(/arquivos\/ids\/(\d+)/);
+    const peso = granel ? { gramas: Math.round(passo * 1000), liquido: false } : pesoDoNome(nome);
     linhas.push({
       id: String(item.itemId),
       nome,
       marca: produto.brand || "",
       ean: eanValido(item.ean) ? item.ean : "", // código interno não identifica o produto entre lojas
-      gramas: granel ? Math.round(item.unitMultiplier * 1000) : pesoGramas(nome),
+      gramas: peso.gramas,
       granel,
+      // Campo novo e opcional: arquivo publicado antes dele continua valendo.
+      liquido: peso.liquido,
       preco,
       promocao: de > preco ? de : 0,
       foto: imagem ? imagem[1] : "",

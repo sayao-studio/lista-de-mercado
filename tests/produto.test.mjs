@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { pesoGramas, eanValido, hostFoto, linhasDoProduto } from "../robo/produto.js";
+import { pesoGramas, pesoDoNome, eanValido, hostFoto, linhasDoProduto } from "../robo/produto.js";
 
 // Fixture pagina-vtex.json (JSON das lojas como veio, sem edição):
 //   [0] Bebida Vegetal Banana Milk 1l (Bistek): o produto com promoção (22,65 -> 19,47)
@@ -40,6 +40,7 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
     ean: "7898975890015",
     gramas: 1000,
     granel: false,
+    liquido: true,
     preco: 1947,
     promocao: 2265,
     foto: "207350",
@@ -54,6 +55,7 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
     ean: "",
     gramas: 1400,
     granel: true,
+    liquido: false,
     preco: 685,
     promocao: 0,
     foto: "14793436",
@@ -78,4 +80,25 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
 test("hostFoto tira o host da primeira imagem", () => {
   assert.equal(hostFoto(fixture[0]), "https://bistek.vteximg.com.br/arquivos/ids/");
   assert.equal(hostFoto({ items: [{ images: [] }] }), null);
+  // URL quebrada vinda da loja não pode derrubar o mercado inteiro.
+  assert.equal(hostFoto({ items: [{ images: [{ imageUrl: "não é url" }] }] }), null);
+});
+
+// Líquido vendido em ml/l: o site mostra "900 ml" e R$/l em vez de g e R$/kg.
+test("pesoDoNome diz se o peso é de líquido", () => {
+  assert.deepEqual(pesoDoNome("Óleo 900ml"), { gramas: 900, liquido: true });
+  assert.deepEqual(pesoDoNome("Leite 1L"), { gramas: 1000, liquido: true });
+  assert.deepEqual(pesoDoNome("Água 1,5 litros"), { gramas: 1500, liquido: true });
+  assert.deepEqual(pesoDoNome("Arroz 1kg"), { gramas: 1000, liquido: false });
+  assert.deepEqual(pesoDoNome("Banana Caturra Kg"), { gramas: 1000, liquido: false });
+  assert.deepEqual(pesoDoNome("Mamão Papaia Unid."), { gramas: null, liquido: false });
+});
+
+test("granel sem unitMultiplier sai em passo de 1 kg, sem NaN", () => {
+  const semPasso = structuredClone(fixture[1]);
+  delete semPasso.items[0].unitMultiplier;
+  const [linha] = linhasDoProduto(semPasso);
+  assert.equal(linha.gramas, 1000);
+  assert.equal(linha.preco, 489);
+  assert.equal(linha.liquido, false);
 });
