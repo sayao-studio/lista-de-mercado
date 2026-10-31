@@ -49,8 +49,8 @@ function rastrearFalso(comportamento) {
 // Fetch de mentira para o `--anterior`: só responde as URLs de `publicados`.
 function fetchFalso(publicados) {
   const chamadas = [];
-  const fazerFetch = async (url) => {
-    chamadas.push(String(url));
+  const fazerFetch = async (url, opcoes) => {
+    chamadas.push({ url: String(url), opcoes });
     const corpo = publicados[String(url)];
     if (!corpo) return new Response("não achei", { status: 404 });
     return new Response(JSON.stringify(corpo), { status: 200 });
@@ -104,7 +104,7 @@ test("grava um arquivo por mercado e o resumo com ?v=", async () => {
 
 test("mercado que falha cai no anterior e mantém o atualizadoEm antigo", async () => {
   await comPasta(async (saida) => {
-    const { rastrearMercado } = rastrearFalso({ giassi: "HTTP 503 depois de 3 tentativas" });
+    const { rastrearMercado } = rastrearFalso({ giassi: "HTTP 503 depois de 5 tentativas" });
     const antigo = publicado(MERCADOS_TESTE[1], "2025-10-30T21:00:00.000Z");
     const { fazerFetch } = fetchFalso({ [`${ANTERIOR}/giassi.json`]: antigo });
     const { linhas, log } = logs();
@@ -118,19 +118,19 @@ test("mercado que falha cai no anterior e mantém o atualizadoEm antigo", async 
     const d = new Date("2025-10-30T21:00:00.000Z");
     const p = (n) => String(n).padStart(2, "0");
     const hora = `${p(d.getDate())}/${p(d.getMonth() + 1)} ${p(d.getHours())}h${d.getMinutes() ? p(d.getMinutes()) : ""}`;
-    assert.ok(linhas.includes(`Giassi: falhou (HTTP 503 depois de 3 tentativas), usando anterior de ${hora}`), linhas.join("\n"));
+    assert.ok(linhas.includes(`Giassi: falhou (HTTP 503 depois de 5 tentativas), usando anterior de ${hora}`), linhas.join("\n"));
   });
 });
 
 test("mercado que falha sem anterior entra no resumo com erro", async () => {
   await comPasta(async (saida) => {
-    const { rastrearMercado } = rastrearFalso({ giassi: "HTTP 503 depois de 3 tentativas" });
+    const { rastrearMercado } = rastrearFalso({ giassi: "HTTP 503 depois de 5 tentativas" });
     const { linhas, log } = logs();
     const resumo = await atualizar({ mercados: MERCADOS_TESTE, saida, rastrearMercado, fazerFetch: fetchFalso({}).fazerFetch, agora: () => AGORA, log });
 
-    assert.deepEqual(resumo.mercados.giassi, { nome: "Giassi", erro: "HTTP 503 depois de 3 tentativas" });
+    assert.deepEqual(resumo.mercados.giassi, { nome: "Giassi", erro: "HTTP 503 depois de 5 tentativas" });
     await assert.rejects(fs.access(path.join(saida, "giassi.json")));
-    assert.ok(linhas.includes("Giassi: sem dados (HTTP 503 depois de 3 tentativas)"));
+    assert.ok(linhas.includes("Giassi: sem dados (HTTP 503 depois de 5 tentativas)"), linhas.join("\n"));
   });
 });
 
@@ -143,6 +143,8 @@ test("soAnterior não rastreia: só baixa os publicados", async () => {
 
     assert.deepEqual(chamados, []);
     assert.equal(chamadas.length, 3);
+    // Anterior travado não pode segurar o job: todo pedido leva timeout.
+    for (const c of chamadas) assert.ok(c.opcoes?.signal instanceof AbortSignal);
     for (const m of MERCADOS_TESTE) {
       assert.equal(resumo.mercados[m.id].produtos, 1);
       assert.deepEqual(await lerJson(path.join(saida, `${m.id}.json`)), publicados[`${ANTERIOR}/${m.id}.json`]);
@@ -152,7 +154,7 @@ test("soAnterior não rastreia: só baixa os publicados", async () => {
 
 test("lança quando nenhum mercado tem dados", async () => {
   await comPasta(async (saida) => {
-    const { rastrearMercado } = rastrearFalso({ bistek: "HTTP 503 depois de 3 tentativas", giassi: "HTTP 500 depois de 3 tentativas", angeloni: "fetch failed depois de 3 tentativas" });
+    const { rastrearMercado } = rastrearFalso({ bistek: "HTTP 503 depois de 5 tentativas", giassi: "HTTP 500 depois de 5 tentativas", angeloni: "fetch failed depois de 5 tentativas" });
     await assert.rejects(
       atualizar({ mercados: MERCADOS_TESTE, saida, anterior: ANTERIOR, rastrearMercado, fazerFetch: fetchFalso({}).fazerFetch, agora: () => AGORA, log: () => {} }),
       /nenhum mercado/,
@@ -174,5 +176,50 @@ test("avisa quando os arquivos passam de 3 MB gzip", async () => {
     await atualizar({ mercados: MERCADOS_TESTE.slice(0, 1), saida, rastrearMercado, fazerFetch: fetchFalso({}).fazerFetch, agora: () => AGORA, log });
 
     assert.ok(linhas.some((l) => /^ACIMA DO ORÇAMENTO de 3 MB: \d+,\d MB$/.test(l)), linhas.join("\n"));
+  });
+});
+
+test("falha do rastreio e do anterior aparecem juntas no log", async () => {
+  await comPasta(async (saida) => {
+    const { rastrearMercado } = rastrearFalso({ angeloni: "HTTP 503 depois de 5 tentativas" });
+    const { linhas, log } = logs();
+    const resumo = await atualizar({ mercados: MERCADOS_TESTE, saida, anterior: ANTERIOR, rastrearMercado, fazerFetch: fetchFalso({}).fazerFetch, agora: () => AGORA, log });
+
+    assert.ok(linhas.includes("Angeloni: sem dados (HTTP 503 depois de 5 tentativas; anterior: HTTP 404)"), linhas.join("\n"));
+    assert.equal(resumo.mercados.angeloni.erro, "HTTP 503 depois de 5 tentativas");
+  });
+});
+
+test("anterior sem lista de produtos ou com data inválida é recusado", async () => {
+  await comPasta(async (saida) => {
+    const { rastrearMercado } = rastrearFalso({ giassi: "HTTP 503 depois de 5 tentativas", angeloni: "HTTP 503 depois de 5 tentativas" });
+    const semProdutos = { ...publicado(MERCADOS_TESTE[1], "2025-10-30T21:00:00.000Z"), produtos: null };
+    const dataRuim = publicado(MERCADOS_TESTE[2], "ontem");
+    const { fazerFetch } = fetchFalso({ [`${ANTERIOR}/giassi.json`]: semProdutos, [`${ANTERIOR}/angeloni.json`]: dataRuim });
+    const resumo = await atualizar({ mercados: MERCADOS_TESTE, saida, anterior: ANTERIOR, rastrearMercado, fazerFetch, agora: () => AGORA, log: () => {} });
+
+    assert.ok(resumo.mercados.giassi.erro);
+    assert.ok(resumo.mercados.angeloni.erro);
+    await assert.rejects(fs.access(path.join(saida, "giassi.json")));
+    await assert.rejects(fs.access(path.join(saida, "angeloni.json")));
+  });
+});
+
+test("grava por arquivo temporário e renomeia, sem deixar .tmp para trás", async () => {
+  await comPasta(async (saida) => {
+    const operacoes = [];
+    const fsEspiao = {
+      ...fs,
+      writeFile: async (alvo, ...resto) => { operacoes.push(["escreve", path.basename(alvo)]); return fs.writeFile(alvo, ...resto); },
+      rename: async (de, para) => { operacoes.push(["renomeia", path.basename(de), path.basename(para)]); return fs.rename(de, para); },
+    };
+    const { rastrearMercado } = rastrearFalso({});
+    await atualizar({ mercados: MERCADOS_TESTE.slice(0, 1), saida, rastrearMercado, fazerFetch: fetchFalso({}).fazerFetch, agora: () => AGORA, log: () => {}, fs: fsEspiao });
+
+    assert.deepEqual(operacoes, [
+      ["escreve", "bistek.json.tmp"], ["renomeia", "bistek.json.tmp", "bistek.json"],
+      ["escreve", "resumo.json.tmp"], ["renomeia", "resumo.json.tmp", "resumo.json"],
+    ]);
+    assert.deepEqual((await fs.readdir(saida)).sort(), ["bistek.json", "resumo.json"]);
   });
 });

@@ -30,6 +30,8 @@ try {
 }
 
 if (!valores.saida) sair(USO, 2);
+// Sem de onde baixar, --so-anterior não teria o que publicar.
+if (valores["so-anterior"] && !valores.anterior) sair(`--so-anterior precisa de --anterior\n${USO}`, 2);
 
 let mercados = MERCADOS;
 if (valores.mercado) {

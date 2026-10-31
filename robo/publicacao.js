@@ -26,11 +26,21 @@ const semNome = (mensagem, nome) => (mensagem.startsWith(`${nome}: `) ? mensagem
 // O publicado antes só serve se for mesmo do mercado e no formato que o site
 // entende; senão é melhor ficar sem dados do que publicar lixo.
 async function baixarAnterior(anterior, mercado, fazerFetch) {
-  const r = await fazerFetch(`${anterior}/${mercado.id}.json`);
-  if (!r.ok) throw new Error(`anterior deu HTTP ${r.status}`);
+  // Com timeout: um Pages travado não pode segurar o job inteiro.
+  const r = await fazerFetch(`${anterior}/${mercado.id}.json`, { signal: AbortSignal.timeout(20000) });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const arquivo = await r.json();
-  if (arquivo?.versao !== 1 || arquivo?.mercado !== mercado.id) throw new Error("anterior em formato inesperado");
+  const valido = arquivo?.versao === 1 && arquivo?.mercado === mercado.id
+    && Array.isArray(arquivo.produtos) && !Number.isNaN(Date.parse(arquivo.atualizadoEm));
+  if (!valido) throw new Error("formato inesperado");
   return arquivo;
+}
+
+// Escreve ao lado e renomeia por cima: se o robô morrer no meio, fica o
+// arquivo antigo inteiro em vez de um JSON cortado que quebra o site.
+async function gravarAtomico(fs, alvo, texto) {
+  await fs.writeFile(`${alvo}.tmp`, texto);
+  await fs.rename(`${alvo}.tmp`, alvo);
 }
 
 export async function atualizar({
@@ -51,7 +61,7 @@ export async function atualizar({
 
   async function gravar(id, arquivo) {
     const texto = JSON.stringify(arquivo) + "\n"; // sem indentação: tamanho importa
-    await fs.writeFile(path.join(saida, `${id}.json`), texto);
+    await gravarAtomico(fs, path.join(saida, `${id}.json`), texto);
     gravados.push(texto);
   }
 
@@ -81,7 +91,9 @@ export async function atualizar({
           : `${mercado.nome}: ${arquivo.produtos.length} produtos (anterior de ${quando(arquivo.atualizadoEm)})`);
         return arquivo;
       } catch (e) {
-        falha ??= e.message;
+        const motivo = e.name === "TimeoutError" ? "tempo esgotado (20 s)" : e.message;
+        log(`${mercado.nome}: sem dados (${falha ? `${falha}; ` : ""}anterior: ${motivo})`);
+        return { erro: falha ?? `anterior: ${motivo}` };
       }
     }
     falha ??= "sem --anterior";
@@ -113,6 +125,6 @@ export async function atualizar({
   log(`tamanho gzip: ${mb(total)}`);
   if (total > ORCAMENTO) log(`ACIMA DO ORÇAMENTO de 3 MB: ${mb(total)}`);
 
-  await fs.writeFile(path.join(saida, "resumo.json"), JSON.stringify(resumo) + "\n");
+  await gravarAtomico(fs, path.join(saida, "resumo.json"), JSON.stringify(resumo) + "\n");
   return resumo;
 }
