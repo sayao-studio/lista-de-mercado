@@ -222,4 +222,221 @@ describe("site", () => {
     const focado = await page.evaluate(() => document.activeElement?.dataset.filtro);
     assert.equal(focado, "promocao");
   });
+  // ---- Tela Lista ----
+
+  const ARROZ = "7896006700029";
+  const BANANA = "bistek:b3";
+
+  // Põe produtos pela busca, como a pessoa faria, e volta pra tela da lista.
+  async function adicionar(page, termo, chave) {
+    await buscarPor(page, termo);
+    await page.locator(`#resultados .cartao[data-chave="${chave}"] .adicionar`).click();
+  }
+
+  async function adicionarTexto(page, termo) {
+    await buscarPor(page, termo);
+    await page.locator("#adicionar-texto").click();
+  }
+
+  async function irParaLista(page) {
+    await page.locator('[data-ir="lista"]').click();
+  }
+
+  const itemDe = (page, nome) => page.locator("#itens li.item", { hasText: nome });
+
+  test("item na lista mostra o mais barato e os outros mercados", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await irParaLista(page);
+    const item = itemDe(page, "Arroz Tio João 1kg");
+    assert.equal(await item.locator(".melhor").textContent(), "Giassi R$ 10,90");
+    assert.equal(await item.locator(".outros").textContent(), "Bistek R$ 11,98 · Angeloni R$ 12,49");
+    assert.equal(await item.locator(".marcar").getAttribute("aria-label"), "Pegar Arroz Tio João 1kg");
+    assert.equal((await item.locator(".quantidade .n").textContent()).trim(), "1");
+    // Detalhe: link pra loja, promoção riscada e preço por quilo.
+    await item.locator(".detalhe summary").click();
+    const detalhe = item.locator(".detalhe");
+    assert.match(await detalhe.locator('a[href*="giassi"]').getAttribute("target"), /_blank/);
+    assert.match(await detalhe.textContent(), /Giassi\s+R\$ 10,90 · R\$ 10,90\/kg/);
+    assert.equal(await detalhe.locator("s").first().textContent(), "R$ 13,99");
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(largura <= 390, `scrollWidth ${largura} > 390`);
+  });
+
+  test("mais e menos mudam a quantidade e os totais", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await irParaLista(page);
+    const item = itemDe(page, "Arroz Tio João 1kg");
+    assert.equal(await item.locator(".menos").getAttribute("aria-disabled"), "true");
+    await item.locator(".mais").click();
+    assert.equal((await item.locator(".n").textContent()).trim(), "2");
+    assert.equal(await item.locator(".melhor").textContent(), "Giassi R$ 21,80");
+    assert.equal(await item.locator(".outros").textContent(), "Bistek R$ 23,96 · Angeloni R$ 24,98");
+    assert.match(await page.locator("#totais").textContent(), /Tudo no Giassi R\$ 21,80/);
+    // O redesenho não tira o foco do botão tocado.
+    assert.equal(await page.evaluate(() => document.activeElement?.className), "mais");
+    // Cartão da busca acompanha a quantidade da lista.
+    assert.equal((await page.locator(`#resultados .cartao[data-chave="${ARROZ}"] .adicionar`).textContent()).trim(), "×2");
+    await item.locator(".menos").click();
+    assert.equal((await item.locator(".n").textContent()).trim(), "1");
+    // Menos em 1 não remove: tirar da lista é só no ×. O Playwright não
+    // clica em aria-disabled, então vai pelo teclado (o botão segue focável).
+    await item.locator(".menos").focus();
+    await page.keyboard.press("Enter");
+    assert.equal(await page.locator("#itens li.item").count(), 1);
+    await item.locator(".remover").click();
+    assert.equal(await page.locator("#itens li.item").count(), 0);
+    assert.ok(await page.locator("#totais").isHidden());
+  });
+
+  test("riscar manda o item pro fim e sobrevive ao recarregar", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await adicionar(page, "banana", BANANA);
+    await irParaLista(page);
+    await itemDe(page, "Arroz Tio João 1kg").locator(".marcar").check();
+    const ultimo = page.locator("#itens > li:last-child");
+    assert.match(await ultimo.locator(".nome").textContent(), /Arroz Tio João 1kg/);
+    assert.equal(await ultimo.getAttribute("data-marcado"), "");
+    assert.match(await page.locator("#itens .divisor").textContent(), /Pegos/);
+    // Granel mostra a quantidade com o peso de cada passo.
+    assert.equal((await itemDe(page, "Banana Caturra Kg").locator(".n").textContent()).trim(), "1 × 1 kg");
+
+    await page.reload();
+    await page.evaluate(() => window.app.pronto);
+    const depois = page.locator("#itens > li.item:last-child");
+    assert.match(await depois.locator(".nome").textContent(), /Arroz Tio João 1kg/);
+    assert.ok(await depois.locator(".marcar").isChecked());
+
+    await page.locator("#desmarcar").click();
+    assert.equal(await page.locator("#itens li.item[data-marcado]").count(), 0);
+    assert.match(await page.locator("#itens > li.item:first-child .nome").textContent(), /Arroz/);
+  });
+
+  test("totais: faltam N e cada item no mais barato", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await adicionar(page, "banana", BANANA);
+    await adicionarTexto(page, "pão de queijo");
+    await irParaLista(page);
+    const totais = (await page.locator("#totais").textContent()).replace(/\s+/g, " ");
+    assert.match(totais, /Tudo no Bistek R\$ 16,87/);
+    assert.match(totais, /Tudo no Giassi R\$ 10,90 · falta 1/);
+    assert.match(totais, /Tudo no Angeloni R\$ 12,49 · falta 1/);
+    assert.match(totais, /Cada item no mais barato R\$ 15,79/);
+    assert.match(totais, /1 sem preço/);
+    // O mercado completo vem primeiro.
+    assert.equal(await page.locator("#totais [data-mercado]").first().getAttribute("data-mercado"), "bistek");
+    assert.match(await itemDe(page, "pão de queijo").locator(".melhor").textContent(), /sem preço/);
+  });
+
+  test("limpar pede confirmação e desfazer traz de volta", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await irParaLista(page);
+    const dialogo = page.locator("#dialogo-limpar");
+    await page.locator("#limpar").click();
+    assert.ok(await dialogo.isVisible());
+    assert.match(await dialogo.textContent(), /Limpar a lista inteira\?/);
+    await dialogo.getByRole("button", { name: "Cancelar" }).click();
+    assert.ok(await dialogo.isHidden());
+    assert.equal(await page.locator("#itens li.item").count(), 1);
+
+    await page.locator("#limpar").click();
+    await dialogo.getByRole("button", { name: "Limpar", exact: true }).click();
+    assert.equal(await page.locator("#itens li.item").count(), 0);
+    assert.match(await page.locator("#aviso").textContent(), /Lista limpa/);
+    const salvoVazio = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
+    assert.equal(salvoVazio.itens.length, 0);
+
+    await page.locator("#desfazer").click();
+    assert.equal(await page.locator("#itens li.item").count(), 1);
+    const salvo = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
+    assert.equal(salvo.itens.length, 1);
+    assert.equal(await page.locator("#aviso").textContent(), "");
+  });
+
+  test("colar o texto copiado recria a lista", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await page.locator(`#resultados .cartao[data-chave="${ARROZ}"] .adicionar`).click();
+    await adicionarTexto(page, "pão de queijo");
+    await irParaLista(page);
+    await itemDe(page, "pão de queijo").locator(".marcar").check();
+    const resumir = (itens) => itens.map((i) => [i.tipo, i.nome, i.quantidade, i.marcado, i.chave ?? null]);
+    const antes = resumir(await page.evaluate(() => window.app.estado.itens));
+
+    // Área de transferência falsa: o Chromium sem tela não deixa ler a de verdade.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: async (t) => { window.copiado = t; } },
+      });
+    });
+    await page.locator("#copiar").click();
+    await page.waitForFunction(() => typeof window.copiado === "string");
+    assert.match(await page.locator("#aviso").textContent(), /Lista copiada/);
+    const texto = await page.evaluate(() => window.copiado);
+    assert.match(texto, new RegExp(`2× Arroz Tio João 1kg — Giassi R\\$ 21,80 #${ARROZ}`));
+
+    // Sem área de transferência, o texto aparece selecionado pra copiar à mão.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+    });
+    await page.locator("#copiar").click();
+    const caixa = page.locator("#dialogo-copiar textarea");
+    assert.ok(await caixa.isVisible());
+    assert.equal(await caixa.inputValue(), texto);
+    await page.keyboard.press("Escape");
+    assert.ok(await caixa.isHidden());
+
+    await page.locator("#limpar").click();
+    await page.locator("#dialogo-limpar").getByRole("button", { name: "Limpar", exact: true }).click();
+    await page.locator("#colar").click();
+    await page.locator("#dialogo-colar textarea").fill(texto);
+    await page.locator("#dialogo-colar").getByRole("button", { name: "Adicionar" }).click();
+    const depois = resumir(await page.evaluate(() => window.app.estado.itens));
+    assert.deepEqual(depois, antes);
+
+    // Colar de novo soma no fim, não troca a lista.
+    await page.locator("#colar").click();
+    await page.locator("#dialogo-colar textarea").fill("• 3× leite");
+    await page.locator("#dialogo-colar").getByRole("button", { name: "Adicionar" }).click();
+    const finais = await page.evaluate(() => window.app.estado.itens);
+    assert.equal(finais.length, 3);
+    assert.deepEqual(resumir([finais[2]]), [["texto", "leite", 3, false, null]]);
+  });
+
+  test("mercado que sumiu do catálogo aparece avisado no detalhe", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    const guardado = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
+    // Mercado fora do ar hoje: guarda o último preço e não entra nos totais.
+    const fora = await abrir({ resumo: "tests/fixtures/dados/resumo-com-erro.json", guardado });
+    const arroz = itemDe(fora.page, "Arroz Tio João 1kg");
+    await arroz.locator(".detalhe summary").click();
+    assert.match(await arroz.locator(".detalhe").textContent(), /Angeloni: sem preços hoje \(era R\$ 12,49\)/);
+    assert.doesNotMatch(await arroz.locator(".outros").textContent(), /Angeloni/);
+    assert.doesNotMatch(await fora.page.locator("#totais").textContent(), /Tudo no Angeloni/);
+    assert.match(await fora.page.locator("#totais").textContent(), /Tudo no Giassi R\$ 10,90/);
+
+    // Produto que o mercado carregado não tem mais: "não achei mais", e o
+    // último preço fica em cinza quando nenhum mercado tem.
+    const velho = {
+      versao: 1,
+      itens: [{
+        id: "v1", tipo: "produto", chave: "angeloni:a999", ean: "", nome: "Feijão Antigo 1kg",
+        marca: "", gramas: 1000, granel: false, quantidade: 1, marcado: false,
+        adicionadoEm: "2026-10-30T12:00:00.000Z",
+        ofertas: { angeloni: { id: "a999", preco: 799, promocao: 0, link: "https://www.angeloni.com.br/feijao/p" } },
+      }],
+    };
+    const sumido = await abrir({ guardado: velho });
+    const feijao = itemDe(sumido.page, "Feijão Antigo 1kg");
+    assert.match(await feijao.locator(".melhor").textContent(), /sem preço.*R\$ 7,99/);
+    await feijao.locator(".detalhe summary").click();
+    assert.match(await feijao.locator(".detalhe").textContent(), /não achei mais no Angeloni/);
+    assert.match(await sumido.page.locator("#totais").textContent(), /1 sem preço/);
+  });
 });

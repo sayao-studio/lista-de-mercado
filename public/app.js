@@ -3,11 +3,11 @@
 import { carregar, salvar } from "./armazenamento.js";
 import { carregarResumo, carregarMercado } from "./dados.js";
 import { indexar, normalizar } from "./busca.js";
-import { refrescar, novoItemProduto, novoItemTexto, alterarQuantidade } from "./lista.js";
+import { refrescar, novoItemProduto, novoItemTexto, alterarQuantidade, marcar, comoTexto, deTexto } from "./lista.js";
 import { quandoFoi } from "./formato.js";
 import { el } from "./dom.js";
 import { renderizarBusca, ligarBusca } from "./tela-busca.js";
-import { renderizarLista, ligarLista } from "./tela-lista.js";
+import { renderizarLista, ligarLista, mercadosCarregados } from "./tela-lista.js";
 
 const CHAVE_TELA = "lista-de-mercado.tela";
 
@@ -97,6 +97,31 @@ export function mostrarAviso(texto, ms = 1500) {
   fimDoAviso = setTimeout(() => avisar(""), ms);
 }
 
+// Recado com um botão (o "Desfazer"). Montado com nós, não innerHTML: o texto
+// pode trazer nome de produto. `focar` leva o teclado até o botão quando o
+// controle que a pessoa usou some da tela (o "Limpar lista" com a lista vazia).
+export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = false, id } = {}) {
+  avisar(texto + " ");
+  const aviso = el("#aviso");
+  const botao = document.createElement("button");
+  botao.type = "button";
+  if (id) botao.id = id;
+  botao.textContent = rotulo;
+  botao.addEventListener("click", () => {
+    clearTimeout(fimDoAviso);
+    avisar("");
+    acao();
+  });
+  aviso.append(botao);
+  if (focar) botao.focus();
+  fimDoAviso = setTimeout(() => {
+    // Se o foco estava no botão, não deixa ele cair no vazio quando o recado some.
+    const tinhaFoco = aviso.contains(document.activeElement);
+    avisar("");
+    if (tinhaFoco) el("#colar").focus();
+  }, ms);
+}
+
 // Único lugar que muda a lista: toda mudança salva, redesenha as duas telas e
 // atualiza o contador, pra nenhuma das telas ficar mostrando uma lista velha.
 function mudarItens(itens) {
@@ -132,6 +157,80 @@ const acoesDaBusca = {
       return atualizado;
     }));
     if (atualizado) mostrarAviso(`${atualizado.nome} ×${atualizado.quantidade} na lista`);
+  },
+};
+
+const acharItem = (id) => estado.itens.find((i) => i.id === id);
+const trocarItem = (id, fazer) => estado.itens.map((i) => (i.id === id ? fazer(i) : i));
+
+// Nomes só dos mercados com catálogo de hoje: as chaves decidem quais
+// "Tudo no …" entram no texto copiado, igual ao rodapé da tela.
+function nomesCarregados() {
+  return Object.fromEntries(mercadosCarregados(estado).map((m) => [m.id, m.nome]));
+}
+
+// A lista de antes do "Limpar", guardada só na memória durante o "Desfazer".
+let antesDeLimpar = null;
+
+const acoesDaLista = {
+  alterarQuantidade(id, delta) {
+    if (acharItem(id)) mudarItens(trocarItem(id, (i) => alterarQuantidade(i, delta)));
+  },
+  marcar(id, marcado) {
+    if (acharItem(id)) mudarItens(trocarItem(id, (i) => marcar(i, marcado)));
+  },
+  remover(id) {
+    const posicao = estado.itens.findIndex((i) => i.id === id);
+    if (posicao < 0) return;
+    const removido = estado.itens[posicao];
+    mudarItens(estado.itens.filter((i) => i.id !== id));
+    // O × fica perto do "+": um toque errado no corredor não pode custar o item.
+    mostrarAvisoComAcao(`${removido.nome} saiu da lista.`, "Desfazer", () => {
+      const itens = [...estado.itens];
+      itens.splice(Math.min(posicao, itens.length), 0, removido);
+      mudarItens(itens);
+    }, { ms: 4000 });
+  },
+  desmarcarTudo() {
+    mudarItens(estado.itens.map((i) => (i.marcado ? marcar(i, false) : i)));
+  },
+  limpar() {
+    if (!estado.itens.length) return;
+    antesDeLimpar = estado.itens;
+    mudarItens([]);
+    // A página encolhe de uma vez: sem isto o convite da lista vazia fica cortado no topo.
+    window.scrollTo({ top: 0 });
+    mostrarAvisoComAcao("Lista limpa.", "Desfazer", () => acoesDaLista.desfazer(), { focar: true, id: "desfazer" });
+  },
+  desfazer() {
+    if (!antesDeLimpar) return;
+    // O que a pessoa pôs depois de limpar fica, no fim.
+    mudarItens([...antesDeLimpar, ...estado.itens]);
+    antesDeLimpar = null;
+  },
+  async copiar() {
+    const texto = comoTexto(estado.itens, nomesCarregados(), new Date());
+    try {
+      await navigator.clipboard.writeText(texto);
+      mostrarAviso("Lista copiada");
+      return { copiado: true, texto };
+    } catch {
+      // Sem permissão, sem HTTPS ou navegador antigo: a tela mostra o texto pra copiar à mão.
+      return { copiado: false, texto };
+    }
+  },
+  colar(texto) {
+    const novos = deTexto(texto, estado.indice, new Date());
+    if (!novos.length) {
+      mostrarAviso("Não achei itens nesse texto");
+      return;
+    }
+    mudarItens([...estado.itens, ...novos]);
+    mostrarAviso(novos.length === 1 ? "1 item adicionado" : `${novos.length} itens adicionados`);
+  },
+  irParaBusca() {
+    irPara("buscar", { lembrar: true });
+    el("#busca").focus();
   },
 };
 
@@ -236,7 +335,7 @@ async function iniciar() {
   irPara(telaInicial());
   renderizarTudo();
   ligarBusca(estado, acoesDaBusca);
-  ligarLista(estado);
+  ligarLista(estado, acoesDaLista);
   try {
     await carregarPrecos();
   } finally {

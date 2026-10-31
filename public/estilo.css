@@ -9,6 +9,9 @@
   --cartao: #ffffff;
   --verde-fundo: #e3f4e8;
   --pilula: #f0eee8;
+  --perigo: #b3261e;
+  /* Verde do texto sobre o recado escuro (o recado inverte as cores). */
+  --verde-claro: #7be0a0;
   --altura-barra: 56px;
   --respiro: 16px;
 }
@@ -23,6 +26,8 @@
     --cartao: #1c1c1c;
     --verde-fundo: #16351f;
     --pilula: #262626;
+    --perigo: #ff8a80;
+    --verde-claro: #1b7f3b;
   }
 }
 
@@ -409,4 +414,430 @@ section[data-tela] { min-width: 0; }
   outline: 2px solid var(--verde);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ---- Tela Lista ---- */
+
+/* A linha do item se adapta à largura da coluna, não da tela: no celular e
+   na coluna estreita da tela larga a quantidade desce pra segunda linha. */
+section[data-tela="lista"] { container-type: inline-size; }
+
+.item {
+  display: grid;
+  grid-template-columns: 44px 48px minmax(0, 1fr) 44px;
+  grid-template-areas:
+    "marcar foto texto remover"
+    ".      .    baixo baixo";
+  column-gap: 8px;
+  align-items: start;
+  padding: 8px 4px 8px 0;
+  border-bottom: 1px solid var(--borda);
+}
+
+.item .alvo-marcar {
+  grid-area: marcar;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Caixinha própria: a do sistema é pequena demais pra acertar com o carrinho na mão. */
+.item .marcar {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--cinza);
+  border-radius: 6px;
+  background: var(--cartao) center / 16px no-repeat;
+  cursor: pointer;
+}
+
+.item .marcar:checked {
+  border-color: var(--verde);
+  background-color: var(--verde);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3L13 4.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.item .marcar:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+}
+
+.item .foto {
+  grid-area: foto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--pilula);
+  color: var(--cinza);
+}
+
+.item .texto {
+  grid-area: texto;
+  min-width: 0;
+  /* Centra a primeira linha do nome com a caixinha de 44 px. */
+  padding-top: 2px;
+}
+
+.item .nome {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.item .melhor {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--verde);
+  font-variant-numeric: tabular-nums;
+}
+
+.item .melhor.sem-preco {
+  font-weight: 400;
+  color: var(--cinza);
+}
+
+.item .era { font-size: 13px; }
+
+.item .outros {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cinza);
+  font-variant-numeric: tabular-nums;
+}
+
+/* "Ver preços" e a quantidade dividem a segunda linha; o detalhe aberto
+   cresce por baixo da quantidade, que fica presa no topo. */
+.item .detalhe {
+  grid-area: baixo;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.item .detalhe summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--cinza);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.item .detalhe summary::-webkit-details-marker { display: none; }
+
+.item .detalhe summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.item .detalhe[open] summary::after { transform: translateY(1px) rotate(-135deg); }
+
+.item .detalhe summary:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.item .detalhe ul {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.item .detalhe li { padding: 3px 0; overflow-wrap: anywhere; }
+.item .outros span,
+.item .detalhe b,
+.item .detalhe s,
+.item .detalhe .por-kg { white-space: nowrap; }
+.item .detalhe li.mais-barato b { color: var(--verde); }
+.item .detalhe li.apagado { color: var(--cinza); }
+.item .detalhe s { color: var(--cinza); font-size: 13px; }
+.item .detalhe b { font-weight: 600; }
+
+.item .detalhe a {
+  color: inherit;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.item .quantidade {
+  grid-area: baixo;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: var(--cartao);
+}
+
+.item .quantidade button {
+  width: 36px;
+  min-width: 36px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--verde);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.item .quantidade button[aria-disabled="true"] {
+  color: var(--borda);
+  cursor: default;
+}
+
+.item .quantidade .n {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.item .quantidade .n small {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--cinza);
+}
+
+.item .remover {
+  grid-area: remover;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--cinza);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.item .quantidade button:focus-visible,
+.item .remover:focus-visible,
+#menu-lista button:focus-visible,
+#ir-buscar:focus-visible,
+dialog button:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+}
+
+/* Pego: sai do caminho do olho, mas continua legível pra desmarcar. */
+.item[data-marcado] { opacity: 0.6; }
+.item[data-marcado] .nome { text-decoration: line-through; }
+
+.divisor {
+  padding: 16px 0 4px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cinza);
+  border-bottom: 1px solid var(--borda);
+}
+
+#itens .vazio button {
+  display: block;
+  margin: 16px auto 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--verde);
+  color: var(--fundo);
+  font-weight: 600;
+}
+
+@container (min-width: 520px) {
+  /* Coluna larga: a quantidade sobe pra linha do nome. */
+  .item {
+    grid-template-columns: 44px 48px minmax(0, 1fr) auto 44px;
+    grid-template-areas:
+      "marcar foto texto quantidade remover"
+      ".      .    baixo baixo      baixo";
+  }
+
+  .item .quantidade { grid-area: quantidade; }
+}
+
+/* Totais grudados embaixo (acima da barra no celular): o quanto vai gastar
+   fica à vista enquanto a pessoa rola a lista. */
+#totais {
+  position: sticky;
+  bottom: calc(var(--altura-barra) + 8px + env(safe-area-inset-bottom));
+  z-index: 4;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  background: var(--cartao);
+  box-shadow: 0 -2px 12px rgb(0 0 0 / 0.06);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+#totais p {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  padding: 2px 0;
+}
+
+/* A ordem visual põe o "falta 1" junto do nome e o valor alinhado à direita;
+   no texto (leitor de tela, cópia) fica "Tudo no Giassi R$ 10,90 · falta 1". */
+#totais p span { order: 0; }
+#totais p small { order: 1; color: var(--cinza); font-size: 12px; }
+#totais p b { order: 2; margin-left: auto; font-weight: 600; }
+#totais p.primeiro b { color: var(--verde); }
+
+#totais .separado {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--borda);
+}
+
+#totais .sem-preco {
+  display: block;
+  color: var(--cinza);
+  font-size: 12px;
+}
+
+/* Duas colunas no celular (quatro rótulos não cabem numa linha de 358 px sem
+   apertar o toque); quatro quando a coluna é larga. */
+#menu-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+@container (min-width: 520px) {
+  #menu-lista { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Lista vazia: só o "Colar", na largura toda, em vez de meio botão solto. */
+#menu-lista.so-colar { grid-template-columns: 1fr; }
+
+#menu-lista button {
+  padding: 0 10px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--cartao);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+#menu-lista #limpar { color: var(--perigo); }
+
+/* Botão dentro do recado (o "Desfazer"). */
+#aviso button {
+  margin: -10px -6px -10px 10px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: var(--verde-claro);
+  font-weight: 700;
+}
+
+dialog {
+  width: min(480px, calc(100% - 2 * var(--respiro)));
+  max-height: calc(100% - 2 * var(--respiro));
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 14px;
+  background: var(--cartao);
+  color: var(--tinta);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.3);
+}
+
+dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+
+dialog .quadro { padding: 18px; }
+
+dialog h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+dialog p {
+  margin: 0 0 12px;
+  color: var(--cinza);
+  font-size: 14px;
+}
+
+dialog textarea {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  padding: 10px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--fundo);
+  color: var(--tinta);
+  /* 16 px: abaixo disso o Safari do iPhone dá zoom ao focar. */
+  font: 16px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  resize: vertical;
+}
+
+dialog textarea:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 1px;
+}
+
+dialog .botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+dialog .botoes button {
+  padding: 0 16px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--cartao);
+}
+
+dialog .botoes .principal {
+  border-color: var(--verde);
+  background: var(--verde);
+  color: var(--fundo);
+  font-weight: 600;
+}
+
+dialog .botoes .perigo {
+  border-color: var(--perigo);
+  background: var(--perigo);
+  color: #fff;
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  #totais { bottom: 16px; }
+  /* Em tela larga a busca está sempre ao lado: o atalho não tem razão de ser. */
+  #itens .vazio button { display: none; }
 }

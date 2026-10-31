@@ -29,8 +29,13 @@
 
     <section data-tela="lista" aria-label="Lista">
       <ul id="itens"></ul>
-      <footer id="totais"></footer>
-      <div id="menu-lista"></div>
+      <footer id="totais" aria-label="Totais" hidden></footer>
+      <div id="menu-lista">
+        <button type="button" id="copiar">Copiar</button>
+        <button type="button" id="colar">Colar</button>
+        <button type="button" id="desmarcar" hidden>Desmarcar tudo</button>
+        <button type="button" id="limpar">Limpar lista</button>
+      </div>
     </section>
   </main>
 
@@ -40,5 +45,41 @@
   </nav>
 
   <div id="aviso" role="status" aria-live="polite"></div>
+
+  <!-- O quadro de dentro (.quadro) é que tem o respiro: toque no fundo
+       escurecido cai no próprio <dialog> e fecha, toque no quadro não. -->
+  <dialog id="dialogo-colar" aria-labelledby="titulo-colar">
+    <form method="dialog" class="quadro">
+      <h2 id="titulo-colar">Colar lista</h2>
+      <p id="dica-colar">Cole o texto copiado daqui ou uma lista de uma conversa. Cada linha vira um item, no fim da lista.</p>
+      <textarea aria-labelledby="titulo-colar" aria-describedby="dica-colar" rows="8" spellcheck="false"></textarea>
+      <div class="botoes">
+        <button type="submit" value="cancelar">Cancelar</button>
+        <button type="submit" value="adicionar" class="principal">Adicionar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dialogo-limpar" aria-labelledby="titulo-limpar">
+    <form method="dialog" class="quadro">
+      <h2 id="titulo-limpar">Limpar a lista inteira?</h2>
+      <p>Dá pra desfazer logo depois.</p>
+      <div class="botoes">
+        <button type="submit" value="cancelar" autofocus>Cancelar</button>
+        <button type="submit" value="limpar" class="perigo">Limpar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dialogo-copiar" aria-labelledby="titulo-copiar">
+    <form method="dialog" class="quadro">
+      <h2 id="titulo-copiar">Copie a lista</h2>
+      <p>Não consegui copiar sozinho. O texto já está selecionado: é só copiar.</p>
+      <textarea aria-labelledby="titulo-copiar" rows="8" readonly></textarea>
+      <div class="botoes">
+        <button type="submit" value="fechar" class="principal">Fechar</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>
