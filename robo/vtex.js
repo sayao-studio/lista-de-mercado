@@ -20,19 +20,27 @@ export class ErroRastreio extends Error {
 // devolve zero produtos mesmo que a folha 10 tenha milhares.
 export const caminhoFq = (caminho) => `C:/${caminho.join("/")}/`;
 
-// A API não é oficial e às vezes tropeça; três tentativas com espera crescente
-// seguram a instabilidade passageira sem martelar a loja.
-export async function buscarComRetentativa(url, { fazerFetch, esperar, tentativas = 3, timeoutMs = 20000 }) {
+// A API não é oficial e tropeça muito: já vimos ~40% das páginas fora do
+// cache voltarem 500 por um tempo. Cinco tentativas com espera dobrando
+// (1, 2, 4, 8 s) atravessam esses surtos sem martelar a loja. 4xx não se
+// repete: o pedido está errado e a resposta vai ser a mesma.
+export async function buscarComRetentativa(url, { fazerFetch, esperar, tentativas = 5, timeoutMs = 20000 }) {
   let ultimo = "";
   for (let n = 0; n < tentativas; n++) {
+    let r;
     try {
-      const r = await fazerFetch(url, { headers: CABECALHOS, signal: AbortSignal.timeout(timeoutMs) });
-      if (r.ok) return r; // a resposta normal é 206, que também é ok
-      ultimo = `HTTP ${r.status}`;
+      r = await fazerFetch(url, { headers: CABECALHOS, signal: AbortSignal.timeout(timeoutMs) });
     } catch (e) {
-      ultimo = e.message; // rede caiu ou estourou o timeout: conta como tentativa
+      // Rede caiu ou estourou o timeout: conta como tentativa.
+      ultimo = e.name === "TimeoutError" || e.name === "AbortError" ? `tempo esgotado (${timeoutMs / 1000} s)` : e.message;
     }
-    if (n < tentativas - 1) await esperar(500 * 2 ** n);
+    if (r?.ok) return r; // a resposta normal é 206, que também é ok
+    if (r) {
+      await r.body?.cancel(); // libera a conexão
+      if (r.status >= 400 && r.status < 500) throw new Error(`HTTP ${r.status}`);
+      ultimo = `HTTP ${r.status}`;
+    }
+    if (n < tentativas - 1) await esperar(1000 * 2 ** n);
   }
   throw new Error(`${ultimo} depois de ${tentativas} tentativas`);
 }

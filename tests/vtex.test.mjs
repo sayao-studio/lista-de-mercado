@@ -71,13 +71,13 @@ const pedidosDeTotal = (chamadas, caminho) => chamadas.filter((c) => c.includes(
 
 test("caminhoFq monta o filtro com caminho completo", () => assert.equal(caminhoFq([2, 7, 10]), "C:/2/7/10/"));
 
-test("buscarComRetentativa tenta 3 vezes e desiste com a mensagem", async () => {
+test("buscarComRetentativa tenta 5 vezes com espera crescente e desiste com a mensagem", async () => {
   const esperas = [];
   const esperar = async (ms) => { esperas.push(ms); };
-  const tresFalhas = fetchFalso(() => ({ status: 503 }));
-  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: tresFalhas.fazerFetch, esperar }), { message: "HTTP 503 depois de 3 tentativas" });
-  assert.equal(tresFalhas.chamadas.length, 3);
-  assert.deepEqual(esperas, [500, 1000]);
+  const cincoFalhas = fetchFalso(() => ({ status: 503 }));
+  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: cincoFalhas.fazerFetch, esperar }), { message: "HTTP 503 depois de 5 tentativas" });
+  assert.equal(cincoFalhas.chamadas.length, 5);
+  assert.deepEqual(esperas, [1000, 2000, 4000, 8000]);
 
   let n = 0;
   const umaFalha = fetchFalso(() => (n++ === 0 ? { status: 503 } : { status: 206, body: [1] }));
@@ -85,9 +85,36 @@ test("buscarComRetentativa tenta 3 vezes e desiste com a mensagem", async () => 
   assert.equal(r.status, 206);
   assert.equal(umaFalha.chamadas.length, 2);
 
-  // Erro de rede (ou timeout) conta como tentativa falha, igual a um 5xx.
+  // Erro de rede conta como tentativa falha, igual a um 5xx.
   const semRede = fetchFalso(() => new Error("fetch failed"));
-  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: semRede.fazerFetch, esperar: esperarNada }), { message: "fetch failed depois de 3 tentativas" });
+  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: semRede.fazerFetch, esperar: esperarNada }), { message: "fetch failed depois de 5 tentativas" });
+  assert.equal(semRede.chamadas.length, 5);
+});
+
+test("buscarComRetentativa diz tempo esgotado em português quando estoura o timeout", async () => {
+  const timeout = Object.assign(new Error("The operation was aborted due to timeout"), { name: "TimeoutError" });
+  const lenta = fetchFalso(() => timeout);
+  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: lenta.fazerFetch, esperar: esperarNada }), { message: "tempo esgotado (20 s) depois de 5 tentativas" });
+  const abortado = fetchFalso(() => Object.assign(new Error("This operation was aborted"), { name: "AbortError" }));
+  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: abortado.fazerFetch, esperar: esperarNada }), { message: "tempo esgotado (20 s) depois de 5 tentativas" });
+});
+
+test("buscarComRetentativa não retenta 4xx: o pedido está errado, repetir não ajuda", async () => {
+  const esperas = [];
+  const recusa = fetchFalso(() => ({ status: 400 }));
+  await assert.rejects(buscarComRetentativa("https://x/a", { fazerFetch: recusa.fazerFetch, esperar: async (ms) => { esperas.push(ms); } }), { message: "HTTP 400" });
+  assert.equal(recusa.chamadas.length, 1);
+  assert.deepEqual(esperas, []);
+});
+
+test("rastrear com a loja dando 503 sempre vira ErroRastreio", async () => {
+  const { fazerFetch, chamadas } = fetchFalso(() => ({ status: 503 }));
+  await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada }), (e) => {
+    assert.ok(e instanceof ErroRastreio);
+    assert.equal(e.message, "Bistek: HTTP 503 depois de 5 tentativas");
+    return true;
+  });
+  assert.equal(chamadas.length, 5);
 });
 
 test("totalDe lê o cabeçalho resources", async () => {
