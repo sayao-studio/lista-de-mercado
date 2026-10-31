@@ -246,10 +246,38 @@ test("grupo em dois mercados fica no departamento que não é Outros", () => {
   assert.deepEqual(i.catalogo.map((d) => d.id), ["mercearia"]);
 });
 
-test("arquivo sem categoria conhecida cai em Outros > Geral sem quebrar", () => {
+test("loja com seção de verdade vence o palpite da primeira loja", () => {
+  // O Bistek põe o vinho solto em "Bebidas" (sem seção, e o nome não ajuda);
+  // o Giassi diz "Bebidas Alcoólicas > Vinhos". Vale o Giassi.
+  const vinho = { ...linhaBase, nome: "Vinho Casal Mendes 750ml" };
   const i = indexar({
-    bistek: { ...arquivoBase, categorias: [], produtos: [linhaBase] },
-    giassi: { ...arquivoBase, produtos: [{ ...linhaBase, id: "2", ean: "", categoria: 7 }] },
+    bistek: { ...arquivoBase, categorias: ["Bebidas"], produtos: [vinho] },
+    giassi: { ...arquivoBase, categorias: ["Bebidas Alcoólicas > Vinhos"], produtos: [{ ...vinho, id: "2" }] },
+  });
+  const grupo = i.porChave.get("7896006700029");
+  assert.equal(grupo.departamento, "alcoolicas");
+  assert.equal(grupo.secao, "Vinhos e espumantes");
+  assert.equal(grupo.categoria, "Bebidas Alcoólicas > Vinhos");
+  // Palpite pelo nome perde pra caminho com seção, mas ganha de nada.
+  const iogurte = { ...linhaBase, nome: "Iogurte Grego Nestlé 90g" };
+  const i2 = indexar({
+    bistek: { ...arquivoBase, categorias: ["Frios e Laticínios"], produtos: [iogurte] },
+    giassi: { ...arquivoBase, categorias: ["Frios e Laticínios > Lácteos"], produtos: [{ ...iogurte, id: "2" }] },
+  });
+  assert.equal(i2.porChave.get("7896006700029").secao, "Leites e bebidas lácteas");
+  // Empate (as duas com seção pelo caminho): fica a primeira do resumo.
+  const i3 = indexar({
+    bistek: { ...arquivoBase, categorias: ["Mercearia > Massas"], produtos: [linhaBase] },
+    giassi: { ...arquivoBase, categorias: ["Congelados > Massas"], produtos: [{ ...linhaBase, id: "2" }] },
+  });
+  assert.equal(i3.porChave.get("7896006700029").departamento, "mercearia");
+});
+
+test("arquivo sem categoria conhecida cai em Outros > Geral sem quebrar", () => {
+  const semRegra = { ...linhaBase, nome: "Caçarola Inox 24cm" };
+  const i = indexar({
+    bistek: { ...arquivoBase, categorias: [], produtos: [semRegra] },
+    giassi: { ...arquivoBase, produtos: [{ ...semRegra, id: "2", ean: "", categoria: 7 }] },
   });
   assert.equal(i.porChave.get("7896006700029").departamento, "outros");
   assert.equal(i.porChave.get("giassi:2").secao, "Geral");

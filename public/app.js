@@ -203,6 +203,10 @@ const acoesDaBusca = {
     }));
     if (atualizado) mostrarAviso(`${atualizado.nome} ×${atualizado.quantidade} na lista`);
   },
+  // O voltar do navegador mexe no catálogo, que vive na tela Buscar.
+  mostrarBusca() {
+    if (estado.tela !== "buscar") irPara("buscar", { lembrar: true });
+  },
 };
 
 const acharItem = (id) => estado.itens.find((i) => i.id === id);

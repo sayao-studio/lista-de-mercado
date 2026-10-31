@@ -68,8 +68,9 @@ export function hostFoto(produto) {
 // Caminho que começa por departamento ignorado perde pros outros; quando só
 // há ele, fica ele mesmo, melhor que perder o produto.
 export function caminhoDoProduto(produto, ignorar = []) {
-  const caminhos = (produto.categories || [])
-    .map((c) => String(c).split("/").map((parte) => parte.trim()).filter(Boolean))
+  const caminhos = (Array.isArray(produto.categories) ? produto.categories : [])
+    .filter((c) => typeof c === "string")
+    .map((c) => c.split("/").map((parte) => parte.trim()).filter(Boolean))
     .filter((partes) => partes.length);
   if (!caminhos.length) return null;
   const permitidos = caminhos.filter((partes) => !ignorar.includes(partes[0]));

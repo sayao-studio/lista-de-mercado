@@ -18,6 +18,11 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icone.svg" type="image/svg+xml">
   <link rel="stylesheet" href="estilo.css">
+  <!-- A cadeia app → busca → departamentos → texto seria três idas à rede em
+       sequência; avisando antes, o navegador baixa tudo de uma vez. -->
+  <link rel="modulepreload" href="busca.js">
+  <link rel="modulepreload" href="departamentos.js">
+  <link rel="modulepreload" href="texto.js">
   <script type="module" src="app.js"></script>
 </head>
 <body>

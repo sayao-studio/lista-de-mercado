@@ -288,6 +288,23 @@ describe("site", () => {
     assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Mercearia/);
   });
 
+  test("voltar do celular com texto digitado limpa a busca e mostra o nível do histórico", async () => {
+    const { page } = await abrir();
+    await page.locator('#resultados .departamento[data-departamento="mercearia"]').click();
+    await page.locator('#resultados .secao[data-secao="Arroz, feijão e grãos"]').click();
+    await buscarPor(page, "arroz");
+    await page.goBack();
+    await page.waitForSelector("#resultados .secoes");
+    assert.equal(await page.locator("#busca").inputValue(), "");
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Mercearia/);
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.secao), "Arroz, feijão e grãos");
+    // Na aba Lista o catálogo está escondido: o voltar traz de volta pra Buscar.
+    await page.locator('[data-ir="lista"]').click();
+    await page.goBack();
+    await page.waitForSelector("#resultados .departamentos");
+    assert.equal(await page.locator('[data-tela="buscar"]').getAttribute("data-ativa"), "");
+  });
+
   test("'Só promoções' com a busca vazia conta e lista só as promoções", async () => {
     const { page } = await abrir();
     await page.locator('#chips [data-filtro="promocao"]').click();

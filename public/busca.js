@@ -1,7 +1,7 @@
 // Índice, busca e catálogo do site. Roda no navegador e no Node: o site é
 // servido sozinho, então não pode depender de nada de `robo/`.
 import { normalizar } from "./texto.js";
-import { DEPARTAMENTOS, classificar, secoesConhecidas } from "./departamentos.js";
+import { DEPARTAMENTOS, classificar, forcaDe, secoesConhecidas } from "./departamentos.js";
 
 // Quem já importava daqui continua funcionando.
 export { normalizar };
@@ -63,7 +63,7 @@ export function indexar(catalogos) {
       const chave = chaveDe(mercadoId, linha);
       const caminho = caminhos[linha.categoria] ?? "";
       let classe = classes[linha.categoria] ?? classificar(caminho);
-      if (classe.secao === "Geral" || classe.departamento === "outros") classe = classificar(caminho, linha.nome);
+      if (classe.origem === "nenhuma") classe = classificar(caminho, linha.nome);
       let grupo = porChave.get(chave);
       if (!grupo) {
         grupo = {
@@ -79,6 +79,9 @@ export function indexar(catalogos) {
           categoria: caminho,
           departamento: classe.departamento,
           secao: classe.secao,
+          // Força da classificação (caminho com seção > nome > nada), só pra
+          // decidir entre lojas; não vai pra tela.
+          forca: forcaDe(classe),
           texto: normalizar(`${linha.nome} ${linha.marca ?? ""}`),
           ofertas: {},
           menor: Infinity,
@@ -86,12 +89,14 @@ export function indexar(catalogos) {
         };
         porChave.set(chave, grupo);
         grupos.push(grupo);
-      } else if (grupo.departamento === "outros" && classe.departamento !== "outros") {
-        // O mesmo produto pode estar numa categoria que o site não entende
-        // numa loja (o departamento "Bistek") e numa normal em outra.
+      } else if (forcaDe(classe) > grupo.forca) {
+        // As lojas discordam: o mesmo vinho está em "Bebidas" no Bistek (sem
+        // seção) e em "Bebidas Alcoólicas > Vinhos" no Giassi. Fica a
+        // classificação mais forte; em empate, a primeira loja do resumo.
         grupo.categoria = caminho;
         grupo.departamento = classe.departamento;
         grupo.secao = classe.secao;
+        grupo.forca = forcaDe(classe);
       }
       // Uma loja pode não informar o peso de um produto que outra informa;
       // pegar o primeiro não-nulo evita perder o R$/kg do grupo inteiro.

@@ -244,11 +244,17 @@ por **seção** ("Massas", "Cervejas", "Lavanderia"). Os três mercados têm
 árvores diferentes; `public/departamentos.js` mapeia qualquer caminho em
 departamento e seção por palavra-chave, sem acento (o leite do Bistek sai
 de "Bebidas" e vai pra Frios; o que nenhuma regra conhece vai pra "Outros"
-ou fica com o nome que o mercado deu). Produto no mesmo EAN em lojas com
-árvores diferentes fica no primeiro departamento que não for "Outros".
+ou fica com o nome que o mercado deu). Produto cujo caminho não diz a
+seção (solto no departamento, ou no departamento "Bistek") tenta o nome
+como último recurso: regras do próprio departamento sobre o nome inteiro
+ou, sem departamento, regras de todos sobre as três primeiras palavras (o
+tipo do produto, não o sabor). Produto no mesmo EAN em lojas que discordam
+fica com a classificação mais forte: caminho com seção > palpite pelo nome
+> nenhuma; em empate, a primeira loja do resumo.
 Níveis: departamentos (ladrilhos com "N produtos") → seções do
-departamento ("Tudo de X" primeiro, quando há mais de uma) → cartões da
-seção, os mesmos da busca, em lotes de 30 com "Mostrar mais". Os chips
+departamento ("Tudo de X" primeiro, quando há mais de uma; departamento
+com uma seção só abre direto nos produtos) → cartões da seção, os mesmos
+da busca, em lotes de 30 com "Mostrar mais". Os chips
 valem no catálogo: com "Só promoções" as contagens viram "N em promoção" e
 departamento sem nada some. Descer empurra uma entrada no histórico, então
 o botão voltar do celular sobe um nível em vez de sair do site. Digitar

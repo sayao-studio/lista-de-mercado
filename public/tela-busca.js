@@ -10,6 +10,10 @@ import { mercadosCarregados } from "./tela-lista.js";
 
 const LOTE = 30;
 const numero = new Intl.NumberFormat("pt-BR");
+// Carimbo desta carga da página nas entradas do histórico: depois de
+// recarregar no meio do catálogo, as entradas velhas não valem (senão o
+// voltar "desceria" pra um nível de antes).
+const CARGA = Date.now();
 
 // Nível do catálogo: raiz (departamentos), departamento (seções) ou produtos
 // (uma seção, ou o departamento inteiro quando `tudo`).
@@ -146,10 +150,10 @@ function raizDoCatalogo(estado) {
   if (!linhas.length) {
     return `<p class="vazio">${ui.promocao ? "Nenhuma promoção hoje" : "Nada"} nesses mercados.</p>`;
   }
-  return `<nav class="catalogo" aria-label="Catálogo">
+  return `<div class="catalogo">
     <h2 class="titulo-catalogo">Catálogo</h2>
     <ul class="departamentos">${linhas.join("")}</ul>
-  </nav>`;
+  </div>`;
 }
 
 function departamentoDoCatalogo(estado, dep) {
@@ -312,7 +316,7 @@ function nivelAcima(nivel, estado) {
 function descer(estado, nivel) {
   ui.catalogo = nivel;
   ui.mostrar = LOTE;
-  history.pushState({ catalogo: nivel }, "");
+  history.pushState({ catalogo: nivel, carga: CARGA }, "");
   renderizarBusca(estado);
   // O nível novo começa do topo; o foco no título conta pro leitor de tela onde está.
   window.scrollTo({ top: 0 });
@@ -322,7 +326,7 @@ function descer(estado, nivel) {
 function subir(estado) {
   // Se foi o site que empurrou o histórico, volta por ele, pra o botão da
   // tela e o do navegador contarem a mesma história (o popstate redesenha).
-  if (history.state?.catalogo) {
+  if (history.state?.carga === CARGA && history.state.catalogo) {
     history.back();
     return;
   }
@@ -343,12 +347,20 @@ export function ligarBusca(estado, acoes) {
   campo.addEventListener("input", aoDigitar);
 
   // Recarregar a aba no meio do catálogo começa da raiz: o estado velho do
-  // histórico não vale mais.
+  // histórico não vale mais (entrada de outra carga conta como raiz).
   history.replaceState(null, "");
   window.addEventListener("popstate", (e) => {
     const de = ui.catalogo;
-    ui.catalogo = e.state?.catalogo ?? { ...RAIZ };
+    ui.catalogo = (e.state?.carga === CARGA && e.state.catalogo) || { ...RAIZ };
     ui.mostrar = LOTE;
+    // O voltar precisa ter efeito visível: com texto digitado (ou na aba
+    // Lista) o nível mudaria às escuras e a pessoa apertaria de novo até
+    // sair do site. Limpa a busca e traz pra tela Buscar.
+    if (ui.termo) {
+      campo.value = "";
+      ui.termo = "";
+    }
+    acoes.mostrarBusca?.();
     renderizarBusca(estado);
     // Subindo, o foco volta pro botão que abriu o nível de onde veio;
     // descendo (o "avançar" do navegador), vai pro título.
