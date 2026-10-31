@@ -25,7 +25,8 @@ function cachesFalso(inicial = {}) {
     match: async (url) => mapa.get(url)?.clone(),
     put: async (url, resp) => { mapa.set(url, resp); },
     keys: async () => [...mapa.keys()].map((url) => ({ url: "https://exemplo.test/lista-de-mercado/" + url })),
-    delete: async (req) => mapa.delete(req.url.replace("https://exemplo.test/lista-de-mercado/", "")),
+    // Como o Cache API real, delete aceita Request ou a própria url.
+    delete: async (req) => mapa.delete((req.url ?? req).replace("https://exemplo.test/lista-de-mercado/", "")),
   };
   return { cache, abertos, open: async (nome) => { abertos.push(nome); return cache; } };
 }
@@ -74,6 +75,11 @@ test("carregarResumo não guarda resumo em formato desconhecido", async () => {
   assert.equal(storage.mapa.get(CHAVE_RESUMO), lerTexto("resumo"));
 });
 
+test("carregarResumo recusa mercados em array", async () => {
+  const f = fetchFalso({ "dados/resumo.json": () => resposta({ versao: 1, mercados: [] }) });
+  await assert.rejects(carregarResumo({ fazerFetch: f, storage: storageFalso() }), /sem resumo/);
+});
+
 test("carregarMercado usa o cache quando a versão bate e apaga versões velhas", async () => {
   const bistek = ler("bistek");
   const caches = cachesFalso({
@@ -116,4 +122,40 @@ test("carregarMercado devolve null pra mercado com erro", async () => {
   assert.equal(await carregarMercado("angeloni", entrada, { fazerFetch: f, caches: cachesFalso() }), null);
   assert.equal(await carregarMercado("angeloni", undefined, { fazerFetch: f }), null);
   assert.equal(f.chamadas.length, 0);
+});
+
+test("carregarMercado com put que rejeita e corpo inválido rejeita limpo, sem rejeição solta", async () => {
+  const soltas = [];
+  const ouvir = (e) => soltas.push(e);
+  process.on("unhandledRejection", ouvir);
+  try {
+    const caches = cachesFalso();
+    caches.cache.put = () => Promise.reject(new Error("QuotaExceededError"));
+    const f = fetchFalso({ "dados/bistek.json?v=1": () => resposta({ versao: 9 }) });
+    await assert.rejects(
+      carregarMercado("bistek", ler("resumo").mercados.bistek, { fazerFetch: f, caches }),
+      /bistek: formato desconhecido/,
+    );
+    await new Promise((ok) => setImmediate(ok));
+    assert.deepEqual(soltas, []);
+  } finally {
+    process.off("unhandledRejection", ouvir);
+  }
+});
+
+test("carregarMercado tira do cache o arquivo de formato desconhecido", async () => {
+  const entrada = ler("resumo").mercados.bistek;
+  // Vindo da rede: guarda, descobre que é lixo e apaga.
+  const caches = cachesFalso();
+  const f = fetchFalso({ "dados/bistek.json?v=1": () => resposta({ versao: 9 }) });
+  await assert.rejects(carregarMercado("bistek", entrada, { fazerFetch: f, caches }), /formato desconhecido/);
+  assert.equal(caches.cache.mapa.size, 0);
+
+  // Já no cache: apaga e busca de novo na rede.
+  const bistek = ler("bistek");
+  const comLixo = cachesFalso({ "dados/bistek.json?v=1": resposta("{lixo") });
+  const boa = fetchFalso({ "dados/bistek.json?v=1": () => resposta(bistek) });
+  assert.deepEqual(await carregarMercado("bistek", entrada, { fazerFetch: boa, caches: comLixo }), bistek);
+  assert.equal(boa.chamadas.length, 1);
+  assert.deepEqual(await (await comLixo.cache.match("dados/bistek.json?v=1")).json(), bistek);
 });

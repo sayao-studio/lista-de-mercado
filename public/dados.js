@@ -6,7 +6,7 @@ export const CHAVE_RESUMO = "lista-de-mercado.resumo";
 const NOME_CACHE = "catalogos";
 
 const resumoValido = (r) =>
-  r && typeof r === "object" && r.versao === 1 && r.mercados && typeof r.mercados === "object";
+  r && typeof r === "object" && r.versao === 1 && r.mercados && typeof r.mercados === "object" && !Array.isArray(r.mercados);
 
 export async function carregarResumo({ fazerFetch, storage }) {
   try {
@@ -40,6 +40,10 @@ async function abrirCache(caches) {
   try { return await caches.open(NOME_CACHE); } catch { return null; }
 }
 
+async function apagar(cache, url) {
+  try { await cache.delete(url); } catch { /* nada a fazer: na pior hipótese tenta de novo depois */ }
+}
+
 export async function carregarMercado(id, entrada, { fazerFetch, caches }) {
   if (!entrada || entrada.erro || !entrada.arquivo) return null;
   // O ?v= muda a cada publicação, então achar a url no cache já garante que é a versão atual.
@@ -50,7 +54,10 @@ export async function carregarMercado(id, entrada, { fazerFetch, caches }) {
     try {
       const guardado = await cache.match(url);
       if (guardado) return conferir(id, await guardado.json());
-    } catch { /* cache ilegível: busca na rede */ }
+    } catch {
+      // Cache ilegível: tira o lixo pra não tropeçar nele a cada abertura e busca na rede.
+      await apagar(cache, url);
+    }
   }
 
   const r = await fazerFetch(url);
@@ -59,13 +66,24 @@ export async function carregarMercado(id, entrada, { fazerFetch, caches }) {
   let guardando = null;
   if (cache) {
     // Clona antes de ler o corpo: depois de lido, a resposta não pode ser copiada.
-    try { guardando = cache.put(url, r.clone()); } catch { guardando = null; }
-  }
-  const arquivo = conferir(id, await r.json());
-
-  if (cache && guardando) {
+    // O catch já na criação evita rejeição não tratada se o corpo falhar antes (quota).
     try {
+      guardando = Promise.resolve(cache.put(url, r.clone())).then(() => true, () => false);
+    } catch { guardando = null; }
+  }
+  let arquivo;
+  try {
+    arquivo = conferir(id, await r.json());
+  } catch (erro) {
+    if (guardando) {
       await guardando;
+      await apagar(cache, url);
+    }
+    throw erro;
+  }
+
+  if (guardando && await guardando) {
+    try {
       // Cada catálogo tem vários MB; versões velhas só gastariam a quota.
       const prefixo = "dados/" + id + ".json?";
       for (const req of await cache.keys()) {
