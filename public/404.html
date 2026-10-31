@@ -31,6 +31,20 @@
 <body>
   <h1>Lista de mercado</h1>
   <p>Essa página não existe.</p>
-  <a href="./">Ir pra lista</a>
+  <a id="ir-pra-lista" href="./">Ir pra lista</a>
+  <!-- Única página com script embutido: o Pages serve este arquivo no caminho
+       que a pessoa digitou (/lista-de-mercado/a/b), e aí "./" e "icone.svg"
+       apontariam pra dentro de /a/. Sem JS fica o "./", que acerta no caso
+       comum (um nível só). -->
+  <script>
+    // No github.io o site vive em /<repositório>/; em domínio próprio, na raiz.
+    function raizDoProjeto(hostname, pathname) {
+      const primeiro = pathname.split("/").filter(Boolean)[0];
+      return hostname.endsWith("github.io") && primeiro ? "/" + primeiro + "/" : "/";
+    }
+    const raiz = raizDoProjeto(location.hostname, location.pathname);
+    document.getElementById("ir-pra-lista").href = raiz;
+    document.querySelector('link[rel="icon"]').href = raiz + "icone.svg";
+  </script>
 </body>
 </html>

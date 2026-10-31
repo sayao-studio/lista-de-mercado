@@ -499,7 +499,17 @@ describe("site", () => {
     assert.equal((await page.request.get(url + "404.html")).status(), 200);
   });
 
-  test("tema escuro não quebra o contraste do destaque", async () => {
+  test("a 404 acha a raiz do projeto mesmo em caminho profundo", async () => {
+    const { page, url } = await abrir();
+    await page.goto(url + "404.html");
+    assert.equal(await page.evaluate(() => raizDoProjeto("brenisio.github.io", "/lista-de-mercado/a/b")), "/lista-de-mercado/");
+    assert.equal(await page.evaluate(() => raizDoProjeto("exemplo.com", "/a/b")), "/");
+    assert.equal(await page.evaluate(() => raizDoProjeto("brenisio.github.io", "/")), "/");
+    // Fora do github.io (o servidor de teste) o link vai pra raiz.
+    assert.equal(await page.locator("#ir-pra-lista").getAttribute("href"), "/");
+  });
+
+  test("tema escuro troca o fundo e mantém o destaque legível", async () => {
     const { page } = await abrir({ escuro: true });
     assert.equal(await page.locator('meta[name="theme-color"][media*="light"]').count(), 1);
     assert.equal(await page.locator('meta[name="theme-color"][media*="dark"]').count(), 1);

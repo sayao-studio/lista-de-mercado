@@ -2,7 +2,7 @@
   <!-- Versão "maskable": fundo até a borda e a cesta encolhida pro centro,
        pra a máscara redonda/quadrada do Android não cortar nada (zona segura ≈ 80%). -->
   <rect width="512" height="512" fill="#1b7f3b"/>
-  <g transform="translate(256 256) scale(0.62) translate(-256 -258)" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(256 256) scale(0.7) translate(-256 -258)" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
     <path d="M176 220 L232 116 M336 220 L280 116"/>
     <path d="M96 220 H416 L380 400 H132 Z"/>
     <path d="M206 268 V352 M256 268 V352 M306 268 V352"/>
