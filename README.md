@@ -36,10 +36,82 @@ Site previsto: https://brenisio.github.io/lista-de-mercado/
 
 Desenho e plano em `docs/superpowers/`.
 
+## Como o dado chega ao site
+
+O workflow `.github/workflows/atualizar.yml` roda o robô, que grava os JSON em
+`public/dados/`, e publica a pasta `public/` inteira como artefato do GitHub
+Pages (`upload-pages-artifact` + `deploy-pages`). Nenhum dado entra no git:
+`public/dados/` é ignorado (só o `.gitkeep` fica) e o histórico não cresce a
+cada rodada.
+
+O `resumo.json` aponta cada mercado como `<id>.json?v=<hora em que ele foi
+baixado>`, então catálogo novo tem endereço novo e fura o cache. O Pages ainda guarda cache por
+cerca de 10 minutos: um preço novo pode levar esse tempo pra aparecer.
+
+Para configurar: em Settings > Pages, "Source" = "GitHub Actions" (o passo
+`configure-pages` com `enablement: true` tenta ligar sozinho).
+
+## Gatilhos
+
+| Gatilho | O que faz |
+| --- | --- |
+| Agendado (`17 9,15,21 * * *` UTC = 6h17, 12h17 e 18h17 de Brasília) | Rastreia os três mercados e publica. |
+| `push` na `main` | Só republica: baixa os dados já publicados (`--so-anterior`) e sobe o código novo. Leva ~1 min e funciona mesmo com a VTEX fora. |
+| Manual (`workflow_dispatch`) | Com "Rastrear" ligado, igual ao agendado; desligado, igual ao `push`. |
+
+O minuto 17 é de propósito: o GitHub atrasa os agendamentos no minuto 0. O job
+tem `timeout-minutes: 50` (cada mercado tem prazo de 40 min) e o log do robô
+sai no horário de Brasília (`TZ: America/Sao_Paulo`).
+
+Na primeira publicação ainda não existe site, então não há dados anteriores:
+só republicando, o workflow aceita a saída 1 do robô ("nenhum mercado com
+dados") e sobe o site sem preços, que avisa "ainda sem preços". Rastreando,
+saída 1 é falha e o site anterior continua no ar.
+
+## Quando um mercado falha
+
+O robô tenta cada página 5 vezes (esperas de 1, 2, 4 e 8 s; erro 4xx não se
+repete). Página que falha mesmo assim é pulada com aviso no log; 3 páginas
+seguidas com falha abandonam a categoria. Mercado que termina com 0 produtos ou
+com menos de 30 % do total esperado conta como falha e cai no catálogo
+publicado antes (`--anterior`), com a data antiga — o site mostra a data de
+cada mercado. Só se nenhum mercado tiver dados o robô sai com 1 e o deploy não
+acontece (o site anterior fica no ar).
+
+Se um mercado ficar em falha por dias (VTEX bloqueando o GitHub, API mudou):
+
+1. Ver o log do workflow pra saber o motivo e rodar na máquina
+   `npm run robo -- --saida public/dados --mercado <id>` pra conferir se é
+   bloqueio do GitHub ou mudança da API (aí o código precisa de ajuste).
+2. Rodar o robô na máquina e disparar o manual "só republicar" **não
+   resolve**: `--so-anterior` baixa os dados do site publicado, não os da sua
+   máquina.
+3. O plano B é commitar os dados temporariamente numa branch e publicar a
+   partir dela (exige ajustar o workflow pra não sobrescrever `public/dados/`),
+   ou aceitar o buraco: o mercado fica com o último catálogo bom e a data
+   velha até a fonte voltar.
+
+## Testado em 01/11/2026 (rodada completa de verdade)
+
+| Mercado | Produtos | Sem EAN | Sem peso | Granel | Em promoção | Categorias |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Bistek | 7 078 | 305 | 637 | 0 | 1 919 | 28 |
+| Giassi | 9 880 | 438 | 977 | 351 | 2 137 | 31 |
+| Angeloni | 10 996 | 623 | 976 | 477 | 1 286 | 53 |
+
+- Total publicado: 1,4 MB em gzip (orçamento de 3 MB).
+- A VTEX devolve HTTP 500 de vez em quando em páginas soltas ("Failing getting
+  sku document group from index"); a retentativa e o pulo de página cobrem.
+- O Bistek não tem SKU em `kg`: hortifrúti é vendido por unidade ("un").
+- O user-agent é só ASCII (`Mozilla/5.0 (lista-de-mercado; robo de precos)`):
+  com acento a VTEX responde 400.
+
 ## Rodar na máquina
 
 ```bash
-npm test
-npm run robo -- --saida public/dados --limite 2
-cd public && python3 -m http.server
+npm test                                          # testes sem rede
+npm run test:navegador                            # Playwright contra as fixtures
+npm run robo -- --saida public/dados --limite 2   # robô de verdade, 2 categorias por mercado
+node tests/servidor.mjs                           # site com os dados de teste (fixtures)
+python3 -m http.server -d public                  # site com o que o robô baixou
 ```

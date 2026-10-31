@@ -1,0 +1,96 @@
+# Baixa os preços dos mercados e publica o site no GitHub Pages.
+# Nenhum dado entra no git: os JSON vão só no artefato do Pages.
+name: Atualizar preços e publicar
+
+on:
+  schedule:
+    # 6h, 12h e 18h de Brasília. Fora do minuto 0, que o GitHub atrasa.
+    - cron: "17 9,15,21 * * *"
+  # Ajuste de código vai ao ar sem rastrear: só republica os dados publicados.
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rastrear:
+        type: boolean
+        default: true
+        description: "Rastrear os mercados (desligado = só republicar)"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Um deploy de cada vez; o que está rodando termina (não cancela no meio).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # O log do robô e o "ontem 18h" do site dependem do horário de Brasília.
+  TZ: America/Sao_Paulo
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    # Cada mercado tem prazo de 40 min; o resto é folga para baixar e empacotar.
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Descobrir a URL do site
+        run: |
+          dono="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          # Repo <dono>.github.io é publicado na raiz; os outros num subcaminho.
+          if [[ "$repo" == *.github.io ]]; then
+            url="https://$repo"
+          else
+            url="https://$dono.github.io/$repo"
+          fi
+          echo "SITE_URL=$url" >> "$GITHUB_ENV"
+          echo "Site: $url"
+
+      - name: Baixar os preços
+        run: |
+          extra=""
+          if [[ "${{ github.event_name }}" == "push" ]] ||
+             [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.rastrear }}" == "false" ]]; then
+            extra="--so-anterior"
+          fi
+
+          codigo=0
+          node robo/catalogo.mjs --saida public/dados --anterior "$SITE_URL/dados" $extra || codigo=$?
+
+          # Só republicando, sair com 1 quer dizer que ainda não há site publicado
+          # (primeira publicação): sobe sem dados e o site avisa "ainda sem preços".
+          # Rastreando, 1 é falha de verdade e o site anterior continua no ar.
+          # 2 é erro de uso, sempre falha.
+          if [[ $codigo -eq 1 && -n "$extra" ]]; then
+            echo "::warning::Nenhum dado publicado ainda; o site sobe sem preços."
+            mkdir -p public/dados
+            codigo=0
+          fi
+          exit $codigo
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  publicar:
+    needs: atualizar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
