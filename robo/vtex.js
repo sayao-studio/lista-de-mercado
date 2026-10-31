@@ -17,7 +17,7 @@ const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robo de preco
 const POR_PAGINA = 50; // a API recusa _to - _from maior que 49
 const TETO_FROM = 2500; // _from acima disso dá HTTP 400
 // Falha solta é a VTEX tropeçando; três seguidas no mesmo nó é o nó quebrado,
-// e insistir até o teto (50 páginas × 5 tentativas) come o prazo de 20 min.
+// e insistir até o teto (50 páginas × 5 tentativas) come o prazo de 40 min.
 const FALHAS_SEGUIDAS = 3;
 
 export class ErroRastreio extends Error {
@@ -106,7 +106,7 @@ export async function* paginas(mercado, caminho, { ordem, total, aoFalhar, aoAba
   }
 }
 
-export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now, limite = Infinity, prazoMs = 20 * 60 * 1000, log = () => {} }) {
+export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now, limite = Infinity, prazoMs = 40 * 60 * 1000, log = () => {} }) {
   const inicio = agora();
   let primeiro = true;
   const antesDoPedido = async () => {

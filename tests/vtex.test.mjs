@@ -345,11 +345,11 @@ test("aviso de página diz a ordem quando baixa ASC e DESC", async () => {
 test("rastrear falha quando estoura o prazo", async () => {
   let t = 0;
   const loja = lojaFalsa({ totais: { 14: 50 }, itens: { 14: produtos(1, 51) } });
-  // Depois da árvore o relógio pula 21 minutos.
-  const fazerFetch = async (url, op) => { const r = await loja.fazerFetch(url, op); t += 21 * 60 * 1000; return r; };
+  // Depois da árvore o relógio pula 41 minutos.
+  const fazerFetch = async (url, op) => { const r = await loja.fazerFetch(url, op); t += 41 * 60 * 1000; return r; };
   await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada, agora: () => t }), (e) => {
     assert.ok(e instanceof ErroRastreio);
-    assert.match(e.message, /prazo de 20 min estourado/);
+    assert.match(e.message, /prazo de 40 min estourado/);
     return true;
   });
   assert.equal(loja.chamadas.length, 1);

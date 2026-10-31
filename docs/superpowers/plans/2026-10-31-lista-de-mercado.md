@@ -46,7 +46,7 @@ Playwright 1.63 já instalado em
   de qualquer migração; nunca se descarta.
 - Robô: ~100 ms entre pedidos, timeout 20 s, 3 tentativas com espera
   crescente, `user-agent: Mozilla/5.0 (lista-de-mercado; robo de precos)` (só ASCII: acento no cabeçalho dá HTTP 400 na VTEX),
-  prazo de 20 min por mercado.
+  prazo de 40 min por mercado.
 - Testes unitários não usam rede: `fetch` é injetado.
 - Nunca usar o `gh` desta máquina pra este repo; remoto por SSH
   `git@github.com:brenisio/lista-de-mercado.git`.
@@ -742,7 +742,7 @@ test("tema escuro não quebra o contraste do destaque", ...);                   
 - [ ] **Step 1: Escrever `atualizar.yml`** exatamente com:
   - `on: schedule: - cron: "17 9,15,21 * * *"`; `push: branches: [main]`; `workflow_dispatch: inputs: rastrear: { type: boolean, default: true, description: "Rastrear os mercados (desligado = só republicar)" }`.
   - `permissions: contents: read, pages: write, id-token: write`; `concurrency: { group: pages, cancel-in-progress: false }`.
-  - Job `atualizar` (`ubuntu-latest`, `timeout-minutes: 30`): `actions/checkout@v4`; `actions/setup-node@v4` com `node-version: 22`; passo "Descobrir a URL do site" que exporta `SITE_URL` (`https://${OWNER}.github.io/${REPO}` ou `https://${REPO}` quando `REPO` termina em `.github.io`, a partir de `${{ github.repository }}`); passo "Dados" que roda `node robo/catalogo.mjs --saida public/dados --anterior "$SITE_URL/dados"` e acrescenta `--so-anterior` quando `github.event_name == 'push'` ou (`workflow_dispatch` e `inputs.rastrear == false`); `actions/configure-pages@v5` com `enablement: true`; `actions/upload-pages-artifact@v3` com `path: public`.
+  - Job `atualizar` (`ubuntu-latest`, `timeout-minutes: 50`): `actions/checkout@v4`; `actions/setup-node@v4` com `node-version: 22`; passo "Descobrir a URL do site" que exporta `SITE_URL` (`https://${OWNER}.github.io/${REPO}` ou `https://${REPO}` quando `REPO` termina em `.github.io`, a partir de `${{ github.repository }}`); passo "Dados" que roda `node robo/catalogo.mjs --saida public/dados --anterior "$SITE_URL/dados"` e acrescenta `--so-anterior` quando `github.event_name == 'push'` ou (`workflow_dispatch` e `inputs.rastrear == false`); `actions/configure-pages@v5` com `enablement: true`; `actions/upload-pages-artifact@v3` com `path: public`.
   - Job `publicar` (`needs: atualizar`, `environment: { name: github-pages, url: ${{ steps.deployment.outputs.page_url }} }`): `actions/deploy-pages@v4` com `id: deployment`.
 
 - [ ] **Step 2: Validar a sintaxe** — `node -e 'const y=require("fs").readFileSync(".github/workflows/atualizar.yml","utf8");console.log(y.split("\n").length,"linhas")'` e conferir visualmente indentação; se houver `yamllint` ou `actionlint` na máquina, rodar.

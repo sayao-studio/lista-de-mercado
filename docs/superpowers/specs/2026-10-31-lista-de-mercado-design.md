@@ -158,7 +158,7 @@ tentativas com espera crescente, user-agent que identifica o projeto):
    o mesmo produto pode aparecer em mais de uma categoria).
 4. Escreve `public/dados/<mercado>.json` e, no fim, `public/dados/resumo.json`.
 
-Cada mercado tem um prazo interno (20 min) pra caber nos 30 min do job; quem
+Cada mercado tem um prazo interno (40 min) pra caber nos 50 min do job; quem
 estoura conta como falha e cai no anterior, em vez de derrubar tudo.
 
 Se um mercado falhar (HTTP ≠ 2xx depois das tentativas, JSON inválido, ou
@@ -310,7 +310,7 @@ com os `?v=` antigos apagados ao carregar um novo.
     `actions/deploy-pages`. Nenhum dado entra no git (o histórico não cresce).
     `SITE_URL` vem de `github.repository` (`https://<dono>.github.io/<repo>`;
     se o repo for `<dono>.github.io`, é a raiz).
-- `concurrency` pra não rodar dois ao mesmo tempo; `timeout-minutes: 30`.
+- `concurrency` pra não rodar dois ao mesmo tempo; `timeout-minutes: 50`.
 
 ### Testes
 
