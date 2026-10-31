@@ -233,6 +233,94 @@ describe("site", () => {
     const focado = await page.evaluate(() => document.activeElement?.dataset.filtro);
     assert.equal(focado, "promocao");
   });
+  // ---- Catálogo ----
+
+  const nomesDe = (locator) => locator.evaluateAll((ns) => ns.map((n) => n.querySelector(".nome").textContent));
+
+  test("busca vazia mostra o catálogo por departamento, com a contagem", async () => {
+    const { page } = await abrir();
+    const departamentos = page.locator("#resultados .departamento");
+    assert.deepEqual(
+      await departamentos.evaluateAll((bs) => bs.map((b) => b.dataset.departamento)),
+      ["hortifruti", "frios", "mercearia", "limpeza"],
+    );
+    assert.match(await departamentos.nth(2).textContent(), /Mercearia\s+5 produtos/);
+    assert.match(await departamentos.first().textContent(), /Hortifruti\s+1 produto\s*$/);
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(largura <= 390, `scrollWidth ${largura} > 390`);
+  });
+
+  test("departamento abre as seções e a seção lista os cartões, com o + funcionando", async () => {
+    const { page } = await abrir();
+    await page.locator('#resultados .departamento[data-departamento="mercearia"]').click();
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Mercearia/);
+    assert.deepEqual(await nomesDe(page.locator("#resultados .secao")), [
+      "Tudo de Mercearia", "Cereais, farinhas e granolas", "Arroz, feijão e grãos", "Biscoitos e snacks", "Café, chá e matinais",
+    ]);
+    // O foco vai pro título, pra o leitor de tela dizer onde a pessoa está.
+    assert.equal(await page.evaluate(() => document.activeElement?.className), "titulo-nivel");
+    await page.locator('#resultados .secao[data-secao="Arroz, feijão e grãos"]').click();
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Arroz, feijão e grãos\s+Mercearia/);
+    const cartoes = page.locator("#resultados .cartao");
+    assert.deepEqual(await nomesDe(cartoes), ["Arroz Tio João 1kg", "Feijão Carioca Camil 1kg"]);
+    await cartoes.first().locator(".adicionar").click();
+    assert.equal(await page.locator("#contador-lista").textContent(), "1");
+    assert.equal((await cartoes.first().locator(".adicionar").textContent()).trim(), "×1");
+    // O redesenho depois de adicionar não tira a pessoa da seção.
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Arroz, feijão e grãos/);
+  });
+
+  test("voltar da tela e voltar do navegador sobem um nível cada, com o foco no botão de origem", async () => {
+    const { page } = await abrir();
+    await page.locator('#resultados .departamento[data-departamento="mercearia"]').click();
+    await page.locator("#resultados .secao[data-tudo]").click();
+    assert.equal(await page.locator("#resultados .cartao").count(), 5);
+    await page.locator("#resultados .voltar").click();
+    await page.waitForSelector("#resultados .secoes");
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Mercearia/);
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.tudo), "1");
+    // O botão voltar do celular (histórico) sobe pra raiz em vez de sair do site.
+    await page.goBack();
+    await page.waitForSelector("#resultados .departamentos");
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.departamento), "mercearia");
+    await page.goForward();
+    await page.waitForSelector("#resultados .secoes");
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Mercearia/);
+  });
+
+  test("'Só promoções' com a busca vazia conta e lista só as promoções", async () => {
+    const { page } = await abrir();
+    await page.locator('#chips [data-filtro="promocao"]').click();
+    const departamentos = page.locator("#resultados .departamento");
+    assert.deepEqual(await departamentos.evaluateAll((bs) => bs.map((b) => b.dataset.departamento)), ["mercearia"]);
+    assert.match(await departamentos.first().textContent(), /2 em promoção/);
+    await departamentos.first().click();
+    await page.locator("#resultados .secao[data-tudo]").click();
+    assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Arroz Tio João 1kg", "Café Melitta 500g"]);
+    // Chip de mercado também vale no catálogo: só o arroz é vendido no
+    // Angeloni (e está em promoção no Bistek); o café é só do Giassi.
+    await page.locator("#resultados .voltar").click();
+    await page.locator("#resultados .voltar").click();
+    await page.waitForSelector("#resultados .departamentos");
+    await page.locator('#chips [data-mercado="angeloni"]').click();
+    assert.match(await page.locator("#resultados .departamento").textContent(), /Mercearia\s+1 em promoção/);
+  });
+
+  test("digitar substitui o catálogo e apagar volta pra seção aberta", async () => {
+    const { page } = await abrir();
+    await page.locator('#resultados .departamento[data-departamento="limpeza"]').click();
+    // Uma seção só: não há "Tudo de Limpeza".
+    assert.deepEqual(await nomesDe(page.locator("#resultados .secao")), ["Lavanderia"]);
+    await page.locator("#resultados .secao").click();
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Lavanderia/);
+    await buscarPor(page, "arroz");
+    assert.equal(await page.locator("#resultados .catalogo").count(), 0);
+    assert.equal(await page.locator("#resultados .cartao").count(), 3);
+    await buscarPor(page, "");
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Lavanderia/);
+    assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Sabão em Pó Omo 800g"]);
+  });
+
   // ---- Tela Lista ----
 
   const ARROZ = "7896006700029";

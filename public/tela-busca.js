@@ -1,6 +1,7 @@
-// Tela Buscar: campo, chips e cartões. Não mexe na lista nem salva nada:
-// quem é dono de `estado.itens` é o app.js, que recebe os pedidos por `acoes`.
-import { buscar } from "./busca.js";
+// Tela Buscar: campo, chips, catálogo (com o campo vazio) e cartões. Não
+// mexe na lista nem salva nada: quem é dono de `estado.itens` é o app.js,
+// que recebe os pedidos por `acoes`.
+import { buscar, catalogar } from "./busca.js";
 import { reais, peso } from "./formato.js";
 import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
 // A mesma regra dos totais: chip de mercado sem catálogo filtraria pra lista
@@ -8,6 +9,11 @@ import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
 import { mercadosCarregados } from "./tela-lista.js";
 
 const LOTE = 30;
+const numero = new Intl.NumberFormat("pt-BR");
+
+// Nível do catálogo: raiz (departamentos), departamento (seções) ou produtos
+// (uma seção, ou o departamento inteiro quando `tudo`).
+const RAIZ = { departamento: null, secao: null, tudo: false };
 
 // Estado só da interface: não vai pro aparelho, porque a busca de ontem não
 // interessa a quem abre o site hoje.
@@ -17,6 +23,9 @@ const ui = {
   ordem: "relevancia",
   mercados: new Set(),
   mostrar: LOTE,
+  // Onde a pessoa está no catálogo; vale enquanto o campo está vazio e
+  // sobrevive a digitar e apagar, pra ela voltar pra prateleira onde estava.
+  catalogo: { ...RAIZ },
 };
 
 // O último resultado desenhado: o clique no cartão acha o grupo por aqui sem
@@ -49,6 +58,11 @@ function renderizarChips(estado) {
     chip('data-ordem="porKg"', "Menor por kg/l", ui.ordem === "porKg"),
     ...mercados.map((m) => chip(`data-mercado="${escapar(m.id)}"`, m.nome, ui.mercados.has(m.id))),
   ].join("");
+}
+
+// Os chips valem igual na busca e no catálogo.
+function filtros() {
+  return { promocao: ui.promocao, ordem: ui.ordem, mercados: ui.mercados.size ? [...ui.mercados] : null };
 }
 
 function marcaPeso(grupo) {
@@ -91,6 +105,96 @@ function botaoTexto(termo) {
   return `<button type="button" id="adicionar-texto">Adicionar "${escapar(termo)}" sem preço</button>`;
 }
 
+// Cartões de um lote com o "Mostrar mais (N)" no fim; serve à busca e ao catálogo.
+function lote(achados, estado) {
+  const nomes = nomesDosMercados(estado);
+  const visiveis = achados.slice(0, ui.mostrar);
+  for (const g of visiveis) gruposNaTela.set(g.chave, g);
+  const mais = achados.length > visiveis.length
+    ? `<button type="button" id="mostrar-mais">Mostrar mais (${achados.length - visiveis.length})</button>`
+    : "";
+  return { cartoes: visiveis.map((g) => cartao(g, estado, nomes)).join(""), mais };
+}
+
+// ---- Catálogo ----
+
+// "538 produtos" ou, com o chip ligado, "47 em promoção": a contagem diz o
+// que a pessoa vai ver ao tocar.
+function quantos(n) {
+  const texto = numero.format(n);
+  if (ui.promocao) return n === 1 ? "1 em promoção" : `${texto} em promoção`;
+  return n === 1 ? "1 produto" : `${texto} produtos`;
+}
+
+function cabecalhoDoNivel(rotuloVoltar, titulo) {
+  return `<div class="cabecalho-nivel">
+    <button type="button" class="voltar" aria-label="${escapar(rotuloVoltar)}">‹</button>
+    <h2 class="titulo-nivel" tabindex="-1">${titulo}</h2>
+  </div>`;
+}
+
+function raizDoCatalogo(estado) {
+  const { promocao, mercados } = filtros();
+  const linhas = estado.indice.catalogo
+    .map((d) => ({ ...d, quantos: catalogar(estado.indice, { departamento: d.id, promocao, mercados }).length }))
+    .filter((d) => d.quantos > 0)
+    .map((d) => `<li><button type="button" class="departamento" data-departamento="${escapar(d.id)}">
+        <span class="emoji" aria-hidden="true">${d.emoji}</span>
+        <span class="nome">${escapar(d.nome)}</span>
+        <span class="quantos">${quantos(d.quantos)}</span>
+      </button></li>`);
+  if (!linhas.length) {
+    return `<p class="vazio">${ui.promocao ? "Nenhuma promoção hoje" : "Nada"} nesses mercados.</p>`;
+  }
+  return `<nav class="catalogo" aria-label="Catálogo">
+    <h2 class="titulo-catalogo">Catálogo</h2>
+    <ul class="departamentos">${linhas.join("")}</ul>
+  </nav>`;
+}
+
+function departamentoDoCatalogo(estado, dep) {
+  const { promocao, mercados } = filtros();
+  const total = catalogar(estado.indice, { departamento: dep.id, promocao, mercados }).length;
+  const secoes = dep.secoes
+    .map((s) => ({ nome: s.nome, quantos: catalogar(estado.indice, { departamento: dep.id, secao: s.nome, promocao, mercados }).length }))
+    .filter((s) => s.quantos > 0);
+  const linha = (atributos, classe, texto, n) =>
+    `<li><button type="button" class="secao${classe}" ${atributos}><span class="nome">${texto}</span><span class="quantos">${quantos(n)}</span></button></li>`;
+  const linhas = secoes.map((s) => linha(`data-secao="${escapar(s.nome)}"`, "", escapar(s.nome), s.quantos));
+  // "Tudo de X" só quando há mais de uma seção; com uma só seria repetir.
+  if (secoes.length > 1) linhas.unshift(linha('data-tudo="1"', " tudo", `Tudo de ${escapar(dep.nome)}`, total));
+  const cabecalho = cabecalhoDoNivel("Voltar pro catálogo", `<span class="emoji" aria-hidden="true">${dep.emoji}</span> ${escapar(dep.nome)}`);
+  const corpo = linhas.length
+    ? `<ul class="secoes">${linhas.join("")}</ul>`
+    : `<p class="vazio">Nada em ${escapar(dep.nome)} nesses mercados.</p>`;
+  return `<div class="catalogo">${cabecalho}${corpo}</div>`;
+}
+
+function produtosDoCatalogo(estado, dep) {
+  const secao = ui.catalogo.tudo ? null : ui.catalogo.secao;
+  const achados = catalogar(estado.indice, { departamento: dep.id, secao, ...filtros() });
+  const titulo = secao == null
+    ? `Tudo de ${escapar(dep.nome)}`
+    : `${escapar(secao)} <small>${escapar(dep.nome)}</small>`;
+  const cabecalho = cabecalhoDoNivel(`Voltar pra ${dep.nome}`, titulo);
+  if (!achados.length) return `<div class="catalogo">${cabecalho}<p class="vazio">Nada aqui nesses mercados.</p></div>`;
+  const { cartoes, mais } = lote(achados, estado);
+  return `<div class="catalogo">${cabecalho}${cartoes}${mais ? `<div class="rodape-busca">${mais}</div>` : ""}</div>`;
+}
+
+function conteudoDoCatalogo(estado) {
+  const { departamento, secao, tudo } = ui.catalogo;
+  if (!departamento) return raizDoCatalogo(estado);
+  const dep = estado.indice.catalogo.find((d) => d.id === departamento);
+  // O catálogo mudou embaixo da pessoa (mercado que saiu): volta pra raiz.
+  if (!dep) {
+    ui.catalogo = { ...RAIZ };
+    return raizDoCatalogo(estado);
+  }
+  if (secao == null && !tudo) return departamentoDoCatalogo(estado, dep);
+  return produtosDoCatalogo(estado, dep);
+}
+
 function conteudoResultados(estado) {
   const termo = ui.termo.trim();
   if (!estado.indice) {
@@ -100,25 +204,17 @@ function conteudoResultados(estado) {
     const chegaram = estado.mercados.filter((m) => m.carregado).map((m) => `${escapar(m.nome)} ✓`);
     return `<p class="carregando">Carregando os preços…${chegaram.length ? " " + chegaram.join(" ") : ""}</p>${rodape}`;
   }
-  if (!termo) return '<p class="vazio">Digite o nome de um produto. Ex.: arroz, café, sabão.</p>';
+  // Campo vazio é o catálogo: a pessoa vai vendo o que tem, corredor por
+  // corredor, e lembra o que esqueceu de digitar.
+  if (!termo) return conteudoDoCatalogo(estado);
 
-  const achados = buscar(estado.indice, termo, {
-    promocao: ui.promocao,
-    ordem: ui.ordem,
-    mercados: ui.mercados.size ? [...ui.mercados] : null,
-  });
+  const achados = buscar(estado.indice, termo, filtros());
   if (!achados.length) {
     return `<p class="vazio">Nada com “${escapar(termo)}”. Pode adicionar sem preço.</p>
       <div class="rodape-busca">${botaoTexto(termo)}</div>`;
   }
-  const nomes = nomesDosMercados(estado);
-  const visiveis = achados.slice(0, ui.mostrar);
-  for (const g of visiveis) gruposNaTela.set(g.chave, g);
-  const mais = achados.length > visiveis.length
-    ? `<button type="button" id="mostrar-mais">Mostrar mais (${achados.length - visiveis.length})</button>`
-    : "";
-  return `${visiveis.map((g) => cartao(g, estado, nomes)).join("")}
-    <div class="rodape-busca">${mais}${botaoTexto(termo)}</div>`;
+  const { cartoes, mais } = lote(achados, estado);
+  return `${cartoes}<div class="rodape-busca">${mais}${botaoTexto(termo)}</div>`;
 }
 
 // Seletor que reencontra o elemento focado depois do redesenho: teclado e
@@ -133,6 +229,13 @@ function seletorDoFoco() {
       const valor = chipFocado.dataset[nome];
       if (valor) return `#chips .chip[data-${nome}="${CSS.escape(valor)}"]`;
     }
+  }
+  if (ativo?.closest?.("#resultados .catalogo")) {
+    if (ativo.matches(".voltar")) return "#resultados .voltar";
+    if (ativo.matches(".titulo-nivel")) return "#resultados .titulo-nivel";
+    if (ativo.dataset.departamento) return `#resultados .departamento[data-departamento="${CSS.escape(ativo.dataset.departamento)}"]`;
+    if (ativo.dataset.tudo) return "#resultados .secao[data-tudo]";
+    if (ativo.dataset.secao) return `#resultados .secao[data-secao="${CSS.escape(ativo.dataset.secao)}"]`;
   }
   return null;
 }
@@ -158,6 +261,57 @@ export function renderizarBusca(estado, { focarCartao = null } = {}) {
   }
 }
 
+// ---- Navegação no catálogo ----
+
+function focar(seletor) {
+  const alvo = seletor ? document.querySelector(seletor) : null;
+  alvo?.focus();
+  return Boolean(alvo);
+}
+
+function focarTitulo() {
+  el("#resultados").querySelector(".titulo-nivel")?.focus({ preventScroll: true });
+}
+
+// O botão que abre um nível, no nível de cima: é pra onde o foco volta ao subir.
+function seletorDoNivel(nivel) {
+  if (nivel.tudo) return "#resultados .secao[data-tudo]";
+  if (nivel.secao != null) return `#resultados .secao[data-secao="${CSS.escape(nivel.secao)}"]`;
+  if (nivel.departamento) return `#resultados .departamento[data-departamento="${CSS.escape(nivel.departamento)}"]`;
+  return null;
+}
+
+function nivelAcima(nivel) {
+  if (nivel.secao != null || nivel.tudo) return { departamento: nivel.departamento, secao: null, tudo: false };
+  return { ...RAIZ };
+}
+
+// Descer empurra uma entrada no histórico: o botão voltar do celular sobe
+// um nível em vez de sair do site. A URL não muda.
+function descer(estado, nivel) {
+  ui.catalogo = nivel;
+  ui.mostrar = LOTE;
+  history.pushState({ catalogo: nivel }, "");
+  renderizarBusca(estado);
+  // O nível novo começa do topo; o foco no título conta pro leitor de tela onde está.
+  window.scrollTo({ top: 0 });
+  focarTitulo();
+}
+
+function subir(estado) {
+  // Se foi o site que empurrou o histórico, volta por ele, pra o botão da
+  // tela e o do navegador contarem a mesma história (o popstate redesenha).
+  if (history.state?.catalogo) {
+    history.back();
+    return;
+  }
+  const de = ui.catalogo;
+  ui.catalogo = nivelAcima(de);
+  ui.mostrar = LOTE;
+  renderizarBusca(estado);
+  focar(seletorDoNivel(de));
+}
+
 export function ligarBusca(estado, acoes) {
   const campo = el("#busca");
   const aoDigitar = debounce(() => {
@@ -166,6 +320,19 @@ export function ligarBusca(estado, acoes) {
     renderizarBusca(estado);
   }, 120);
   campo.addEventListener("input", aoDigitar);
+
+  // Recarregar a aba no meio do catálogo começa da raiz: o estado velho do
+  // histórico não vale mais.
+  history.replaceState(null, "");
+  window.addEventListener("popstate", (e) => {
+    const de = ui.catalogo;
+    ui.catalogo = e.state?.catalogo ?? { ...RAIZ };
+    ui.mostrar = LOTE;
+    renderizarBusca(estado);
+    // Subindo, o foco volta pro botão que abriu o nível de onde veio;
+    // descendo (o "avançar" do navegador), vai pro título.
+    if (!focar(seletorDoNivel(de))) focarTitulo();
+  });
 
   el("#chips").addEventListener("click", (e) => {
     const botao = e.target.closest(".chip");
@@ -197,6 +364,21 @@ export function ligarBusca(estado, acoes) {
     if (e.target.closest("#adicionar-texto")) {
       const nome = ui.termo.trim();
       if (nome) acoes.adicionarTexto(nome);
+      return;
+    }
+    const departamento = e.target.closest(".departamento");
+    if (departamento) {
+      descer(estado, { departamento: departamento.dataset.departamento, secao: null, tudo: false });
+      return;
+    }
+    const secao = e.target.closest(".secao");
+    if (secao) {
+      const tudo = Boolean(secao.dataset.tudo);
+      descer(estado, { departamento: ui.catalogo.departamento, secao: tudo ? null : secao.dataset.secao, tudo });
+      return;
+    }
+    if (e.target.closest(".voltar")) {
+      subir(estado);
       return;
     }
     // O cartão inteiro é alvo de toque: no corredor, acertar só o "+" é difícil.
