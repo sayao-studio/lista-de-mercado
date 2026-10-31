@@ -55,13 +55,15 @@ export function indexar(catalogos) {
 
   for (const [mercadoId, arquivo] of Object.entries(catalogos)) {
     // Arquivo de antes do catálogo tem só o departamento no caminho: cai no
-    // departamento certo com seção "Geral". Classifica uma vez por caminho.
+    // departamento certo com seção "Geral". Classifica uma vez por caminho;
+    // só quem ficou sem seção (ou sem departamento) tenta de novo pelo nome.
     const caminhos = arquivo.categorias ?? [];
-    const classes = caminhos.map(classificar);
+    const classes = caminhos.map((caminho) => classificar(caminho));
     for (const linha of arquivo.produtos) {
       const chave = chaveDe(mercadoId, linha);
       const caminho = caminhos[linha.categoria] ?? "";
-      const classe = classes[linha.categoria] ?? classificar(caminho);
+      let classe = classes[linha.categoria] ?? classificar(caminho);
+      if (classe.secao === "Geral" || classe.departamento === "outros") classe = classificar(caminho, linha.nome);
       let grupo = porChave.get(chave);
       if (!grupo) {
         grupo = {

@@ -309,16 +309,20 @@ describe("site", () => {
   test("digitar substitui o catálogo e apagar volta pra seção aberta", async () => {
     const { page } = await abrir();
     await page.locator('#resultados .departamento[data-departamento="limpeza"]').click();
-    // Uma seção só: não há "Tudo de Limpeza".
-    assert.deepEqual(await nomesDe(page.locator("#resultados .secao")), ["Lavanderia"]);
-    await page.locator("#resultados .secao").click();
-    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Lavanderia/);
+    // Uma seção só (Lavanderia): abre direto nos produtos, com o nome do departamento.
+    assert.equal(await page.locator("#resultados .secoes").count(), 0);
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Limpeza/);
+    assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Sabão em Pó Omo 800g"]);
     await buscarPor(page, "arroz");
     assert.equal(await page.locator("#resultados .catalogo").count(), 0);
     assert.equal(await page.locator("#resultados .cartao").count(), 3);
     await buscarPor(page, "");
-    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Lavanderia/);
+    assert.match(await page.locator("#resultados .titulo-nivel").textContent(), /Limpeza/);
     assert.deepEqual(await nomesDe(page.locator("#resultados .cartao")), ["Sabão em Pó Omo 800g"]);
+    // Voltar daqui é pro catálogo, não pra uma lista de uma seção só.
+    await page.locator("#resultados .voltar").click();
+    await page.waitForSelector("#resultados .departamentos");
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.departamento), "limpeza");
   });
 
   // ---- Tela Lista ----

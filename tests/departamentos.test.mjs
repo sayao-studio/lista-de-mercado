@@ -37,6 +37,23 @@ test("classificar cruza as árvores: leite do Bistek sai de Bebidas, congelado s
   assert.deepEqual(classificar("Bebê e Crianças > Decoração Infantil"), { departamento: "bebe", secao: "Enxoval" });
 });
 
+test("classificar usa o nome do produto só quando o caminho não diz a seção", () => {
+  // Solto no departamento: regras do próprio departamento sobre o nome inteiro.
+  assert.deepEqual(classificar("Frios e Laticínios", "Iogurte Integral Natural Nestlé 170g"), { departamento: "frios", secao: "Iogurtes e sobremesas" });
+  assert.deepEqual(classificar("Frios e Laticínios", "Peito De Peru Sadia Defumado 200g Fatiado"), { departamento: "frios", secao: "Frios e embutidos" });
+  assert.deepEqual(classificar("Padaria", "Pão Frances 180g"), { departamento: "padaria", secao: "Pães" });
+  assert.deepEqual(classificar("Frios e Laticínios", "Batata Congelada Mccain 720g"), { departamento: "frios", secao: "Geral" });
+  // Departamento desconhecido: regras de todos, só sobre as três primeiras palavras.
+  assert.deepEqual(classificar("Bistek", "Ovos Caipira Free Lar Com 20 Und"), { departamento: "hortifruti", secao: "Ovos" });
+  assert.deepEqual(classificar("Bistek", "Sabão Em Barra Girando Sol 900g"), { departamento: "limpeza", secao: "Lavanderia" });
+  assert.deepEqual(classificar("Bistek", "Vinho Brasileiro Miolo Reserva Pinot Grigio 750ml"), { departamento: "alcoolicas", secao: "Vinhos e espumantes" });
+  assert.deepEqual(classificar("Bistek", "Iogurte Integral Grego Calda Frutas Vermelhas Nestlé 90g"), { departamento: "frios", secao: "Iogurtes e sobremesas" });
+  assert.deepEqual(classificar("Bistek", "Caçarola Com Tampa Inox 24cm"), { departamento: "outros", secao: "Geral" });
+  // Com seção no caminho, o nome não manda.
+  assert.deepEqual(classificar("Mercearia > Massas", "Ovos de Páscoa"), { departamento: "mercearia", secao: "Massas" });
+  assert.deepEqual(classificar("Mercearia > Cestas", "Ovos"), { departamento: "mercearia", secao: "Cestas" });
+});
+
 test("classificar não quebra com caminho desconhecido, raso ou vazio", () => {
   assert.deepEqual(classificar("Bistek"), { departamento: "outros", secao: "Geral" });
   assert.deepEqual(classificar("Loja de Conveniência > Gelo e Carvão"), { departamento: "outros", secao: "Gelo e Carvão" });

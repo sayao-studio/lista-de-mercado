@@ -76,7 +76,7 @@ const SECOES = {
   ],
   padaria: [
     [/panetone|panettone|colomba|sazonais/, "Sazonais"],
-    [/\bpaes\b|pao de queijo|wrap/, "Pães"],
+    [/\bpaes\b|\bpao\b|wrap/, "Pães"],
     [/bolo|torta|docinho|donut|folhado|muffin|pao de mel|cuca|alfajor|rosca|confeitaria/, "Bolos e confeitaria"],
     [/lanchonete|lanches|salgados/, "Salgados e lanches"],
     [/pizza|canudos/, "Massas pra pizza"],
@@ -187,10 +187,26 @@ function partesDe(caminho) {
   return String(caminho ?? "").split(">").map((parte) => parte.trim()).filter(Boolean);
 }
 
+function secaoPorRegra(departamento, texto) {
+  for (const [regra, nome] of SECOES[departamento] ?? []) {
+    if (regra.test(texto)) return nome;
+  }
+  return null;
+}
+
 // "Mercearia > Massas > Macarrão" → { departamento: "mercearia", secao: "Massas" }.
 // Sem regra de seção, a seção é o primeiro nível depois do departamento, com
 // o nome que o mercado deu; sem nível nenhum, "Geral".
-export function classificar(caminho) {
+//
+// `nome` (do produto) é o último recurso, só quando o caminho não diz a
+// seção: produto solto no departamento ("Frios e Laticínios" sem filho:
+// "Iogurte Integral Nestlé") tenta as regras do próprio departamento sobre
+// o nome inteiro; produto num departamento que o site não entende (o
+// "Bistek", 556 itens de tudo) tenta as regras de todos, na ordem de
+// corredor, só sobre as três primeiras palavras, que é onde fica o tipo do
+// produto ("Ovos Caipira Free…", "Sabão Em Barra…") e não o sabor
+// ("…Calda Frutas Vermelhas" não é hortifruti).
+export function classificar(caminho, nome = "") {
   const partes = partesDe(caminho);
   const texto = normalizar(partes.join(" > "));
   let departamento = "outros";
@@ -203,11 +219,22 @@ export function classificar(caminho) {
     }
   }
   const resto = partes.slice(niveis);
-  const restoTexto = normalizar(resto.join(" > "));
-  for (const [regra, nome] of SECOES[departamento] ?? []) {
-    if (regra.test(restoTexto)) return { departamento, secao: nome };
+  const secao = secaoPorRegra(departamento, normalizar(resto.join(" > ")));
+  if (secao) return { departamento, secao };
+  if (resto.length) return { departamento, secao: resto[0] };
+
+  const nomeNormal = normalizar(nome);
+  if (departamento !== "outros") {
+    return { departamento, secao: secaoPorRegra(departamento, nomeNormal) ?? "Geral" };
   }
-  return { departamento, secao: resto[0] ?? "Geral" };
+  const comeco = nomeNormal.split(" ").slice(0, 3).join(" ");
+  if (comeco) {
+    for (const { id } of DEPARTAMENTOS) {
+      const porNome = secaoPorRegra(id, comeco);
+      if (porNome) return { departamento: id, secao: porNome };
+    }
+  }
+  return { departamento, secao: "Geral" };
 }
 
 // Seções na ordem da tela; as que nenhuma regra conhece vêm depois, em

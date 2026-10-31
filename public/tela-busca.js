@@ -170,13 +170,26 @@ function departamentoDoCatalogo(estado, dep) {
   return `<div class="catalogo">${cabecalho}${corpo}</div>`;
 }
 
+// Departamento com uma seção só abre direto nos produtos: a lista de uma
+// linha seria um toque a mais sem escolha nenhuma.
+const umaSecaoSo = (dep) => dep.secoes.length === 1;
+
 function produtosDoCatalogo(estado, dep) {
   const secao = ui.catalogo.tudo ? null : ui.catalogo.secao;
   const achados = catalogar(estado.indice, { departamento: dep.id, secao, ...filtros() });
-  const titulo = secao == null
-    ? `Tudo de ${escapar(dep.nome)}`
-    : `${escapar(secao)} <small>${escapar(dep.nome)}</small>`;
-  const cabecalho = cabecalhoDoNivel(`Voltar pra ${dep.nome}`, titulo);
+  let titulo;
+  let rotuloVoltar;
+  if (umaSecaoSo(dep)) {
+    titulo = `<span class="emoji" aria-hidden="true">${dep.emoji}</span> ${escapar(dep.nome)}`;
+    rotuloVoltar = "Voltar pro catálogo";
+  } else if (secao == null) {
+    titulo = `Tudo de ${escapar(dep.nome)}`;
+    rotuloVoltar = `Voltar pra ${dep.nome}`;
+  } else {
+    titulo = `${escapar(secao)} <small>${escapar(dep.nome)}</small>`;
+    rotuloVoltar = `Voltar pra ${dep.nome}`;
+  }
+  const cabecalho = cabecalhoDoNivel(rotuloVoltar, titulo);
   if (!achados.length) return `<div class="catalogo">${cabecalho}<p class="vazio">Nada aqui nesses mercados.</p></div>`;
   const { cartoes, mais } = lote(achados, estado);
   return `<div class="catalogo">${cabecalho}${cartoes}${mais ? `<div class="rodape-busca">${mais}</div>` : ""}</div>`;
@@ -274,15 +287,23 @@ function focarTitulo() {
 }
 
 // O botão que abre um nível, no nível de cima: é pra onde o foco volta ao subir.
-function seletorDoNivel(nivel) {
+function seletorDoNivel(nivel, estado) {
   if (nivel.tudo) return "#resultados .secao[data-tudo]";
-  if (nivel.secao != null) return `#resultados .secao[data-secao="${CSS.escape(nivel.secao)}"]`;
+  if (nivel.secao != null) {
+    // Departamento de uma seção só abriu direto nos produtos: quem abriu foi o ladrilho dele.
+    const dep = estado.indice?.catalogo.find((d) => d.id === nivel.departamento);
+    if (!(dep && umaSecaoSo(dep))) return `#resultados .secao[data-secao="${CSS.escape(nivel.secao)}"]`;
+  }
   if (nivel.departamento) return `#resultados .departamento[data-departamento="${CSS.escape(nivel.departamento)}"]`;
   return null;
 }
 
-function nivelAcima(nivel) {
-  if (nivel.secao != null || nivel.tudo) return { departamento: nivel.departamento, secao: null, tudo: false };
+function nivelAcima(nivel, estado) {
+  if (nivel.secao != null || nivel.tudo) {
+    const dep = estado.indice?.catalogo.find((d) => d.id === nivel.departamento);
+    if (dep && umaSecaoSo(dep)) return { ...RAIZ };
+    return { departamento: nivel.departamento, secao: null, tudo: false };
+  }
   return { ...RAIZ };
 }
 
@@ -306,10 +327,10 @@ function subir(estado) {
     return;
   }
   const de = ui.catalogo;
-  ui.catalogo = nivelAcima(de);
+  ui.catalogo = nivelAcima(de, estado);
   ui.mostrar = LOTE;
   renderizarBusca(estado);
-  focar(seletorDoNivel(de));
+  focar(seletorDoNivel(de, estado));
 }
 
 export function ligarBusca(estado, acoes) {
@@ -331,7 +352,7 @@ export function ligarBusca(estado, acoes) {
     renderizarBusca(estado);
     // Subindo, o foco volta pro botão que abriu o nível de onde veio;
     // descendo (o "avançar" do navegador), vai pro título.
-    if (!focar(seletorDoNivel(de))) focarTitulo();
+    if (!focar(seletorDoNivel(de, estado))) focarTitulo();
   });
 
   el("#chips").addEventListener("click", (e) => {
@@ -368,7 +389,10 @@ export function ligarBusca(estado, acoes) {
     }
     const departamento = e.target.closest(".departamento");
     if (departamento) {
-      descer(estado, { departamento: departamento.dataset.departamento, secao: null, tudo: false });
+      const id = departamento.dataset.departamento;
+      const dep = estado.indice?.catalogo.find((d) => d.id === id);
+      const secao = dep && umaSecaoSo(dep) ? dep.secoes[0].nome : null;
+      descer(estado, { departamento: id, secao, tudo: false });
       return;
     }
     const secao = e.target.closest(".secao");
