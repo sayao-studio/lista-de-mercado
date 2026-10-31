@@ -48,9 +48,12 @@ const produtos = (de, ate) => Array.from({ length: ate - de }, (_, i) => produto
 // Loja de mentira que responde árvore, total (`resources`) e páginas.
 // `totais` e `itens` são indexados pelo caminho "2/7/10"; total ausente = 0,
 // total null = sem cabeçalho. `itens[caminho]` é uma lista ou uma função
-// (from, to, ordem) → lista.
-function lojaFalsa({ arvore = arvoreBistek, totais = {}, itens = {} } = {}) {
+// (from, to, ordem) → lista. `falhar(url)` devolve um status para a loja
+// responder no lugar (ex.: 503) ou nada para seguir normal.
+function lojaFalsa({ arvore = arvoreBistek, totais = {}, itens = {}, falhar = () => undefined } = {}) {
   return fetchFalso((url) => {
+    const status = falhar(url);
+    if (status) return { status };
     const u = new URL(url);
     if (u.pathname.endsWith("/category/tree/3")) return { body: arvore };
     const caminho = u.searchParams.get("fq").replace(/^C:\//, "").replace(/\/$/, "");
@@ -229,6 +232,68 @@ test("rastrear falha quando baixou menos de 30% do esperado", async () => {
     assert.match(e.message, /1000/);
     return true;
   });
+});
+
+test("rastrear pula página que falha e segue nas próximas", async () => {
+  // A busca da VTEX devolve 500 em páginas soltas ("Failing getting sku
+  // document group from index") enquanto o resto do catálogo responde.
+  const logs = [];
+  const { fazerFetch, chamadas } = lojaFalsa({
+    totais: { 14: 120 },
+    itens: { 14: produtos(1, 121) },
+    falhar: (url) => (url.includes("fq=C:/14/&_from=50&") ? 503 : undefined),
+  });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada, log: (m) => logs.push(m) });
+  assert.equal(r.avisos.length, 1);
+  assert.match(r.avisos[0], /^Hortifrúti: página _from=50 falhou/);
+  assert.match(r.avisos[0], /HTTP 503/);
+  assert.ok(logs.some((m) => m.includes(r.avisos[0])));
+  assert.deepEqual(r.produtos.map((p) => p.id), [...produtos(1, 51), ...produtos(101, 121)].map((p) => p.items[0].itemId));
+  assert.equal(r.baixados, 70);
+  assert.equal(r.totalEsperado, 120);
+  assert.equal(pedidosDeBusca(chamadas, 14).filter((c) => c.includes("_from=50&")).length, 5);
+});
+
+test("rastrear pula página com HTTP 400 sem retentar", async () => {
+  const { fazerFetch, chamadas } = lojaFalsa({
+    totais: { 14: 120 },
+    itens: { 14: produtos(1, 121) },
+    falhar: (url) => (url.includes("fq=C:/14/&_from=50&") ? 400 : undefined),
+  });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
+  assert.equal(r.avisos.length, 1);
+  assert.match(r.avisos[0], /página _from=50 falhou \(HTTP 400\)/);
+  assert.equal(pedidosDeBusca(chamadas, 14).filter((c) => c.includes("_from=50&")).length, 1);
+  assert.equal(r.baixados, 70);
+});
+
+test("rastrear ainda falha quando sobra menos de 30%", async () => {
+  // Só a primeira página responde: pular as outras não pode esconder loja quebrada.
+  const { fazerFetch } = lojaFalsa({
+    totais: { 14: 1000 },
+    itens: { 14: produtos(1, 1001) },
+    falhar: (url) => (url.includes("fq=C:/14/&") && !url.includes("_from=0&") ? 503 : undefined),
+  });
+  await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada }), (e) => {
+    assert.ok(e instanceof ErroRastreio);
+    assert.match(e.message, /baixou 50 de 1000/);
+    return true;
+  });
+});
+
+test("rastrear trata total que falha como categoria sem total", async () => {
+  const { fazerFetch, chamadas } = lojaFalsa({
+    totais: { 2: 0 },
+    itens: { 14: produtos(1, 71) },
+    falhar: (url) => (/fq=C:\/14\/&_from=0&_to=0$/.test(url) ? 503 : undefined),
+  });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
+  assert.deepEqual(r.avisos, ["Hortifrúti: total falhou (HTTP 503 depois de 5 tentativas)"]);
+  assert.deepEqual(r.categorias, ["Hortifrúti"]);
+  assert.equal(r.totalEsperado, 0);
+  assert.equal(r.produtos.length, 70);
+  assert.equal(pedidosDeBusca(chamadas, 14).length, 3); // 50, 20, vazia
+  assert.equal(pedidosDeTotal(chamadas, "14/35").length, 0); // não desce nos filhos
 });
 
 test("rastrear falha quando estoura o prazo", async () => {

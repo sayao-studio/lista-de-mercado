@@ -1,6 +1,14 @@
 // Anda na árvore de categorias de uma loja VTEX e baixa o catálogo inteiro.
 // A rede entra injetada (`fazerFetch`, `esperar`, `agora`) para os testes
 // rodarem sem internet e sem relógio de verdade.
+//
+// Página ou total que falha mesmo depois das retentativas vira aviso, não
+// derruba a loja: a busca da VTEX devolve 500 em páginas soltas ("Failing
+// getting sku document group from index") enquanto o resto responde — em
+// 01/11/2026 o Bistek dava 500 em _from=0 e 206 de _from=50 a 1000, e uma
+// página dessas fez perder o Bistek e o Angeloni inteiros. Quem decide se a
+// loja ainda presta é a regra dos 30% no fim do `rastrear`. Só a árvore, o
+// prazo e os 30% derrubam a loja.
 
 import { linhasDoProduto, hostFoto } from "./produto.js";
 
@@ -69,11 +77,21 @@ export async function totalDe(mercado, caminho, opcoes) {
   return m ? Number(m[1]) : null;
 }
 
-export async function* paginas(mercado, caminho, { ordem, ...opcoes }) {
+// Sem `aoFalhar`, a primeira página que falha lança o erro. Com ele, a página
+// é pulada (`aoFalhar(de, erro)`) e a paginação segue; o prazo estourado
+// (ErroRastreio) sempre lança, porque aí não adianta seguir.
+export async function* paginas(mercado, caminho, { ordem, aoFalhar, ...opcoes }) {
   for (let de = 0; de <= TETO_FROM; de += POR_PAGINA) {
     let url = urlBusca(mercado, caminho, de, de + POR_PAGINA - 1);
     if (ordem) url += `&O=OrderByPrice${ordem}`;
-    const pagina = await (await pedir(url, opcoes)).json();
+    let pagina;
+    try {
+      pagina = await (await pedir(url, opcoes)).json();
+    } catch (e) {
+      if (!aoFalhar || e instanceof ErroRastreio) throw e;
+      aoFalhar(de, e);
+      continue;
+    }
     if (!Array.isArray(pagina) || pagina.length === 0) return;
     yield pagina;
   }
@@ -97,12 +115,24 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
   let totalEsperado = 0;
   let baixados = 0;
   let fotos = null;
+  const avisar = (texto) => {
+    avisos.push(texto);
+    log(`${mercado.nome}: ${texto}`);
+  };
 
   // Uma busca só alcança 2500 produtos (_from máximo), então categoria maior
   // que isso é quebrada nos filhos. Folha grande demais é baixada em ordem
   // crescente e decrescente de preço: pega as duas pontas, mas o meio pode faltar.
   async function planejar(no, caminho, nomes, planos) {
-    const total = await totalDe(mercado, caminho, opcoes);
+    let total;
+    try {
+      total = await totalDe(mercado, caminho, opcoes);
+    } catch (e) {
+      if (e instanceof ErroRastreio) throw e;
+      // Sem o total, a categoria é paginada direto como se faltasse o cabeçalho.
+      avisar(`${nomes.join(" > ")}: total falhou (${e.message})`);
+      total = null;
+    }
     if (total === 0) return;
     if (total === null || total <= TETO_FROM) {
       planos.push({ caminho, nomes, total: total ?? 0, ordens: [undefined] });
@@ -122,8 +152,9 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
       for (const plano of planos) {
         const indice = categorias.push(plano.nomes.join(" > ")) - 1;
         totalEsperado += plano.total; // conta uma vez mesmo baixando ASC e DESC
+        const aoFalhar = (de, e) => avisar(`${categorias[indice]}: página _from=${de} falhou (${e.message})`);
         for (const ordem of plano.ordens) {
-          for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem })) {
+          for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem, aoFalhar })) {
             baixados += pagina.length;
             for (const produtoVtex of pagina) {
               fotos ??= hostFoto(produtoVtex);
