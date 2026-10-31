@@ -85,14 +85,23 @@ function renderizarTudo() {
 }
 
 let fimDoAviso;
+// O recado com botão (Desfazer) que está na tela, se houver.
+let acaoViva = null;
 
+// Enquanto um recado com ação está vivo, recado comum é descartado: trocar o
+// texto e manter o botão faria o "Desfazer" parecer desfazer a coisa nova
+// ("Arroz na lista [Desfazer]"), e derrubar o botão tiraria da pessoa a única
+// volta pra o que ela acabou de perder. Recado comum é só confirmação; perder
+// um vale menos que perder o desfazer.
 function avisar(texto) {
+  if (acaoViva) return;
   clearTimeout(fimDoAviso);
   el("#aviso").textContent = texto;
 }
 
 // Recado que some sozinho: confirma o toque sem ficar tampando a tela.
 export function mostrarAviso(texto, ms = 1500) {
+  if (acaoViva) return;
   avisar(texto);
   fimDoAviso = setTimeout(() => avisar(""), ms);
 }
@@ -100,26 +109,39 @@ export function mostrarAviso(texto, ms = 1500) {
 // Recado com um botão (o "Desfazer"). Montado com nós, não innerHTML: o texto
 // pode trazer nome de produto. `focar` leva o teclado até o botão quando o
 // controle que a pessoa usou some da tela (o "Limpar lista" com a lista vazia).
-export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = false, id } = {}) {
-  avisar(texto + " ");
+// `aoExpirar`: chamado quando o prazo acaba sem o toque (ou outro recado com
+// ação toma o lugar), pra quem pediu soltar o que guardava pra desfazer.
+// `focoDepois`: pra onde vai o teclado se o foco ainda estava no botão.
+export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = false, id, aoExpirar, focoDepois } = {}) {
+  acaoViva?.encerrar(true);
+  clearTimeout(fimDoAviso);
   const aviso = el("#aviso");
+  aviso.textContent = texto + " ";
   const botao = document.createElement("button");
   botao.type = "button";
   if (id) botao.id = id;
   botao.textContent = rotulo;
+  aviso.append(botao);
+
+  let prazo;
+  const viva = {
+    encerrar(expirou) {
+      clearTimeout(prazo);
+      if (acaoViva === viva) acaoViva = null;
+      const tinhaFoco = aviso.contains(document.activeElement);
+      aviso.textContent = "";
+      if (expirou) aoExpirar?.();
+      // Não deixa o foco cair no vazio quando o botão some.
+      if (tinhaFoco) (focoDepois?.() ?? el("#colar"))?.focus();
+    },
+  };
+  acaoViva = viva;
   botao.addEventListener("click", () => {
-    clearTimeout(fimDoAviso);
-    avisar("");
+    viva.encerrar(false);
     acao();
   });
-  aviso.append(botao);
+  prazo = setTimeout(() => viva.encerrar(true), ms);
   if (focar) botao.focus();
-  fimDoAviso = setTimeout(() => {
-    // Se o foco estava no botão, não deixa ele cair no vazio quando o recado some.
-    const tinhaFoco = aviso.contains(document.activeElement);
-    avisar("");
-    if (tinhaFoco) el("#colar").focus();
-  }, ms);
 }
 
 // Único lugar que muda a lista: toda mudança salva, redesenha as duas telas e
@@ -185,11 +207,21 @@ const acoesDaLista = {
     const removido = estado.itens[posicao];
     mudarItens(estado.itens.filter((i) => i.id !== id));
     // O × fica perto do "+": um toque errado no corredor não pode custar o item.
+    // O foco vai pro Desfazer, não pro × do vizinho: Enter repetido no teclado
+    // apagaria dois itens.
     mostrarAvisoComAcao(`${removido.nome} saiu da lista.`, "Desfazer", () => {
       const itens = [...estado.itens];
       itens.splice(Math.min(posicao, itens.length), 0, removido);
       mudarItens(itens);
-    }, { ms: 4000 });
+    }, {
+      ms: 4000,
+      focar: true,
+      id: "desfazer",
+      focoDepois: () => {
+        const linhas = document.querySelectorAll("#itens li.item");
+        return linhas[Math.min(posicao, linhas.length - 1)]?.querySelector(".remover");
+      },
+    });
   },
   desmarcarTudo() {
     mudarItens(estado.itens.map((i) => (i.marcado ? marcar(i, false) : i)));
@@ -200,7 +232,12 @@ const acoesDaLista = {
     mudarItens([]);
     // A página encolhe de uma vez: sem isto o convite da lista vazia fica cortado no topo.
     window.scrollTo({ top: 0 });
-    mostrarAvisoComAcao("Lista limpa.", "Desfazer", () => acoesDaLista.desfazer(), { focar: true, id: "desfazer" });
+    mostrarAvisoComAcao("Lista limpa.", "Desfazer", () => acoesDaLista.desfazer(), {
+      focar: true,
+      id: "desfazer",
+      // Passado o prazo, a lista velha não volta mais: não fica presa na memória.
+      aoExpirar: () => { antesDeLimpar = null; },
+    });
   },
   desfazer() {
     if (!antesDeLimpar) return;

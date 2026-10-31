@@ -2,7 +2,7 @@
 // quem é dono de `estado.itens` é o app.js, que recebe os pedidos por `acoes`.
 import { buscar } from "./busca.js";
 import { reais, peso } from "./formato.js";
-import { el, escapar, debounce } from "./dom.js";
+import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
 
 const LOTE = 30;
 
@@ -187,6 +187,8 @@ export function ligarBusca(estado, acoes) {
     ui.mostrar = LOTE;
     renderizarBusca(estado);
   });
+
+  trocarFotoQuebrada(el("#resultados"));
 
   el("#resultados").addEventListener("click", (e) => {
     if (e.target.closest("a")) return;

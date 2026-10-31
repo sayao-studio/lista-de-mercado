@@ -3,7 +3,7 @@
 // muda, salva e manda redesenhar.
 import { melhorOferta, totais } from "./lista.js";
 import { reais, peso } from "./formato.js";
-import { el, escapar } from "./dom.js";
+import { el, escapar, trocarFotoQuebrada } from "./dom.js";
 
 const CONTROLES = ["marcar", "menos", "mais", "remover"];
 
@@ -269,9 +269,23 @@ export function ligarLista(estado, acoes) {
   });
 
   // Toque fora do quadro fecha, como o Esc: é o gesto esperado no celular.
+  // Só quando o toque começa e termina no fundo: arrastar uma seleção no
+  // textarea e soltar fora não pode jogar fora o texto colado.
   for (const dialogo of document.querySelectorAll("dialog")) {
+    let comecouNoFundo = false;
+    dialogo.addEventListener("pointerdown", (e) => { comecouNoFundo = e.target === dialogo; });
     dialogo.addEventListener("click", (e) => {
-      if (e.target === dialogo) dialogo.close();
+      if (comecouNoFundo && e.target === dialogo) dialogo.close();
+      comecouNoFundo = false;
     });
   }
+
+  trocarFotoQuebrada(itens);
+
+  // A altura do rodapé de totais entra no scroll-padding da página: o foco
+  // por teclado não pode parar escondido atrás dele.
+  const blocoTotais = el("#totais");
+  const medir = () => document.documentElement.style.setProperty("--altura-totais", `${blocoTotais.offsetHeight}px`);
+  medir();
+  if ("ResizeObserver" in window) new ResizeObserver(medir).observe(blocoTotais);
 }

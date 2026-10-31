@@ -33,6 +33,13 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Foco por teclado não para atrás do cabeçalho fixo nem atrás do rodapé de
+   totais + barra (a altura dos totais é medida pela tela-lista.js). */
+html {
+  scroll-padding-top: calc(var(--altura-cabecalho, 64px) + 8px);
+  scroll-padding-bottom: calc(var(--altura-barra) + var(--altura-totais, 0px) + 24px + env(safe-area-inset-bottom));
+}
+
 body {
   background: var(--fundo);
   color: var(--tinta);
@@ -607,7 +614,9 @@ section[data-tela="lista"] { container-type: inline-size; }
 }
 
 .item .quantidade button[aria-disabled="true"] {
-  color: var(--borda);
+  /* --borda some no modo escuro; cinza apagado ainda se vê como "não dá". */
+  color: var(--cinza);
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -832,12 +841,15 @@ dialog .botoes .principal {
 dialog .botoes .perigo {
   border-color: var(--perigo);
   background: var(--perigo);
-  color: #fff;
+  /* --fundo inverte com o tema: claro sobre o vermelho escuro (6:1), escuro
+     sobre o vermelho claro do modo escuro (9:1). */
+  color: var(--fundo);
   font-weight: 600;
 }
 
 @media (min-width: 900px) {
   #totais { bottom: 16px; }
+  html { scroll-padding-bottom: calc(var(--altura-totais, 0px) + 32px); }
   /* Em tela larga a busca está sempre ao lado: o atalho não tem razão de ser. */
   #itens .vazio button { display: none; }
 }

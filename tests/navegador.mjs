@@ -285,9 +285,14 @@ describe("site", () => {
     await item.locator(".menos").focus();
     await page.keyboard.press("Enter");
     assert.equal(await page.locator("#itens li.item").count(), 1);
-    await item.locator(".remover").click();
+    await item.locator(".remover").focus();
+    await page.keyboard.press("Enter");
     assert.equal(await page.locator("#itens li.item").count(), 0);
     assert.ok(await page.locator("#totais").isHidden());
+    // O foco vai pro Desfazer (Enter de novo não apaga outro item) e ele traz de volta.
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "desfazer");
+    await page.keyboard.press("Enter");
+    assert.equal(await page.locator("#itens li.item").count(), 1);
   });
 
   test("riscar manda o item pro fim e sobrevive ao recarregar", async () => {
@@ -350,10 +355,14 @@ describe("site", () => {
     const salvoVazio = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
     assert.equal(salvoVazio.itens.length, 0);
 
+    // Um recado comum no meio do prazo não derruba o Desfazer.
+    await adicionarTexto(page, "pão de queijo");
+    await irParaLista(page);
+    assert.ok(await page.locator("#desfazer").isVisible());
     await page.locator("#desfazer").click();
-    assert.equal(await page.locator("#itens li.item").count(), 1);
+    assert.equal(await page.locator("#itens li.item").count(), 2);
     const salvo = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
-    assert.equal(salvo.itens.length, 1);
+    assert.equal(salvo.itens.length, 2);
     assert.equal(await page.locator("#aviso").textContent(), "");
   });
 
@@ -406,6 +415,20 @@ describe("site", () => {
     const finais = await page.evaluate(() => window.app.estado.itens);
     assert.equal(finais.length, 3);
     assert.deepEqual(resumir([finais[2]]), [["texto", "leite", 3, false, null]]);
+  });
+
+  test("foto que não carrega vira o quadro neutro, na lista e na busca", async () => {
+    const { page, contexto } = await abrir();
+    // As fotos das fixtures apontam pro site da loja: aqui viram 404 de propósito.
+    await contexto.route(/vteximg/, (rota) => rota.fulfill({ status: 404, body: "" }));
+    await adicionar(page, "arroz", ARROZ);
+    const quebradas = (raiz) => page.evaluate((r) =>
+      [...document.querySelectorAll(`${r} img`)].filter((i) => i.complete && i.naturalWidth === 0).length, raiz);
+    await page.waitForFunction(() => document.querySelector("#resultados .cartao .sem-foto"));
+    assert.equal(await quebradas("#resultados"), 0);
+    await irParaLista(page);
+    await page.waitForFunction(() => document.querySelector("#itens li.item .sem-foto"));
+    assert.equal(await quebradas("#itens"), 0);
   });
 
   test("mercado que sumiu do catálogo aparece avisado no detalhe", async () => {
