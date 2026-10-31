@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { pesoGramas, pesoDoNome, eanValido, hostFoto, linhasDoProduto } from "../robo/produto.js";
+import { pesoGramas, pesoDoNome, eanValido, hostFoto, linhasDoProduto, caminhoDoProduto } from "../robo/produto.js";
 
 // Fixture pagina-vtex.json (JSON das lojas como veio, sem edição):
 //   [0] Bebida Vegetal Banana Milk 1l (Bistek): o produto com promoção (22,65 -> 19,47)
@@ -75,6 +75,26 @@ test("linhasDoProduto: promoção em centavos, granel por passo, sem estoque for
   const semEstoque = structuredClone(fixture[0]);
   semEstoque.items[0].sellers[0].commertialOffer.AvailableQuantity = 0;
   assert.deepEqual(linhasDoProduto(semEstoque), []);
+});
+
+// O catálogo do site separa por departamento e seção: precisa da categoria do
+// produto em si (a mais funda), não da categoria por onde o robô baixou.
+test("caminhoDoProduto escolhe o caminho mais fundo e evita departamento ignorado", () => {
+  assert.equal(caminhoDoProduto(fixture[0]), "Bem Estar e Equilíbrio > Bebida Vegetal");
+  assert.equal(
+    caminhoDoProduto({ categories: ["/Bistek/", "/Mercearia/Massas/Macarrão/", "/Mercearia/Massas/"] }),
+    "Mercearia > Massas > Macarrão",
+  );
+  // O mais fundo está num departamento ignorado: fica o mais fundo entre os outros.
+  assert.equal(
+    caminhoDoProduto({ categories: ["/Bazar/Descartáveis/Guardanapos/", "/Mercearia/Festa/"] }, ["Bazar"]),
+    "Mercearia > Festa",
+  );
+  // Só tem caminho ignorado: fica ele mesmo, melhor que perder o produto.
+  assert.equal(caminhoDoProduto({ categories: ["/Bazar/Descartáveis/"] }, ["Bazar"]), "Bazar > Descartáveis");
+  assert.equal(caminhoDoProduto({ categories: [] }), null);
+  assert.equal(caminhoDoProduto({}), null);
+  assert.equal(caminhoDoProduto({ categories: ["//", " / "] }), null);
 });
 
 test("hostFoto tira o host da primeira imagem", () => {

@@ -61,6 +61,22 @@ export function hostFoto(produto) {
   return null;
 }
 
+// A categoria do produto em si, como "Mercearia > Massas > Macarrão": o
+// caminho mais fundo de `categories` ("/Mercearia/Massas/Macarrão/"). O site
+// separa o catálogo por aí, então a categoria por onde o robô baixou não
+// serve (um departamento inteiro cabe numa busca só e viraria um bloco).
+// Caminho que começa por departamento ignorado perde pros outros; quando só
+// há ele, fica ele mesmo, melhor que perder o produto.
+export function caminhoDoProduto(produto, ignorar = []) {
+  const caminhos = (produto.categories || [])
+    .map((c) => String(c).split("/").map((parte) => parte.trim()).filter(Boolean))
+    .filter((partes) => partes.length);
+  if (!caminhos.length) return null;
+  const permitidos = caminhos.filter((partes) => !ignorar.includes(partes[0]));
+  const maisFundo = (permitidos.length ? permitidos : caminhos).reduce((a, b) => (b.length > a.length ? b : a));
+  return maisFundo.join(" > ");
+}
+
 const centavos = (reais) => Math.round(reais * 100);
 
 // Uma linha por SKU com estoque e preço. Produto a granel (unidade "kg") tem

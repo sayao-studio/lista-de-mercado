@@ -223,6 +223,24 @@ test("rastrear remove SKU repetido entre categorias", async () => {
   assert.equal(r.baixados, 5);
 });
 
+test("rastrear grava a categoria própria do produto, não a que baixou", async () => {
+  const comCaminho = (sku, categories) => ({ ...produtoFalso(sku), categories });
+  const { fazerFetch } = lojaFalsa({
+    totais: { 2: 3000, "2/7": 3, 14: 2 },
+    itens: {
+      "2/7": [
+        comCaminho(1, ["/Bebidas/Refrigerantes/Guaraná/", "/Bebidas/Refrigerantes/", "/Bebidas/"]),
+        comCaminho(2, ["/Bebidas/Refrigerantes/Cola/", "/Bebidas/"]),
+        produtoFalso(3), // sem `categories`: fica a categoria por onde baixou
+      ],
+      14: [comCaminho(9, ["/Hortifrúti/Frutas/", "/Hortifrúti/"]), comCaminho(10, ["/Bebidas/Refrigerantes/Guaraná/"])],
+    },
+  });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
+  assert.deepEqual(r.categorias, ["Bebidas > Refrigerantes > Guaraná", "Bebidas > Refrigerantes > Cola", "Bebidas > Refrigerantes", "Hortifrúti > Frutas"]);
+  assert.deepEqual(r.produtos.map((p) => [p.id, p.categoria]), [["1", 0], ["2", 1], ["3", 2], ["9", 3], ["10", 0]]);
+});
+
 test("rastrear falha quando baixou menos de 30% do esperado", async () => {
   const { fazerFetch } = lojaFalsa({ totais: { 14: 1000 }, itens: { 14: produtos(1, 101) } });
   await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada }), (e) => {

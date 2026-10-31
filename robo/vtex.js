@@ -10,7 +10,7 @@
 // loja ainda presta é a regra dos 30% no fim do `rastrear`. Só a árvore, o
 // prazo, os 30% e o zero produto derrubam a loja.
 
-import { linhasDoProduto, hostFoto } from "./produto.js";
+import { linhasDoProduto, hostFoto, caminhoDoProduto } from "./produto.js";
 
 // Cabeçalho HTTP só aceita ASCII: com "robô" a borda da VTEX devolve 400.
 const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robo de precos)" };
@@ -117,7 +117,18 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
   };
   const opcoes = { fazerFetch, esperar, antesDoPedido };
 
+  // `categorias` é a lista de caminhos próprios dos produtos ("Mercearia >
+  // Massas > Macarrão"), sem repetição; cada produto guarda só o índice.
   const categorias = [];
+  const indiceDoCaminho = new Map();
+  const indiceDe = (caminho) => {
+    let indice = indiceDoCaminho.get(caminho);
+    if (indice === undefined) {
+      indice = categorias.push(caminho) - 1;
+      indiceDoCaminho.set(caminho, indice);
+    }
+    return indice;
+  };
   const produtos = [];
   const vistos = new Set();
   const avisos = [];
@@ -159,17 +170,19 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
       const planos = [];
       await planejar(departamento, [departamento.id], [departamento.name], planos);
       for (const plano of planos) {
-        const indice = categorias.push(plano.nomes.join(" > ")) - 1;
+        const caminhoDoPlano = plano.nomes.join(" > ");
         totalEsperado += plano.total; // conta uma vez mesmo baixando ASC e DESC
         for (const ordem of plano.ordens) {
           const qual = ordem ? ` (${ordem})` : "";
-          const aoFalhar = (de, e) => avisar(`${categorias[indice]}: página _from=${de}${qual} falhou (${e.message})`);
-          const aoAbandonar = () => avisar(`${categorias[indice]}${qual}: abandonada depois de ${FALHAS_SEGUIDAS} páginas seguidas falhando`);
+          const aoFalhar = (de, e) => avisar(`${caminhoDoPlano}: página _from=${de}${qual} falhou (${e.message})`);
+          const aoAbandonar = () => avisar(`${caminhoDoPlano}${qual}: abandonada depois de ${FALHAS_SEGUIDAS} páginas seguidas falhando`);
           const total = plano.total || undefined; // 0 = sem cabeçalho: pagina até a vazia
           for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem, total, aoFalhar, aoAbandonar })) {
             baixados += pagina.length;
             for (const produtoVtex of pagina) {
               fotos ??= hostFoto(produtoVtex);
+              // Produto sem `categories` fica na categoria por onde foi baixado.
+              const indice = indiceDe(caminhoDoProduto(produtoVtex, mercado.ignorar || []) ?? caminhoDoPlano);
               for (const linha of linhasDoProduto(produtoVtex)) {
                 // O mesmo SKU aparece em mais de uma categoria; fica a primeira.
                 if (vistos.has(linha.id)) continue;
@@ -179,7 +192,7 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
             }
           }
         }
-        log(`${mercado.nome}: ${categorias[indice]} (${baixados} baixados até agora)`);
+        log(`${mercado.nome}: ${caminhoDoPlano} (${baixados} baixados até agora)`);
       }
     }
   } catch (e) {
