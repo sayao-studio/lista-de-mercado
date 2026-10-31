@@ -5,7 +5,7 @@
   "site": "https://super.angeloni.com.br",
   "fotos": "https://superangeloni.vteximg.com.br/arquivos/ids/",
   "atualizadoEm": "2026-10-31T12:00:00.000Z",
-  "categorias": ["Mercearia > Arroz", "Mercearia > Feijão", "Laticínios > Leite", "Mercearia > Farinhas"],
+  "categorias": ["Mercearia > Arroz", "Mercearia > Feijão", "Frios e Laticínios > Leite", "Mercearia > Farinhas"],
   "produtos": [
     { "id": "a1", "nome": "Arroz Tio João 1kg", "marca": "Tio João", "ean": "7896006700029", "gramas": 1000, "granel": false, "preco": 1249, "promocao": 0, "foto": "301", "link": "arroz-tio-joao-1kg-a1", "categoria": 0 },
     { "id": "a2", "nome": "Feijão Carioca Camil 1kg", "marca": "Camil", "ean": "7896006711117", "gramas": 1000, "granel": false, "preco": 849, "promocao": 0, "foto": "302", "link": "feijao-carioca-camil-1kg-a2", "categoria": 1 },

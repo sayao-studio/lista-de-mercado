@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { normalizar, chaveDe, indexar, buscar } from "../public/busca.js";
+import { normalizar, chaveDe, indexar, buscar, filtrar, ordenar, catalogar } from "../public/busca.js";
 
 const ler = (nome) =>
   JSON.parse(readFileSync(new URL(`./fixtures/dados/${nome}.json`, import.meta.url), "utf8"));
@@ -205,4 +205,76 @@ test("buscar responde em menos de 100 ms com 54 mil grupos", () => {
   assert.ok(achados > 0, "a busca sintética tem que achar alguma coisa");
   console.log(`busca: mediana ${mediana.toFixed(1)} ms, ${achados} achados; indexar ${tempoIndexar.toFixed(1)} ms`);
   assert.ok(mediana < 100, `mediana da busca ${mediana.toFixed(1)} ms`);
+});
+
+// ---- Catálogo ----
+
+test("indexar classifica cada grupo em departamento e seção e monta o catálogo", () => {
+  const arroz = indice.porChave.get("7896006700029");
+  assert.equal(arroz.departamento, "mercearia");
+  assert.equal(arroz.secao, "Arroz, feijão e grãos");
+  // Só departamentos com produto, na ordem de corredor.
+  assert.deepEqual(indice.catalogo.map((d) => d.id), ["hortifruti", "frios", "mercearia", "limpeza"]);
+  const mercearia = indice.catalogo.find((d) => d.id === "mercearia");
+  assert.equal(mercearia.nome, "Mercearia");
+  assert.equal(mercearia.emoji, "🛒");
+  // Seções na ordem das regras; produtos em ordem de nome dentro de cada uma.
+  assert.deepEqual(mercearia.secoes.map((s) => [s.nome, nomes(s.grupos)]), [
+    ["Cereais, farinhas e granolas", ["Farinha de Arroz Urbano"]],
+    ["Arroz, feijão e grãos", ["Arroz Tio João 1kg", "Feijão Carioca Camil 1kg"]],
+    ["Biscoitos e snacks", ["Biscoito de Arroz Camil 150g"]],
+    ["Café, chá e matinais", ["Café Melitta 500g"]],
+  ]);
+  assert.deepEqual(nomes(mercearia.grupos), [
+    "Farinha de Arroz Urbano", "Arroz Tio João 1kg", "Feijão Carioca Camil 1kg", "Biscoito de Arroz Camil 150g", "Café Melitta 500g",
+  ]);
+  assert.deepEqual(nomes(indice.catalogo.find((d) => d.id === "frios").grupos), ["Leite Integral Tirol 1L"]);
+});
+
+const arquivoBase = { versao: 1, site: "https://loja", fotos: "https://foto/", atualizadoEm: "2026-10-31T12:00:00.000Z" };
+const linhaBase = { id: "1", nome: "Macarrão", marca: "", ean: "7896006700029", gramas: 500, granel: false, preco: 100, promocao: 0, foto: "", link: "m", categoria: 0 };
+
+test("grupo em dois mercados fica no departamento que não é Outros", () => {
+  const i = indexar({
+    bistek: { ...arquivoBase, categorias: ["Bistek"], produtos: [linhaBase] },
+    angeloni: { ...arquivoBase, categorias: ["Mercearia > Massas"], produtos: [{ ...linhaBase, id: "2" }] },
+  });
+  const grupo = i.porChave.get("7896006700029");
+  assert.equal(grupo.departamento, "mercearia");
+  assert.equal(grupo.secao, "Massas");
+  assert.equal(grupo.categoria, "Mercearia > Massas");
+  assert.deepEqual(i.catalogo.map((d) => d.id), ["mercearia"]);
+});
+
+test("arquivo sem categoria conhecida cai em Outros > Geral sem quebrar", () => {
+  const i = indexar({
+    bistek: { ...arquivoBase, categorias: [], produtos: [linhaBase] },
+    giassi: { ...arquivoBase, produtos: [{ ...linhaBase, id: "2", ean: "", categoria: 7 }] },
+  });
+  assert.equal(i.porChave.get("7896006700029").departamento, "outros");
+  assert.equal(i.porChave.get("giassi:2").secao, "Geral");
+  assert.deepEqual(i.catalogo.map((d) => [d.id, d.secoes.map((s) => s.nome)]), [["outros", ["Geral"]]]);
+  assert.equal(i.catalogo[0].grupos.length, 2);
+});
+
+test("catalogar lista a seção ou o departamento inteiro, com os mesmos chips da busca", () => {
+  assert.deepEqual(nomes(catalogar(indice, { departamento: "mercearia", secao: "Arroz, feijão e grãos" })), ["Arroz Tio João 1kg", "Feijão Carioca Camil 1kg"]);
+  assert.deepEqual(nomes(catalogar(indice, { departamento: "mercearia", promocao: true })), ["Arroz Tio João 1kg", "Café Melitta 500g"]);
+  assert.deepEqual(nomes(catalogar(indice, { departamento: "mercearia", mercados: ["giassi"] })), ["Arroz Tio João 1kg", "Café Melitta 500g"]);
+  const porPreco = catalogar(indice, { departamento: "mercearia", ordem: "preco" }).map((g) => g.menor);
+  assert.deepEqual(porPreco, [...porPreco].sort((a, b) => a - b));
+  assert.equal(porPreco.length, 5);
+  assert.deepEqual(catalogar(indice, { departamento: "pet" }), []);
+  assert.deepEqual(catalogar(indice, { departamento: "mercearia", secao: "Massas" }), []);
+});
+
+test("filtrar e ordenar valem fora da busca e mantêm a ordem em empate", () => {
+  const grupos = indice.catalogo.find((d) => d.id === "mercearia").grupos;
+  assert.equal(filtrar(grupos, { promocao: true }).length, 2);
+  assert.equal(filtrar(grupos).length, 5);
+  assert.deepEqual(ordenar(grupos, "relevancia"), grupos);
+  const porKg = ordenar(grupos, "porKg");
+  // Sem peso (a farinha) vai pro fim.
+  assert.equal(porKg.at(-1).nome, "Farinha de Arroz Urbano");
+  assert.ok(porKg[0].porKg <= porKg[1].porKg);
 });
