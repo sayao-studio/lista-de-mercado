@@ -1,0 +1,218 @@
+/* Mobile primeiro: a lista é usada no celular, no corredor do mercado. */
+:root {
+  color-scheme: light dark;
+  --fundo: #f7f6f2;
+  --tinta: #121212;
+  --verde: #1b7f3b;
+  --cinza: #6b6b6b;
+  --borda: #e2e0da;
+  --cartao: #ffffff;
+  --altura-barra: 56px;
+  --respiro: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #121212;
+    --tinta: #f2f2f2;
+    --verde: #5dd07f;
+    --cinza: #a0a0a0;
+    --borda: #2a2a2a;
+    --cartao: #1c1c1c;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+
+img { max-width: 100%; height: auto; }
+
+button {
+  min-height: 44px;
+  min-width: 44px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Cabeçalho: sempre à vista, porque diz de quando são os preços. */
+#cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--fundo);
+  border-bottom: 1px solid var(--borda);
+  padding: calc(8px + env(safe-area-inset-top)) max(var(--respiro), env(safe-area-inset-right)) 8px max(var(--respiro), env(safe-area-inset-left));
+}
+
+#cabecalho h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+#quando {
+  cursor: pointer;
+  margin: 0;
+  min-height: 24px;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--cinza);
+  overflow-wrap: anywhere;
+}
+
+#aviso-fixo {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--cinza);
+}
+
+main {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 max(var(--respiro), env(safe-area-inset-right)) calc(var(--altura-barra) + 24px + env(safe-area-inset-bottom)) max(var(--respiro), env(safe-area-inset-left));
+}
+
+/* No celular só uma tela por vez; a barra de baixo alterna. */
+[data-tela]:not([data-ativa]) { display: none; }
+
+section[data-tela] { min-width: 0; }
+
+.campo-busca {
+  position: sticky;
+  /* Logo abaixo do cabeçalho fixo (h1 + linha do "quando"). */
+  top: var(--altura-cabecalho, 64px);
+  z-index: 5;
+  background: var(--fundo);
+  padding: 8px 0;
+}
+
+#busca {
+  display: block;
+  width: 100%;
+  height: 44px;
+  /* 16 px: abaixo disso o Safari do iPhone dá zoom ao focar. */
+  font-size: 16px;
+  padding: 0 12px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--cartao);
+  color: var(--tinta);
+}
+
+#busca:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 1px;
+}
+
+#itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vazio, .carregando {
+  color: var(--cinza);
+  padding: 32px 8px;
+  text-align: center;
+  margin: 0;
+}
+
+#barra {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--cartao);
+  border-top: 1px solid var(--borda);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#barra button {
+  height: var(--altura-barra);
+  border: 0;
+  background: none;
+  color: var(--cinza);
+  font-weight: 600;
+}
+
+#barra button[aria-current="page"] { color: var(--verde); }
+
+#contador-lista {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: var(--borda);
+  color: var(--tinta);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Recado curto acima da barra, sem tampar o conteúdo quando vazio. */
+#aviso {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--altura-barra) + 12px + env(safe-area-inset-bottom));
+  z-index: 30;
+  max-width: calc(100% - 2 * var(--respiro));
+  width: max-content;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--tinta);
+  color: var(--fundo);
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+
+#aviso:empty { display: none; }
+
+@media (min-width: 900px) {
+  /* Tela larga: Buscar à esquerda e Lista à direita, sem barra. */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 24px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-bottom: 24px;
+  }
+
+  [data-tela]:not([data-ativa]) { display: block; }
+
+  #barra { display: none; }
+
+  /* Alinha o cabeçalho com a grade de 1440 px em monitores muito largos. */
+  #cabecalho {
+    padding-left: max(var(--respiro), calc((100% - 1440px) / 2 + var(--respiro)));
+    padding-right: max(var(--respiro), calc((100% - 1440px) / 2 + var(--respiro)));
+  }
+
+  #aviso { bottom: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+#quando:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

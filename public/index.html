@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <title>Lista de mercado</title>
+  <link rel="stylesheet" href="estilo.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header id="cabecalho">
+    <h1>Lista de mercado</h1>
+    <p id="quando" role="button" tabindex="0" aria-controls="aviso-fixo" aria-expanded="false">Carregando os preços…</p>
+    <p id="aviso-fixo" hidden>Preço do site de cada mercado; a loja física e o clube podem ser outros.</p>
+  </header>
+
+  <main>
+    <section data-tela="buscar" aria-label="Buscar">
+      <div class="campo-busca">
+        <input id="busca" type="search" placeholder="Buscar produto…" aria-label="Buscar produto"
+               autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
+      </div>
+      <div id="chips"></div>
+      <div id="resultados"></div>
+    </section>
+
+    <section data-tela="lista" aria-label="Lista">
+      <ul id="itens"></ul>
+      <footer id="totais"></footer>
+      <div id="menu-lista"></div>
+    </section>
+  </main>
+
+  <nav id="barra" aria-label="Telas">
+    <button type="button" data-ir="lista">Lista <span id="contador-lista">0</span></button>
+    <button type="button" data-ir="buscar">Buscar</button>
+  </nav>
+
+  <div id="aviso" role="status" aria-live="polite"></div>
+</body>
+</html>
