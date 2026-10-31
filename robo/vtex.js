@@ -4,7 +4,8 @@
 
 import { linhasDoProduto, hostFoto } from "./produto.js";
 
-const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robô de preços)" };
+// Cabeçalho HTTP só aceita ASCII: com "robô" a borda da VTEX devolve 400.
+const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robo de precos)" };
 const POR_PAGINA = 50; // a API recusa _to - _from maior que 49
 const TETO_FROM = 2500; // _from acima disso dá HTTP 400
 

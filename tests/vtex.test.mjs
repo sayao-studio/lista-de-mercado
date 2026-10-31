@@ -237,3 +237,13 @@ test("rastrear espera entre pedidos", async () => {
   // Nunca dois pedidos seguidos sem pausa.
   for (let i = 1; i < eventos.length; i++) assert.ok(!(eventos[i] === "fetch" && eventos[i - 1] === "fetch"));
 });
+
+test("cabeçalhos do pedido só têm ASCII (a loja devolve 400 com acento)", async () => {
+  let cabecalhos;
+  const fazerFetch = async (url, opcoes) => {
+    cabecalhos = opcoes.headers;
+    return new Response("[]", { status: 206 });
+  };
+  await buscarComRetentativa("https://loja/api", { fazerFetch, esperar: esperarNada });
+  for (const valor of Object.values(cabecalhos)) assert.match(valor, /^[\x20-\x7e]*$/);
+});
