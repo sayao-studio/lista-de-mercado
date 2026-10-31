@@ -224,3 +224,32 @@ test("refrescar sem índice devolve a lista como estava", () => {
   assert.equal(refrescar(lista, null), lista);
   assert.equal(refrescar(lista, undefined), lista);
 });
+
+test("mercado que não carregou deixa a oferta indisponível, não sumida, e volta na carga seguinte", () => {
+  const lista = listaExemplo();
+  // Angeloni fora do ar hoje: o índice só tem Bistek e Giassi.
+  const parcial = indexar({ bistek: catalogos.bistek, giassi: catalogos.giassi });
+
+  const [item] = refrescar(lista, parcial);
+  assert.equal(item.ofertas.angeloni.indisponivel, true);
+  assert.equal(item.ofertas.angeloni.sumiu, undefined);
+  assert.equal(item.ofertas.angeloni.preco, 1249, "guarda o último preço conhecido");
+  assert.equal(item.ofertas.bistek.indisponivel, undefined);
+  assert.equal(item.ofertas.giassi.indisponivel, undefined);
+  // Mais barato e totais só contam o que dá pra comprar hoje.
+  assert.equal(melhorOferta(item).mercado, "giassi");
+  const t = totais([item], ["bistek", "giassi", "angeloni"]);
+  assert.deepEqual(t.porMercado.find((m) => m.mercado === "angeloni"), { mercado: "angeloni", total: 0, faltam: 1 });
+
+  // Produto que não acha grupo nenhum: só quem está no índice vira "sumiu".
+  const orfao = refrescar(lista, indexar({ bistek: { ...catalogos.bistek, produtos: [] } }))[0];
+  assert.equal(orfao.ofertas.bistek.sumiu, true);
+  assert.equal(orfao.ofertas.giassi.indisponivel, true);
+  assert.equal(orfao.ofertas.giassi.sumiu, undefined);
+
+  // Angeloni de volta: a oferta é a nova, sem marca nenhuma.
+  const [deVolta] = refrescar([item], indice);
+  assert.equal(deVolta.ofertas.angeloni.indisponivel, undefined);
+  assert.equal(deVolta.ofertas.angeloni.sumiu, undefined);
+  assert.equal(melhorOferta(deVolta).mercado, "giassi");
+});

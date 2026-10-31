@@ -34,7 +34,13 @@ function dentroDe(base, relativo) {
 export function servir({ pasta = "public", dados = "tests/fixtures/dados", resumo = dados + "/resumo.json" } = {}) {
   const servidor = createServer(async (req, res) => {
     // A query (?v=1) só serve pra furar cache; o arquivo é o mesmo.
-    const caminho = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    let caminho;
+    try {
+      caminho = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    } catch {
+      // %E0 solto e afins: sem isto o servidor cairia no meio do teste.
+      return responder(res, 400, "text/plain", "caminho inválido");
+    }
     let arquivo;
     if (caminho === "/dados/resumo.json") {
       arquivo = resumo ? resolve(resumo) : null;

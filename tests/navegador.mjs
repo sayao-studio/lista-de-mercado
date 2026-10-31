@@ -20,7 +20,7 @@ async function servidorPara(opcoes) {
   return servidores.get(chave);
 }
 
-async function abrir({ width = 390, height = 844, resumo, dados } = {}) {
+async function abrir({ width = 390, height = 844, resumo, dados, guardado } = {}) {
   const opcoes = {};
   if (dados !== undefined) opcoes.dados = dados;
   if (resumo !== undefined) opcoes.resumo = resumo;
@@ -34,6 +34,10 @@ async function abrir({ width = 390, height = 844, resumo, dados } = {}) {
     locale: "pt-BR",
   });
   contextos.push(contexto);
+  // Lista salva antes de o site abrir, como se a pessoa já tivesse usado ontem.
+  if (guardado) {
+    await contexto.addInitScript((texto) => localStorage.setItem("lista-de-mercado", texto), JSON.stringify(guardado));
+  }
   const page = await contexto.newPage();
   await page.goto(url);
   await page.waitForFunction(() => window.app?.pronto, null, { timeout: 10_000 });
@@ -89,5 +93,23 @@ describe("site", () => {
   test("mercado com erro no resumo aparece avisado", async () => {
     const { page } = await abrir({ resumo: "tests/fixtures/dados/resumo-com-erro.json" });
     assert.match(await page.locator("#quando").textContent(), /Angeloni: sem preços/);
+  });
+
+  test("mercado fora do ar não marca como sumido o produto salvo na lista", async () => {
+    const oferta = (id, preco) => ({ id, preco, promocao: 0, link: id });
+    const guardado = {
+      versao: 1,
+      itens: [{
+        id: "x1", tipo: "produto", chave: "7896006700029", ean: "7896006700029",
+        nome: "Arroz Tio João 1kg", marca: "Tio João", gramas: 1000, granel: false,
+        quantidade: 1, marcado: false, adicionadoEm: "2026-10-30T12:00:00.000Z",
+        ofertas: { bistek: oferta("b1", 1198), giassi: oferta("g1", 1090), angeloni: oferta("a1", 1249) },
+      }],
+    };
+    const { page } = await abrir({ resumo: "tests/fixtures/dados/resumo-com-erro.json", guardado });
+    const angeloni = await page.evaluate(() => window.app.estado.itens[0].ofertas.angeloni);
+    assert.equal(angeloni.indisponivel, true);
+    assert.equal(angeloni.sumiu, undefined);
+    assert.equal(angeloni.preco, 1249);
   });
 });

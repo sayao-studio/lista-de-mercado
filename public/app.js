@@ -28,7 +28,7 @@ let resolverPronto;
 const pronto = new Promise((ok) => { resolverPronto = ok; });
 window.app = { estado, pronto };
 
-export function irPara(tela) {
+export function irPara(tela, { lembrar = false } = {}) {
   estado.tela = tela;
   for (const secao of document.querySelectorAll("[data-tela]")) {
     secao.toggleAttribute("data-ativa", secao.dataset.tela === tela);
@@ -37,8 +37,11 @@ export function irPara(tela) {
     if (botao.dataset.ir === tela) botao.setAttribute("aria-current", "page");
     else botao.removeAttribute("aria-current");
   }
-  // Só pra manter a tela ao recarregar a aba; modo privado pode recusar.
-  try { sessionStorage.setItem(CHAVE_TELA, tela); } catch { /* segue sem lembrar */ }
+  // Só a escolha da pessoa (toque na barra) é lembrada ao recarregar a aba;
+  // a tela da abertura segue a regra "tem itens → Lista". Modo privado pode recusar.
+  if (lembrar) {
+    try { sessionStorage.setItem(CHAVE_TELA, tela); } catch { /* segue sem lembrar */ }
+  }
 }
 
 // Agrupa por texto de quandoFoi pra não repetir "hoje 12h05" três vezes numa
@@ -92,7 +95,7 @@ function avisoDeCarga() {
 
 function ligarCasca() {
   for (const botao of document.querySelectorAll("[data-ir]")) {
-    botao.addEventListener("click", () => irPara(botao.dataset.ir));
+    botao.addEventListener("click", () => irPara(botao.dataset.ir, { lembrar: true }));
   }
   // O aviso fixo fica escondido pra não roubar espaço; abre ao tocar no "quando".
   const quando = el("#quando");
@@ -164,10 +167,16 @@ async function carregarPrecos() {
   // Ordem do resumo, pra os mercados aparecerem sempre na mesma sequência.
   const porId = {};
   estado.mercados.forEach((m, i) => { if (catalogos[i]) porId[m.id] = catalogos[i]; });
-  estado.indice = indexar(porId);
-  estado.itens = refrescar(estado.itens, estado.indice);
   estado.carregando = false;
-  salvar({ ...guardado, itens: estado.itens }, localStorage);
+  if (Object.keys(porId).length) {
+    estado.indice = indexar(porId);
+    estado.itens = refrescar(estado.itens, estado.indice);
+    salvar({ ...guardado, itens: estado.itens }, localStorage);
+  } else {
+    // Nenhum mercado chegou: um índice vazio marcaria tudo como indisponível
+    // sem ganho; a lista fica como estava, com os últimos preços.
+    estado.indice = null;
+  }
   renderizarCabecalho();
   renderizarTudo();
   avisar("");

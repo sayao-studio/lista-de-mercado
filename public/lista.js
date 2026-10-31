@@ -49,11 +49,12 @@ export function marcar(item, marcado) {
   return { ...item, marcado };
 }
 
-// Oferta que sumiu do catálogo não é comprável hoje: mostrar o preço velho
-// como "mais barato" mandaria a pessoa atrás de algo que não existe.
+// Oferta que sumiu do catálogo (ou cujo mercado não carregou hoje) não é
+// comprável com certeza: mostrar o preço velho como "mais barato" mandaria a
+// pessoa atrás de algo que talvez não exista.
 function ofertaViva(item, mercado) {
   const oferta = item.tipo === "produto" ? item.ofertas[mercado] : null;
-  return oferta && !oferta.sumiu ? oferta : null;
+  return oferta && !oferta.sumiu && !oferta.indisponivel ? oferta : null;
 }
 
 export function melhorOferta(item) {
@@ -110,8 +111,12 @@ function acharGrupo(item, indice) {
   return null;
 }
 
-// Nunca tira item da lista: a pessoa pôs lá de propósito. O que some do
-// catálogo fica marcado com `sumiu` e o último preço, pra interface avisar.
+// Nunca tira item da lista: a pessoa pôs lá de propósito. Duas marcas, com o
+// último preço guardado nas duas:
+// - `sumiu`: o catálogo do mercado chegou e o produto não está nele.
+// - `indisponivel`: o catálogo do mercado nem chegou hoje (robô ou rede
+//   falharam), então não dá pra dizer que o produto sumiu; a interface mostra
+//   "Angeloni: sem preços hoje" e a marca cai sozinha na próxima carga boa.
 export function refrescar(itens, indice) {
   // Sem catálogo ainda (primeira carga ou falha de rede), a lista aparece como
   // estava; marcar tudo como "sumiu" seria mentir.
@@ -120,7 +125,12 @@ export function refrescar(itens, indice) {
     if (item.tipo !== "produto") return item;
     const grupo = acharGrupo(item, indice);
     const ofertas = {};
-    for (const [m, oferta] of Object.entries(item.ofertas)) ofertas[m] = { ...oferta, sumiu: true };
+    const carregados = new Set(indice.mercados);
+    for (const [m, antiga] of Object.entries(item.ofertas)) {
+      // Tira as marcas da carga anterior antes de pôr a de hoje.
+      const { sumiu, indisponivel, ...oferta } = antiga;
+      ofertas[m] = carregados.has(m) ? { ...oferta, sumiu: true } : { ...oferta, indisponivel: true };
+    }
     if (grupo) {
       for (const [m, oferta] of Object.entries(grupo.ofertas)) ofertas[m] = copiarOferta(oferta);
     }
