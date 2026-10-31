@@ -45,7 +45,7 @@ Playwright 1.63 já instalado em
 - Conteúdo salvo que não se entende vai pra `lista-de-mercado.backup` antes
   de qualquer migração; nunca se descarta.
 - Robô: ~100 ms entre pedidos, timeout 20 s, 3 tentativas com espera
-  crescente, `user-agent: Mozilla/5.0 (lista-de-mercado; robô de preços)`,
+  crescente, `user-agent: Mozilla/5.0 (lista-de-mercado; robo de precos)` (só ASCII: acento no cabeçalho dá HTTP 400 na VTEX),
   prazo de 20 min por mercado.
 - Testes unitários não usam rede: `fetch` é injetado.
 - Nunca usar o `gh` desta máquina pra este repo; remoto por SSH
