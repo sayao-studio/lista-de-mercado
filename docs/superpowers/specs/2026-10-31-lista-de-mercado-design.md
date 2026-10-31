@@ -202,6 +202,11 @@ anterior fica no ar.
 - `gramas` é `null` quando o nome não diz o peso; aí não há preço por kg.
 - `ean` é `""` quando a loja não informa ou quando o valor não é GTIN
   válido (ver anti-objetivos).
+- `categorias` é a lista, sem repetição, dos caminhos próprios dos produtos
+  ("Mercearia > Massas > Macarrão", o mais fundo de `categories` da VTEX,
+  evitando departamento ignorado); `categoria` é o índice nessa lista.
+  Produto sem `categories` fica na categoria por onde foi baixado. O site
+  classifica esses caminhos em departamento e seção.
 - `pesoGramas` e a leitura da oferta são copiados de
   `../esfirraria/functions/_lib/mercados.js` pra dentro de `robo/produto.js`
   (o Actions não tem a pasta vizinha), com nota de origem.
@@ -230,6 +235,27 @@ cartão é de uma loja só. Ordem padrão: nome começa pelo que foi digitado
 primeiro, depois quem está em mais mercados, depois menor preço. Opções
 (chips): "Só promoções", "Menor preço", "Menor preço/kg", e um chip por
 mercado pra filtrar. Mostra 30 resultados e "Mostrar mais".
+
+**Catálogo (campo vazio):** a pessoa também monta a lista "vendo o que
+tem", pra lembrar o que esqueceu de digitar. Com o campo vazio a tela
+mostra o catálogo inteiro dos três mercados, separado por **departamento**
+(Hortifruti, Padaria, Carnes…, 15 ao todo, na ordem de corredor) e, dentro,
+por **seção** ("Massas", "Cervejas", "Lavanderia"). Os três mercados têm
+árvores diferentes; `public/departamentos.js` mapeia qualquer caminho em
+departamento e seção por palavra-chave, sem acento (o leite do Bistek sai
+de "Bebidas" e vai pra Frios; o que nenhuma regra conhece vai pra "Outros"
+ou fica com o nome que o mercado deu). Produto no mesmo EAN em lojas com
+árvores diferentes fica no primeiro departamento que não for "Outros".
+Níveis: departamentos (ladrilhos com "N produtos") → seções do
+departamento ("Tudo de X" primeiro, quando há mais de uma) → cartões da
+seção, os mesmos da busca, em lotes de 30 com "Mostrar mais". Os chips
+valem no catálogo: com "Só promoções" as contagens viram "N em promoção" e
+departamento sem nada some. Descer empurra uma entrada no histórico, então
+o botão voltar do celular sobe um nível em vez de sair do site. Digitar
+substitui o catálogo pelo resultado; apagar devolve a seção que estava
+aberta. Pra isso o robô grava a categoria própria de cada produto (o
+caminho mais fundo de `categories` da VTEX), não a categoria por onde
+baixou.
 
 Toque no cartão (ou botão "+") adiciona à lista com quantidade 1 e dá um
 retorno visível (contador na barra). Se já está na lista, mostra a quantidade

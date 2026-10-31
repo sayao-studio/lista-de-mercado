@@ -10,6 +10,8 @@ GitHub Actions, 3x/dia, e publica os JSON em `public/dados/`.
 - Desenho: `docs/superpowers/specs/2026-10-31-lista-de-mercado-design.md`
 - Plano: `docs/superpowers/plans/`
 - `robo/` baixa e normaliza os catálogos; `public/` é o site; `tests/` os testes.
+- `public/departamentos.js` é a taxonomia do catálogo (departamento → seção
+  por palavra-chave sobre o caminho de categoria de cada mercado).
 - `public/dados/` é gerado pelo robô e fica fora do git (só o `.gitkeep`).
 
 ## Como rodar
@@ -49,6 +51,19 @@ Robô (VTEX):
 - User-agent com acento dá 400: mantenha ASCII.
 - Espaço na busca vai como `%20` (com `+` dá 400).
 - O navegador nunca fala com os mercados (sem CORS); só o robô.
+- `categorias` do arquivo é o caminho próprio de cada produto (o mais fundo
+  de `categories`), não a categoria por onde o robô baixou: é o que separa
+  o catálogo em seções.
+
+Catálogo (`public/departamentos.js`):
+
+- Mercado criou categoria nova? `node --test tests/departamentos.test.mjs`
+  lista o que caiu em "Outros" ou ficou com o nome do mercado; acrescente a
+  palavra na regra certa e atualize a lista esperada no teste. A fixture
+  `tests/fixtures/vtex/arvores.json` é a árvore real dos três (31/10/2026).
+- Regra mais específica antes da mais larga ("frutas secas" antes de
+  "frutas"); as regras de seção rodam sobre o caminho sem o 1º nível, pra
+  "Carnes, Aves e Peixes" não puxar tudo pra "Aves".
 
 Publicação (`.github/workflows/atualizar.yml`):
 

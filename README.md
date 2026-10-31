@@ -37,6 +37,12 @@ navegador nunca fala com os mercados.
 
 Site previsto: https://brenisio.github.io/lista-de-mercado/
 
+No site, a busca pelo nome compara o preço nos três mercados; com o campo
+vazio aparece o **catálogo** inteiro, separado por departamento e seção
+iguais nos três (a taxonomia está em `public/departamentos.js`, que mapeia
+as árvores diferentes de cada mercado por palavra-chave). Pra isso o robô
+grava a categoria própria de cada produto, não a categoria por onde baixou.
+
 Desenho e plano em `docs/superpowers/`.
 
 ## Como o dado chega ao site
