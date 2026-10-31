@@ -20,7 +20,7 @@ async function servidorPara(opcoes) {
   return servidores.get(chave);
 }
 
-async function abrir({ width = 390, height = 844, resumo, dados, guardado } = {}) {
+async function abrir({ width = 390, height = 844, resumo, dados, guardado, escuro = false } = {}) {
   const opcoes = {};
   if (dados !== undefined) opcoes.dados = dados;
   if (resumo !== undefined) opcoes.resumo = resumo;
@@ -39,6 +39,8 @@ async function abrir({ width = 390, height = 844, resumo, dados, guardado } = {}
     await contexto.addInitScript((texto) => localStorage.setItem("lista-de-mercado", texto), JSON.stringify(guardado));
   }
   const page = await contexto.newPage();
+  // Antes do goto: o CSS e o theme-color têm que nascer já no tema escuro.
+  if (escuro) await page.emulateMedia({ colorScheme: "dark" });
   await page.goto(url);
   await page.waitForFunction(() => window.app?.pronto, null, { timeout: 10_000 });
   await page.evaluate(() => window.app.pronto);
@@ -461,5 +463,69 @@ describe("site", () => {
     await feijao.locator(".detalhe summary").click();
     assert.match(await feijao.locator(".detalhe").textContent(), /não achei mais no Angeloni/);
     assert.match(await sumido.page.locator("#totais").textContent(), /1 sem preço/);
+  });
+
+  test("sem resumo nenhum, o site abre e avisa que ainda não tem preços", async () => {
+    const { page } = await abrir({ resumo: null });
+    const recado = () => page.locator("#aviso").textContent();
+    assert.match(await recado(), /ainda sem preços/i);
+    assert.match(await recado(), /6h, 12h e 18h/);
+    // A lista continua usável: texto livre entra mesmo sem catálogo.
+    await buscarPor(page, "pão de queijo");
+    await page.locator("#adicionar-texto").click();
+    await page.locator('[data-ir="lista"]').click();
+    assert.match(await page.locator("#itens").textContent(), /pão de queijo/);
+    // Passada a confirmação, o recado de "sem preços" volta: ele só sai quando houver dados.
+    await page.waitForFunction(() => /ainda sem preços/i.test(document.querySelector("#aviso").textContent), null, { timeout: 4000 });
+  });
+
+  test("manifest e ícone respondem", async () => {
+    const { page, url } = await abrir();
+    const manifest = await page.request.get(url + "manifest.webmanifest");
+    assert.equal(manifest.status(), 200);
+    assert.match(manifest.headers()["content-type"], /application\/manifest\+json/);
+    const json = await manifest.json();
+    assert.equal(json.name, "Lista de mercado");
+    assert.equal(json.short_name, "Mercado");
+    assert.equal(json.start_url, "./");
+    for (const icone of json.icons) {
+      const r = await page.request.get(url + icone.src);
+      assert.equal(r.status(), 200, icone.src);
+    }
+    assert.equal((await page.request.get(url + "icone.svg")).status(), 200);
+    // O <head> aponta pro manifest e pro ícone por caminho relativo (o site vive num subcaminho).
+    assert.equal(await page.locator('link[rel="manifest"]').getAttribute("href"), "manifest.webmanifest");
+    assert.equal(await page.locator('link[rel="icon"]').getAttribute("href"), "icone.svg");
+    assert.equal((await page.request.get(url + "404.html")).status(), 200);
+  });
+
+  test("tema escuro não quebra o contraste do destaque", async () => {
+    const { page } = await abrir({ escuro: true });
+    assert.equal(await page.locator('meta[name="theme-color"][media*="light"]').count(), 1);
+    assert.equal(await page.locator('meta[name="theme-color"][media*="dark"]').count(), 1);
+    await buscarPor(page, "arroz");
+    const cores = await page.evaluate(() => ({
+      fundo: getComputedStyle(document.body).backgroundColor,
+      melhor: getComputedStyle(document.querySelector("#resultados .preco.melhor")).color,
+    }));
+    assert.notEqual(cores.fundo, "rgb(247, 246, 242)");
+    assert.notEqual(cores.melhor, cores.fundo);
+  });
+
+  test("tocar no 'quando' abre e fecha o aviso fixo, também pelo teclado", async () => {
+    const { page } = await abrir();
+    const avisoFixo = page.locator("#aviso-fixo");
+    assert.equal(await avisoFixo.isVisible(), false);
+    await page.locator("#quando").click();
+    assert.ok(await avisoFixo.isVisible());
+    assert.match(await avisoFixo.textContent(), /Preço do site de cada mercado; a loja física e o clube podem ser outros\./);
+    assert.equal(await page.locator("#quando").getAttribute("aria-expanded"), "true");
+    await page.locator("#quando").click();
+    assert.equal(await avisoFixo.isVisible(), false);
+    await page.locator("#quando").focus();
+    await page.keyboard.press("Enter");
+    assert.ok(await avisoFixo.isVisible());
+    await page.keyboard.press(" ");
+    assert.equal(await avisoFixo.isVisible(), false);
   });
 });

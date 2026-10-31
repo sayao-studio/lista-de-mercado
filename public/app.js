@@ -87,6 +87,10 @@ function renderizarTudo() {
 let fimDoAviso;
 // O recado com botão (Desfazer) que está na tela, se houver.
 let acaoViva = null;
+// Recado que não expira ("ainda sem preços"): confirmações passam por cima
+// dele e, ao sumir, devolvem a tela pra ele. Sem isto o primeiro "X na lista"
+// apagaria de vez a única explicação de por que a busca não acha nada.
+let recadoFixo = "";
 
 // Enquanto um recado com ação está vivo, recado comum é descartado: trocar o
 // texto e manter o botão faria o "Desfazer" parecer desfazer a coisa nova
@@ -96,7 +100,12 @@ let acaoViva = null;
 function avisar(texto) {
   if (acaoViva) return;
   clearTimeout(fimDoAviso);
-  el("#aviso").textContent = texto;
+  el("#aviso").textContent = texto || recadoFixo;
+}
+
+function fixarAviso(texto) {
+  recadoFixo = texto;
+  avisar(texto);
 }
 
 // Recado que some sozinho: confirma o toque sem ficar tampando a tela.
@@ -129,7 +138,7 @@ export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = fa
       clearTimeout(prazo);
       if (acaoViva === viva) acaoViva = null;
       const tinhaFoco = aviso.contains(document.activeElement);
-      aviso.textContent = "";
+      aviso.textContent = recadoFixo;
       if (expirou) aoExpirar?.();
       // Não deixa o foco cair no vazio quando o botão some.
       if (tinhaFoco) (focoDepois?.() ?? el("#colar"))?.focus();
@@ -318,7 +327,7 @@ async function carregarPrecos() {
     estado.carregando = false;
     renderizarCabecalho();
     renderizarTudo();
-    avisar("Ainda sem preços: o robô roda às 6h, 12h e 18h.");
+    fixarAviso("Ainda sem preços: o robô roda às 6h, 12h e 18h.");
     return;
   }
   estado.resumo = resumo;

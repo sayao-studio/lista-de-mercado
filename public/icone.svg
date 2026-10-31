@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Cesta branca sobre o verde do site; cantos arredondados porque este é o ícone "any" (aba, favoritos). -->
+  <rect width="512" height="512" rx="96" fill="#1b7f3b"/>
+  <g fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M176 220 L232 116 M336 220 L280 116"/>
+    <path d="M96 220 H416 L380 400 H132 Z"/>
+    <path d="M206 268 V352 M256 268 V352 M306 268 V352"/>
+  </g>
+</svg>
