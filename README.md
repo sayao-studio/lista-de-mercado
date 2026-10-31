@@ -109,6 +109,21 @@ Se um mercado ficar em falha por dias (VTEX bloqueando o GitHub, API mudou):
      o caminho real é commitar os dados temporariamente na `main` (ou mudar a
      regra do environment) e tirá-los de novo quando a fonte voltar.
 
+## Testado em 31/10/2026, 11h31–11h48 (rodada completa com o catálogo)
+
+| Mercado | Produtos | Sem EAN | Sem peso | Granel | Em promoção | Caminhos |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Bistek | 7 060 | 321 | 635 | 0 | 1 918 | 409 |
+| Giassi | 9 896 | 438 | 979 | 351 | 2 143 | 324 |
+| Angeloni | 11 103 | 625 | 1 001 | 476 | 1 311 | 284 |
+
+- "Caminhos" são as categorias próprias dos produtos (até 4 níveis), não
+  mais as categorias por onde o robô baixou. Total em gzip continua 1,4 MB.
+- No site: 18 926 grupos (mesmo EAN junta lojas), 15 departamentos; 154
+  caem em "Outros" (o departamento "Bistek", sem outra categoria) e ~360
+  ficam na seção "Geral" do departamento (produto solto, sem subcategoria
+  e sem palavra conhecida no nome).
+
 ## Testado em 31/10/2026, 01h43–01h57 (rodada completa de verdade)
 
 | Mercado | Produtos | Sem EAN | Sem peso | Granel | Em promoção | Categorias |
