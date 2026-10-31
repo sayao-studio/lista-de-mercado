@@ -1,0 +1,1276 @@
+[
+ {
+  "productId": "2344041",
+  "productName": "Bebida Vegetal De Banana Barista Banana Milk 1l",
+  "brand": "Bistek",
+  "brandId": 1,
+  "brandImageUrl": null,
+  "linkText": "bebida-vegetal-de-banana-barista-banana-milk-1l-2344041",
+  "productReference": "2344041",
+  "productReferenceCode": "2344041",
+  "categoryId": "475",
+  "productTitle": "[Bebida Vegetal De Banana Barista Banana Milk 1l] - Bistek Supermercados",
+  "metaTagDescription": "Bebida Vegetal De Banana Barista Banana Milk 1l",
+  "releaseDate": "2025-12-03T00:00:00Z",
+  "clusterHighlights": {},
+  "productClusters": {
+   "216": "Todos os produtos (Categoria)",
+   "624": "🌱 Bem Estar e Equilíbrio com até 25%OFF"
+  },
+  "searchableClusters": {},
+  "categories": [
+   "/Bem Estar e Equilíbrio/Bebida Vegetal/",
+   "/Bem Estar e Equilíbrio/"
+  ],
+  "categoriesIds": [
+   "/472/475/",
+   "/472/"
+  ],
+  "link": "https://www.bistek.com.br/bebida-vegetal-de-banana-barista-banana-milk-1l-2344041/p",
+  "Peso Produto": [
+   "1.0"
+  ],
+  "Unidade de Medida": [
+   "LT"
+  ],
+  "Especificações": [
+   "Peso Produto",
+   "Unidade de Medida"
+  ],
+  "allSpecifications": [
+   "Peso Produto",
+   "Unidade de Medida"
+  ],
+  "allSpecificationsGroups": [
+   "Especificações"
+  ],
+  "description": "Bebida Vegetal De Banana Barista Banana Milk 1l",
+  "items": [
+   {
+    "itemId": "2344041",
+    "name": "Bebida Vegetal De Banana Barista Banana Milk 1l",
+    "nameComplete": "Bebida Vegetal De Banana Barista Banana Milk 1l",
+    "complementName": "",
+    "ean": "7898975890015",
+    "referenceId": [
+     {
+      "Key": "RefId",
+      "Value": "2344041"
+     }
+    ],
+    "measurementUnit": "un",
+    "unitMultiplier": 1,
+    "modalType": null,
+    "isKit": false,
+    "images": [
+     {
+      "imageId": "207350",
+      "imageLabel": "",
+      "imageTag": "<img src=\"~/arquivos/ids/207350-#width#-#height#/2344041.jpg?v=638899078497100000\" width=\"#width#\" height=\"#height#\" alt=\"2344041\" id=\"\" />",
+      "imageUrl": "https://bistek.vteximg.com.br/arquivos/ids/207350/2344041.jpg?v=638899078497100000",
+      "imageText": "2344041",
+      "imageLastModified": "2025-08-04T12:37:29.7100000Z"
+     }
+    ],
+    "sellers": [
+     {
+      "sellerId": "1",
+      "sellerName": "Bistek Supermercados",
+      "addToCartLink": "https://www.bistek.com.br/checkout/cart/add?sku=2344041&qty=1&seller=1&sc=1&price=1947&cv=_&sc=1",
+      "sellerDefault": true,
+      "commertialOffer": {
+       "DeliverySlaSamplesPerRegion": {
+        "0": {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       },
+       "Installments": [
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "American Express",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "American Express à vista"
+        },
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Visa",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Visa à vista"
+        },
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Mastercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Mastercard à vista"
+        },
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Hipercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Hipercard à vista"
+        },
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Elo",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Elo à vista"
+        },
+        {
+         "Value": 19.47,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 19.47,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Pix",
+         "PaymentSystemGroupName": "instantPaymentPaymentGroup",
+         "Name": "Pix à vista"
+        }
+       ],
+       "DiscountHighLight": [],
+       "GiftSkuIds": [],
+       "Teasers": [],
+       "PromotionTeasers": [],
+       "BuyTogether": [],
+       "ItemMetadataAttachment": [],
+       "Price": 19.47,
+       "ListPrice": 22.65,
+       "PriceWithoutDiscount": 19.47,
+       "FullSellingPrice": 19.47,
+       "PriceToken": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjZjNjEwZDc5LTFjNGQtNDY4Ni05NjI5LWU0YmU3ZTA1YzkwZCIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InByaWNlIjoxOTQ3LCJwcmljZVdpdGhvdXREaXNjb3VudCI6MTk0Nywic2VsbGVyIjoiMSIsImlkIjoiMjM0NDA0MSIsImFjY291bnROYW1lIjoiYmlzdGVrIiwic2FsZXNDaGFubmVsIjoiMSJ9LCJleHAiOjE3OTM0MTk5OTMsImlhdCI6MTc5MzQxODE5MywianRpIjoiODI2OGU5OTItYzYxZi00NjU1LTlmOGEtZGI2OWNiMGNlODIwIiwiaXNzIjoic2Vzc2lvbi9kYXRhLXNpZ25lciJ9.PXjZpF68nJKsBoCMJ3gIBnqzOIJqXCSKdoCX2-lUKsOZcRHlxKhESRq8FEXnxZUyHEEER2cTEMCegXBU8arXVw",
+       "RewardValue": 0,
+       "PriceValidUntil": "2027-10-31T03:43:13Z",
+       "AvailableQuantity": 10,
+       "IsAvailable": true,
+       "Tax": 0,
+       "DeliverySlaSamples": [
+        {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       ],
+       "GetInfoErrorMessage": null,
+       "CacheVersionUsedToCallCheckout": "_",
+       "PaymentOptions": {
+        "installmentOptions": [
+         {
+          "paymentSystem": "1",
+          "bin": null,
+          "paymentName": "American Express",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "2",
+          "bin": null,
+          "paymentName": "Visa",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "4",
+          "bin": null,
+          "paymentName": "Mastercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "8",
+          "bin": null,
+          "paymentName": "Hipercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "9",
+          "bin": null,
+          "paymentName": "Elo",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "125",
+          "bin": null,
+          "paymentName": "Pix",
+          "paymentGroupName": "instantPaymentPaymentGroup",
+          "value": 1947,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 1947,
+            "total": 1947,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 1947,
+              "total": 1947
+             }
+            ]
+           }
+          ]
+         }
+        ],
+        "paymentSystems": [
+         {
+          "id": 125,
+          "name": "Pix",
+          "groupName": "instantPaymentPaymentGroup",
+          "validator": null,
+          "stringId": "125",
+          "template": "instantPaymentPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.045948Z",
+          "availablePayments": null
+         },
+         {
+          "id": 2,
+          "name": "Visa",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "2",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.0459485Z",
+          "availablePayments": null
+         },
+         {
+          "id": 4,
+          "name": "Mastercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "4",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.0459488Z",
+          "availablePayments": null
+         },
+         {
+          "id": 9,
+          "name": "Elo",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "9",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.0459494Z",
+          "availablePayments": null
+         },
+         {
+          "id": 8,
+          "name": "Hipercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "8",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.0459496Z",
+          "availablePayments": null
+         },
+         {
+          "id": 1,
+          "name": "American Express",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "1",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:36:58.0459498Z",
+          "availablePayments": null
+         }
+        ],
+        "payments": [],
+        "giftCards": [],
+        "giftCardMessages": [],
+        "availableAccounts": [],
+        "availableTokens": []
+       }
+      }
+     }
+    ],
+    "Videos": [],
+    "estimatedDateArrival": null
+   }
+  ]
+ },
+ {
+  "productId": "10544",
+  "productName": "Banana Caturra Kg",
+  "brand": "Giassi",
+  "brandId": 1333,
+  "brandImageUrl": null,
+  "linkText": "banana_caturra_kg_51276",
+  "productReference": "51276",
+  "productReferenceCode": "51276",
+  "categoryId": "72",
+  "productTitle": "Banana Caturra Kg - giassi",
+  "metaTagDescription": "",
+  "releaseDate": "2025-12-04T16:08:00Z",
+  "clusterHighlights": {},
+  "productClusters": {},
+  "searchableClusters": {},
+  "categories": [
+   "/Hortifrúti/Frutas/",
+   "/Hortifrúti/"
+  ],
+  "categoriesIds": [
+   "/9/72/",
+   "/9/"
+  ],
+  "link": "https://www.giassi.com.br/banana_caturra_kg_51276/p",
+  "multiplicador": [
+   "1,00000"
+  ],
+  "unidade": [
+   "kg"
+  ],
+  "Especificações": [
+   "multiplicador",
+   "unidade"
+  ],
+  "allSpecifications": [
+   "multiplicador",
+   "unidade"
+  ],
+  "allSpecificationsGroups": [
+   "Especificações"
+  ],
+  "description": "Banana Caturra Kg",
+  "items": [
+   {
+    "itemId": "10544",
+    "name": "Banana Caturra Kg",
+    "nameComplete": "Banana Caturra Kg",
+    "complementName": "Banana Caturra Kg",
+    "ean": "5127",
+    "referenceId": [
+     {
+      "Key": "RefId",
+      "Value": "51276"
+     }
+    ],
+    "measurementUnit": "kg",
+    "unitMultiplier": 1.4,
+    "modalType": null,
+    "isKit": false,
+    "images": [
+     {
+      "imageId": "14793436",
+      "imageLabel": "Banana Caturra Kg",
+      "imageTag": "<img src=\"~/arquivos/ids/14793436-#width#-#height#/Banana-Caturra-Kg.png?v=639004612543670000\" width=\"#width#\" height=\"#height#\" alt=\"Banana-Caturra-Kg\" id=\"\" />",
+      "imageUrl": "https://giassi.vteximg.com.br/arquivos/ids/14793436/Banana-Caturra-Kg.png?v=639004612543670000",
+      "imageText": "Banana-Caturra-Kg",
+      "imageLastModified": "2025-12-04T16:07:34.3670000Z"
+     }
+    ],
+    "sellers": [
+     {
+      "sellerId": "1",
+      "sellerName": "Giassi Supermercados",
+      "addToCartLink": "https://www.giassi.com.br/checkout/cart/add?sku=10544&qty=1&seller=1&sc=1&price=489&cv=_&sc=1",
+      "sellerDefault": true,
+      "commertialOffer": {
+       "DeliverySlaSamplesPerRegion": {
+        "0": {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       },
+       "Installments": [
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "American Express",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "American Express à vista"
+        },
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Visa",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Visa à vista"
+        },
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Diners",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Diners à vista"
+        },
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Mastercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Mastercard à vista"
+        },
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Hipercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Hipercard à vista"
+        },
+        {
+         "Value": 4.89,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 4.89,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Elo",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Elo à vista"
+        }
+       ],
+       "DiscountHighLight": [],
+       "GiftSkuIds": [],
+       "Teasers": [],
+       "PromotionTeasers": [],
+       "BuyTogether": [],
+       "ItemMetadataAttachment": [],
+       "Price": 4.89,
+       "ListPrice": 4.89,
+       "PriceWithoutDiscount": 4.89,
+       "FullSellingPrice": 6.84,
+       "PriceToken": "eyJhbGciOiJFUzI1NiIsImtpZCI6ImU4NDQwY2E1LTY0OWMtNDUyZS1iMDVkLTdmZjMyZmRkNmJkNiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InByaWNlIjo0ODksInByaWNlV2l0aG91dERpc2NvdW50Ijo0ODksInNlbGxlciI6IjEiLCJpZCI6IjEwNTQ0IiwiYWNjb3VudE5hbWUiOiJnaWFzc2kiLCJzYWxlc0NoYW5uZWwiOiIxIn0sImV4cCI6MTc5MzQyMDA3MiwiaWF0IjoxNzkzNDE4MjcyLCJqdGkiOiI4YWJlYWViOS1kMDBlLTRlYWEtYjFlYy0yZTkyYTlkZTEyM2UiLCJpc3MiOiJzZXNzaW9uL2RhdGEtc2lnbmVyIn0.-PSZlUHHEpXy69fSW6eN0bUq-9msOCoxV00sBOXQMnszjEJxIMUjrKl7ZoR6nE8Gjq4AdK8n2So56z3GlFfvlw",
+       "RewardValue": 0,
+       "PriceValidUntil": "2027-10-31T00:00:00Z",
+       "AvailableQuantity": 99999,
+       "IsAvailable": true,
+       "Tax": 0,
+       "DeliverySlaSamples": [
+        {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       ],
+       "GetInfoErrorMessage": null,
+       "CacheVersionUsedToCallCheckout": "_",
+       "PaymentOptions": {
+        "installmentOptions": [
+         {
+          "paymentSystem": "1",
+          "bin": null,
+          "paymentName": "American Express",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "2",
+          "bin": null,
+          "paymentName": "Visa",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "3",
+          "bin": null,
+          "paymentName": "Diners",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "4",
+          "bin": null,
+          "paymentName": "Mastercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "8",
+          "bin": null,
+          "paymentName": "Hipercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "9",
+          "bin": null,
+          "paymentName": "Elo",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 684,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 684,
+            "total": 684,
+            "sellerMerchantInstallments": [
+             {
+              "id": "GIASSI08",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 684,
+              "total": 684
+             }
+            ]
+           }
+          ]
+         }
+        ],
+        "paymentSystems": [
+         {
+          "id": 1,
+          "name": "American Express",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "1",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 2,
+          "name": "Visa",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "2",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 3,
+          "name": "Diners",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "3",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 4,
+          "name": "Mastercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "4",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 8,
+          "name": "Hipercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "8",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 9,
+          "name": "Elo",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "9",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         }
+        ],
+        "payments": [],
+        "giftCards": [],
+        "giftCardMessages": [],
+        "availableAccounts": [],
+        "availableTokens": []
+       }
+      }
+     }
+    ],
+    "Videos": [],
+    "estimatedDateArrival": null
+   }
+  ]
+ },
+ {
+  "productId": "3070530",
+  "productName": "Mamão Papaia Unid.",
+  "brand": "Bistek",
+  "brandId": 1,
+  "brandImageUrl": null,
+  "linkText": "mamao-papaia-unidade-3070530",
+  "productReference": "3070530",
+  "productReferenceCode": "3070530",
+  "categoryId": "35",
+  "productTitle": "[Mamão Papaia Unid.] - Bistek Supermercados",
+  "metaTagDescription": "Mamão Papaia Unid.",
+  "releaseDate": "2025-12-18T00:00:00Z",
+  "clusterHighlights": {},
+  "productClusters": {
+   "179": "Mais Vendidos  😍",
+   "216": "Todos os produtos (Categoria)",
+   "650": "Mais saúde, mais cor, mais sabor 🥗",
+   "670": "Hortifruti"
+  },
+  "searchableClusters": {},
+  "categories": [
+   "/Hortifrúti/Frutas/",
+   "/Hortifrúti/"
+  ],
+  "categoriesIds": [
+   "/14/35/",
+   "/14/"
+  ],
+  "link": "https://www.bistek.com.br/mamao-papaia-unidade-3070530/p",
+  "Peso Produto": [
+   "1.0"
+  ],
+  "Unidade de Medida": [
+   "UN"
+  ],
+  "Especificações": [
+   "Peso Produto",
+   "Unidade de Medida"
+  ],
+  "allSpecifications": [
+   "Peso Produto",
+   "Unidade de Medida"
+  ],
+  "allSpecificationsGroups": [
+   "Especificações"
+  ],
+  "description": "Mamão Papaia unid.",
+  "items": [
+   {
+    "itemId": "3070530",
+    "name": "Mamão Papaia Unid.",
+    "nameComplete": "Mamão Papaia Unid.",
+    "complementName": "",
+    "ean": "3000030705309",
+    "referenceId": [
+     {
+      "Key": "RefId",
+      "Value": "3070530"
+     }
+    ],
+    "measurementUnit": "un",
+    "unitMultiplier": 1,
+    "modalType": null,
+    "isKit": false,
+    "images": [
+     {
+      "imageId": "201788",
+      "imageLabel": "mamao-papaia-unidade",
+      "imageTag": "<img src=\"~/arquivos/ids/201788-#width#-#height#/mamao-papaia-unidade.jpg?v=639015889774700000\" width=\"#width#\" height=\"#height#\" alt=\"\" id=\"\" />",
+      "imageUrl": "https://bistek.vteximg.com.br/arquivos/ids/201788/mamao-papaia-unidade.jpg?v=639015889774700000",
+      "imageText": "",
+      "imageLastModified": "2025-12-17T17:22:57.4700000Z"
+     }
+    ],
+    "sellers": [
+     {
+      "sellerId": "1",
+      "sellerName": "Bistek Supermercados",
+      "addToCartLink": "https://www.bistek.com.br/checkout/cart/add?sku=3070530&qty=1&seller=1&sc=1&price=823&cv=_&sc=1",
+      "sellerDefault": true,
+      "commertialOffer": {
+       "DeliverySlaSamplesPerRegion": {
+        "0": {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       },
+       "Installments": [
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "American Express",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "American Express à vista"
+        },
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Visa",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Visa à vista"
+        },
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Mastercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Mastercard à vista"
+        },
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Hipercard",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Hipercard à vista"
+        },
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Elo",
+         "PaymentSystemGroupName": "creditCardPaymentGroup",
+         "Name": "Elo à vista"
+        },
+        {
+         "Value": 8.23,
+         "InterestRate": 0,
+         "TotalValuePlusInterestRate": 8.23,
+         "NumberOfInstallments": 1,
+         "PaymentSystemName": "Pix",
+         "PaymentSystemGroupName": "instantPaymentPaymentGroup",
+         "Name": "Pix à vista"
+        }
+       ],
+       "DiscountHighLight": [],
+       "GiftSkuIds": [],
+       "Teasers": [],
+       "PromotionTeasers": [],
+       "BuyTogether": [],
+       "ItemMetadataAttachment": [],
+       "Price": 8.23,
+       "ListPrice": 8.23,
+       "PriceWithoutDiscount": 8.23,
+       "FullSellingPrice": 8.23,
+       "PriceToken": "eyJhbGciOiJFUzI1NiIsImtpZCI6ImM2Nzg1YjQ3LWQxNDYtNGRmOS1iOWY3LTljNjFlNDAwYjM1MyIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InByaWNlIjo4MjMsInByaWNlV2l0aG91dERpc2NvdW50Ijo4MjMsInNlbGxlciI6IjEiLCJpZCI6IjMwNzA1MzAiLCJhY2NvdW50TmFtZSI6ImJpc3RlayIsInNhbGVzQ2hhbm5lbCI6IjEifSwiZXhwIjoxNzkzNDIwMDQyLCJpYXQiOjE3OTM0MTgyNDIsImp0aSI6ImYxZGE4MmVkLWRkNTAtNGRjNC1hYjU3LWVjYjE4ODJkZWFlMSIsImlzcyI6InNlc3Npb24vZGF0YS1zaWduZXIifQ.MMek_ybYcN2Ej3Vzh0UKhUF_OPAoeCME7pU9d7FDbt9P4t0jNsCxScrP4YGz_AJ4ogOgkkAT6WMIxUC6JzhWzA",
+       "RewardValue": 0,
+       "PriceValidUntil": "2027-10-31T00:00:00Z",
+       "AvailableQuantity": 99999,
+       "IsAvailable": true,
+       "Tax": 0,
+       "DeliverySlaSamples": [
+        {
+         "DeliverySlaPerTypes": [],
+         "Region": null
+        }
+       ],
+       "GetInfoErrorMessage": null,
+       "CacheVersionUsedToCallCheckout": "_",
+       "PaymentOptions": {
+        "installmentOptions": [
+         {
+          "paymentSystem": "1",
+          "bin": null,
+          "paymentName": "American Express",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "2",
+          "bin": null,
+          "paymentName": "Visa",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "4",
+          "bin": null,
+          "paymentName": "Mastercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "8",
+          "bin": null,
+          "paymentName": "Hipercard",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "9",
+          "bin": null,
+          "paymentName": "Elo",
+          "paymentGroupName": "creditCardPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "paymentSystem": "125",
+          "bin": null,
+          "paymentName": "Pix",
+          "paymentGroupName": "instantPaymentPaymentGroup",
+          "value": 823,
+          "installments": [
+           {
+            "count": 1,
+            "hasInterestRate": false,
+            "interestRate": 0,
+            "value": 823,
+            "total": 823,
+            "sellerMerchantInstallments": [
+             {
+              "id": "BISTEK12",
+              "count": 1,
+              "hasInterestRate": false,
+              "interestRate": 0,
+              "value": 823,
+              "total": 823
+             }
+            ]
+           }
+          ]
+         }
+        ],
+        "paymentSystems": [
+         {
+          "id": 125,
+          "name": "Pix",
+          "groupName": "instantPaymentPaymentGroup",
+          "validator": null,
+          "stringId": "125",
+          "template": "instantPaymentPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 2,
+          "name": "Visa",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "2",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 4,
+          "name": "Mastercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "4",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 9,
+          "name": "Elo",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "9",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 8,
+          "name": "Hipercard",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "8",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         },
+         {
+          "id": 1,
+          "name": "American Express",
+          "groupName": "creditCardPaymentGroup",
+          "validator": null,
+          "stringId": "1",
+          "template": "creditCardPaymentGroup-template",
+          "requiresDocument": false,
+          "isCustom": false,
+          "description": null,
+          "requiresAuthentication": false,
+          "dueDate": "2026-11-07T03:00:00Z",
+          "availablePayments": null
+         }
+        ],
+        "payments": [],
+        "giftCards": [],
+        "giftCardMessages": [],
+        "availableAccounts": [],
+        "availableTokens": []
+       }
+      }
+     }
+    ],
+    "Videos": [],
+    "estimatedDateArrival": null
+   }
+  ]
+ }
+]
