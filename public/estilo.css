@@ -198,6 +198,12 @@ section[data-tela] { min-width: 0; }
 
 #aviso:empty { display: none; }
 
+/* Na Lista, os totais grudados ficam logo acima da barra: o recado sobe
+   por cima deles em vez de tampar o "Tudo no …" (a altura vem medida). */
+body:has([data-tela="lista"][data-ativa]) #aviso {
+  bottom: calc(var(--altura-barra) + 8px + var(--altura-totais, 0px) + 12px + env(safe-area-inset-bottom));
+}
+
 /* Chips: uma linha só que rola de lado no celular, pra não empurrar os
    resultados pra baixo da dobra. */
 #chips {
@@ -402,7 +408,9 @@ section[data-tela] { min-width: 0; }
     padding-right: max(var(--respiro), calc((100% - 1440px) / 2 + var(--respiro)));
   }
 
-  #aviso { bottom: 24px; }
+  /* Tela larga: a Lista está sempre à vista, então os totais também. */
+  #aviso,
+  body:has([data-tela="lista"][data-ativa]) #aviso { bottom: calc(16px + var(--altura-totais, 0px) + 12px); }
 
   /* Com mouse, rolar de lado é ruim: os chips quebram linha. */
   #chips {
@@ -526,6 +534,11 @@ section[data-tela="lista"] { container-type: inline-size; }
   color: var(--cinza);
   font-variant-numeric: tabular-nums;
 }
+
+/* Separador só entre mercados, dentro do span que não quebra: a quebra só
+   acontece no espaço de verdade entre os spans, então o "·" abre a linha de
+   baixo junto do mercado, nunca fica pendurado no fim da de cima. */
+.item .outros span + span::before { content: "· "; }
 
 /* "Ver preços" e a quantidade dividem a segunda linha; o detalhe aberto
    cresce por baixo da quantidade, que fica presa no topo. */

@@ -27,8 +27,10 @@ export function mercadosCarregados(estado) {
 // Ordem dos mercados no item: a do resumo (sempre a mesma na tela) e, depois,
 // algum que o item conheça e o resumo de hoje não traga.
 function mercadosDoItem(item, estado) {
-  const ids = estado.mercados.map((m) => m.id).filter((id) => item.ofertas[id]);
-  for (const id of Object.keys(item.ofertas)) if (!ids.includes(id)) ids.push(id);
+  // `?? {}`: item mexido à mão sem ofertas aparece como "sem preço", não derruba a tela.
+  const ofertas = item.ofertas ?? {};
+  const ids = estado.mercados.map((m) => m.id).filter((id) => ofertas[id]);
+  for (const id of Object.keys(ofertas)) if (!ids.includes(id)) ids.push(id);
   return ids;
 }
 
@@ -43,7 +45,7 @@ function linkSeguro(link) {
 function quantidade(item) {
   const n = escapar(item.quantidade);
   // No granel o número sozinho não diz quanto pegar: "2 × 200 g" diz.
-  const passo = item.granel && item.gramas ? `<small> × ${escapar(peso(item.gramas))}</small>` : "";
+  const passo = item.granel && item.gramas ? `<small> × ${escapar(peso(item.gramas, item.liquido))}</small>` : "";
   const noMinimo = item.quantidade <= 1;
   return `<div class="quantidade" role="group" aria-label="Quantidade de ${escapar(item.nome)}">
       <button type="button" class="menos" aria-label="Menos"${noMinimo ? ' aria-disabled="true"' : ""}>−</button>
@@ -57,15 +59,17 @@ function linhasDePreco(item, estado, nomes) {
   if (melhor) {
     const outros = mercadosDoItem(item, estado)
       .filter((m) => m !== melhor.mercado && viva(item.ofertas[m]))
-      // Cada mercado inteiro numa linha: "R$" de um lado e o valor do outro confunde.
+      // Cada mercado inteiro num span que não quebra: "R$" de um lado e o
+      // valor do outro confunde. O "·" vem do CSS, só entre spans, e o espaço
+      // entre eles é o único lugar onde a linha pode quebrar.
       .map((m) => `<span>${escapar(nomes[m] ?? m)} ${reais(item.ofertas[m].preco * item.quantidade)}</span>`);
     return `<p class="melhor">${escapar(nomes[melhor.mercado] ?? melhor.mercado)} ${reais(melhor.total)}</p>`
-      + (outros.length ? `<p class="outros">${outros.join(" · ")}</p>` : "");
+      + (outros.length ? `<p class="outros">${outros.join(" ")}</p>` : "");
   }
   // Nenhum mercado confirma hoje: o último preço visto ajuda a ter noção do
   // gasto, mas em cinza, pra não parecer preço de agora.
   const antigas = item.tipo === "produto"
-    ? Object.entries(item.ofertas).sort((a, b) => a[1].preco - b[1].preco)
+    ? Object.entries(item.ofertas ?? {}).sort((a, b) => a[1].preco - b[1].preco)
     : [];
   const era = antigas.length
     ? ` <span class="era">(era ${reais(antigas[0][1].preco * item.quantidade)} no ${escapar(nomes[antigas[0][0]] ?? antigas[0][0])})</span>`
@@ -73,8 +77,9 @@ function linhasDePreco(item, estado, nomes) {
   return `<p class="melhor sem-preco">sem preço${era}</p>`;
 }
 
-function porQuilo(oferta, gramas) {
-  return gramas ? ` · <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}/kg</span>` : "";
+// Mesmo cálculo pra líquido (ml contam como gramas); só a unidade muda.
+function porQuilo(oferta, gramas, liquido) {
+  return gramas ? ` · <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}/${liquido ? "l" : "kg"}</span>` : "";
 }
 
 function detalhe(item, estado, nomes, aberto) {
@@ -89,7 +94,7 @@ function detalhe(item, estado, nomes, aberto) {
     // A loja às vezes repete o preço no "de": só é promoção se o "de" for maior.
     const de = oferta.promocao > oferta.preco ? `<s>${reais(oferta.promocao)}</s> ` : "";
     const destaque = melhor?.mercado === m && Object.values(item.ofertas).filter(viva).length > 1 ? ' class="mais-barato"' : "";
-    return `<li${destaque}>${rotulo} ${de}<b>${reais(oferta.preco)}</b>${porQuilo(oferta, item.gramas)}</li>`;
+    return `<li${destaque}>${rotulo} ${de}<b>${reais(oferta.preco)}</b>${porQuilo(oferta, item.gramas, item.liquido)}</li>`;
   });
   return `<details class="detalhe"${aberto ? " open" : ""}>
       <summary>Ver preços</summary>

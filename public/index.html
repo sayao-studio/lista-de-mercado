@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Nome de produto vem do site do mercado: se algum escapar passar, o CSP
+       ainda impede script de fora. Foto vem da VTEX (https); 'self' cobre o
+       ícone quando o site roda local, em http (testes). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self'; script-src 'self'; connect-src 'self'">
   <title>Lista de mercado</title>
   <meta name="description" content="Monte sua lista de mercado e veja onde cada item está mais barato: Bistek, Giassi e Angeloni.">
   <meta name="color-scheme" content="light dark">

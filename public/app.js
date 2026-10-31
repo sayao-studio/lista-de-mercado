@@ -47,7 +47,7 @@ export function irPara(tela, { lembrar = false } = {}) {
 // Agrupa por texto de quandoFoi pra não repetir "hoje 12h05" três vezes numa
 // linha que precisa caber no celular.
 export function textoDoCabecalho(mercados, semInternet, agora = new Date()) {
-  if (!mercados.length) return "Ainda sem preços";
+  if (!mercados.length) return semInternet ? "Sem internet" : "Ainda sem preços";
   const grupos = new Map();
   let maisRecente = null;
   for (const m of mercados) {
@@ -91,6 +91,9 @@ let acaoViva = null;
 // dele e, ao sumir, devolvem a tela pra ele. Sem isto o primeiro "X na lista"
 // apagaria de vez a única explicação de por que a busca não acha nada.
 let recadoFixo = "";
+// Mais de um recado fixo pode valer ao mesmo tempo ("sem preços" e "não
+// consegui guardar"): um não apaga o outro.
+const recadosFixos = new Set();
 
 // Enquanto um recado com ação está vivo, recado comum é descartado: trocar o
 // texto e manter o botão faria o "Desfazer" parecer desfazer a coisa nova
@@ -104,8 +107,19 @@ function avisar(texto) {
 }
 
 function fixarAviso(texto) {
-  recadoFixo = texto;
-  avisar(texto);
+  recadosFixos.add(texto);
+  recadoFixo = [...recadosFixos].join(" ");
+  avisar(recadoFixo);
+}
+
+// Modo privado ou quota cheia: a lista funciona na sessão, mas some ao fechar
+// a aba. A pessoa precisa saber disso uma vez, não a cada toque. Fixo, e não
+// recado que some, porque um "Desfazer" na tela engoliria o aviso.
+let avisouQueNaoGuarda = false;
+function guardar() {
+  if (salvar({ ...guardado, itens: estado.itens }, localStorage) || avisouQueNaoGuarda) return;
+  avisouQueNaoGuarda = true;
+  fixarAviso("Não consegui guardar a lista neste navegador.");
 }
 
 // Recado que some sozinho: confirma o toque sem ficar tampando a tela.
@@ -157,7 +171,7 @@ export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = fa
 // atualiza o contador, pra nenhuma das telas ficar mostrando uma lista velha.
 function mudarItens(itens) {
   estado.itens = itens;
-  salvar({ ...guardado, itens: estado.itens }, localStorage);
+  guardar();
   renderizarTudo();
 }
 
@@ -325,9 +339,14 @@ async function carregarPrecos() {
     estado.resumo = null;
     estado.mercados = [];
     estado.carregando = false;
+    // Sem rede a culpa não é do robô: prometer "roda às 6h" mandaria a pessoa
+    // esperar um horário que não resolve nada.
+    estado.semInternet = Boolean(erro?.semRede);
     renderizarCabecalho();
     renderizarTudo();
-    fixarAviso("Ainda sem preços: o robô roda às 6h, 12h e 18h.");
+    fixarAviso(estado.semInternet
+      ? "Sem internet e nenhum preço guardado neste aparelho."
+      : "Ainda sem preços: o robô roda às 6h, 12h e 18h.");
     return;
   }
   estado.resumo = resumo;
@@ -363,7 +382,7 @@ async function carregarPrecos() {
   if (Object.keys(porId).length) {
     estado.indice = indexar(porId);
     estado.itens = refrescar(estado.itens, estado.indice);
-    salvar({ ...guardado, itens: estado.itens }, localStorage);
+    guardar();
   } else {
     // Nenhum mercado chegou: um índice vazio marcaria tudo como indisponível
     // sem ganho; a lista fica como estava, com os últimos preços.

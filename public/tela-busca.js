@@ -3,6 +3,9 @@
 import { buscar } from "./busca.js";
 import { reais, peso } from "./formato.js";
 import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
+// A mesma regra dos totais: chip de mercado sem catálogo filtraria pra lista
+// vazia sem explicar por quê. tela-lista não importa nada daqui (sem ciclo).
+import { mercadosCarregados } from "./tela-lista.js";
 
 const LOTE = 30;
 
@@ -29,14 +32,6 @@ function nomesDosMercados(estado) {
   return Object.fromEntries(estado.mercados.map((m) => [m.id, m.nome]));
 }
 
-// Só mercados que vieram no índice: chip de mercado sem catálogo filtraria pra
-// lista vazia sem explicar por quê.
-function mercadosCarregados(estado) {
-  if (!estado.indice) return [];
-  const carregados = new Set(estado.indice.mercados);
-  return estado.mercados.filter((m) => carregados.has(m.id));
-}
-
 function chip(atributos, texto, ligado) {
   return `<button type="button" class="chip" ${atributos} aria-pressed="${ligado}">${escapar(texto)}</button>`;
 }
@@ -50,13 +45,14 @@ function renderizarChips(estado) {
   el("#chips").innerHTML = [
     chip('data-filtro="promocao"', "Só promoções", ui.promocao),
     chip('data-ordem="preco"', "Menor preço", ui.ordem === "preco"),
-    chip('data-ordem="porKg"', "Menor preço/kg", ui.ordem === "porKg"),
+    // Um chip só pros dois: R$/kg e R$/l são o mesmo número (por mil gramas ou ml).
+    chip('data-ordem="porKg"', "Menor por kg/l", ui.ordem === "porKg"),
     ...mercados.map((m) => chip(`data-mercado="${escapar(m.id)}"`, m.nome, ui.mercados.has(m.id))),
   ].join("");
 }
 
 function marcaPeso(grupo) {
-  return [grupo.marca, peso(grupo.gramas)].filter(Boolean).map(escapar).join(" · ");
+  return [grupo.marca, peso(grupo.gramas, grupo.liquido)].filter(Boolean).map(escapar).join(" · ");
 }
 
 function precos(grupo, nomes) {

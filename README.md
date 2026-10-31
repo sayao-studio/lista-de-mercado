@@ -14,6 +14,9 @@ Nasceu do protótipo de compras da esfiharia
   JSON com preço, preço "de" (promoção), marca, foto, link e estoque.
   Espaço na busca vai como `%20` (com `+` dá 400). Granel: unidade "kg",
   `Price` por quilo, vende em passos de `unitMultiplier`.
+- Líquidos (leite, água, refrigerante, óleo, limpeza: ~35 % dos produtos com
+  peso) aparecem em ml/l e R$/l desde a mudança que trouxe o campo `liquido`;
+  vale a partir da próxima rodada do robô (arquivo velho continua em g/kg).
 - Não é API oficial pra terceiros: pode mudar ou ser bloqueada. O preço é o do
   site; loja física e preço de clube podem ser outros.
 - O JSON não diz até quando vale a promoção (`PriceValidUntil` é técnico, um
@@ -100,7 +103,7 @@ Se um mercado ficar em falha por dias (VTEX bloqueando o GitHub, API mudou):
      o caminho real é commitar os dados temporariamente na `main` (ou mudar a
      regra do environment) e tirá-los de novo quando a fonte voltar.
 
-## Testado em 01/11/2026 (rodada completa de verdade)
+## Testado em 31/10/2026, 01h43–01h57 (rodada completa de verdade)
 
 | Mercado | Produtos | Sem EAN | Sem peso | Granel | Em promoção | Categorias |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |

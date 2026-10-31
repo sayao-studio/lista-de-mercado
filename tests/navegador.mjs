@@ -20,7 +20,9 @@ async function servidorPara(opcoes) {
   return servidores.get(chave);
 }
 
-async function abrir({ width = 390, height = 844, resumo, dados, guardado, escuro = false } = {}) {
+// `antes`: roda antes do goto (rotas, scripts); `esperar: false` volta sem
+// esperar o catálogo, pra testar o que a pessoa faz enquanto ele carrega.
+async function abrir({ width = 390, height = 844, resumo, dados, guardado, escuro = false, antes, esperar = true } = {}) {
   const opcoes = {};
   if (dados !== undefined) opcoes.dados = dados;
   if (resumo !== undefined) opcoes.resumo = resumo;
@@ -39,11 +41,16 @@ async function abrir({ width = 390, height = 844, resumo, dados, guardado, escur
     await contexto.addInitScript((texto) => localStorage.setItem("lista-de-mercado", texto), JSON.stringify(guardado));
   }
   const page = await contexto.newPage();
+  // Qualquer bloqueio do Content-Security-Policy vira falha do teste que o causou.
+  page.bloqueiosCsp = [];
+  page.on("console", (m) => { if (/Content Security Policy/i.test(m.text())) page.bloqueiosCsp.push(m.text()); });
+  if (antes) await antes({ page, contexto });
   // Antes do goto: o CSS e o theme-color têm que nascer já no tema escuro.
   if (escuro) await page.emulateMedia({ colorScheme: "dark" });
   await page.goto(url);
-  await page.waitForFunction(() => window.app?.pronto, null, { timeout: 10_000 });
-  await page.evaluate(() => window.app.pronto);
+  // `!!`: devolvendo a promessa, o waitForFunction esperaria ela resolver.
+  await page.waitForFunction(() => !!window.app?.pronto, null, { timeout: 10_000 });
+  if (esperar) await page.evaluate(() => window.app.pronto);
   return { page, contexto, url };
 }
 
@@ -53,7 +60,9 @@ describe("site", () => {
   });
 
   afterEach(async () => {
+    const paginas = contextos.flatMap((c) => c.pages());
     while (contextos.length) await contextos.pop().close();
+    for (const p of paginas) assert.deepEqual(p.bloqueiosCsp ?? [], [], "o CSP bloqueou algo");
   });
 
   after(async () => {
@@ -252,7 +261,9 @@ describe("site", () => {
     await irParaLista(page);
     const item = itemDe(page, "Arroz Tio João 1kg");
     assert.equal(await item.locator(".melhor").textContent(), "Giassi R$ 10,90");
-    assert.equal(await item.locator(".outros").textContent(), "Bistek R$ 11,98 · Angeloni R$ 12,49");
+    // O "·" entre mercados vem do CSS (não fica solto quando a linha quebra).
+    assert.deepEqual(await item.locator(".outros span").allTextContents(), ["Bistek R$ 11,98", "Angeloni R$ 12,49"]);
+    assert.equal(await item.locator(".outros span + span").evaluate((e) => getComputedStyle(e, "::before").content), '"· "');
     assert.equal(await item.locator(".marcar").getAttribute("aria-label"), "Pegar Arroz Tio João 1kg");
     assert.equal((await item.locator(".quantidade .n").textContent()).trim(), "1");
     // Detalhe: link pra loja, promoção riscada e preço por quilo.
@@ -274,7 +285,7 @@ describe("site", () => {
     await item.locator(".mais").click();
     assert.equal((await item.locator(".n").textContent()).trim(), "2");
     assert.equal(await item.locator(".melhor").textContent(), "Giassi R$ 21,80");
-    assert.equal(await item.locator(".outros").textContent(), "Bistek R$ 23,96 · Angeloni R$ 24,98");
+    assert.deepEqual(await item.locator(".outros span").allTextContents(), ["Bistek R$ 23,96", "Angeloni R$ 24,98"]);
     assert.match(await page.locator("#totais").textContent(), /Tudo no Giassi R\$ 21,80/);
     // O redesenho não tira o foco do botão tocado.
     assert.equal(await page.evaluate(() => document.activeElement?.className), "mais");
@@ -419,6 +430,82 @@ describe("site", () => {
     assert.deepEqual(resumir([finais[2]]), [["texto", "leite", 3, false, null]]);
   });
 
+  test("colar enquanto o catálogo carrega vira produto quando ele chega", async () => {
+    // Atrasa os dados: o colar acontece com o índice ainda vazio.
+    const { page } = await abrir({
+      esperar: false,
+      antes: ({ page }) => page.route(/\/dados\/.*\.json/, async (rota) => {
+        await new Promise((ok) => setTimeout(ok, 1500));
+        await rota.continue();
+      }),
+    });
+    assert.equal(await page.evaluate(() => window.app.estado.indice), null);
+    await irParaLista(page);
+    await page.locator("#colar").click();
+    await page.locator("#dialogo-colar textarea").fill(`• 2× Arroz Tio João 1kg — Giassi R$ 21,80 #${ARROZ}`);
+    await page.locator("#dialogo-colar").getByRole("button", { name: "Adicionar" }).click();
+    const antes = await page.evaluate(() => window.app.estado.itens[0]);
+    assert.deepEqual([antes.tipo, antes.chave], ["texto", ARROZ]);
+
+    await page.evaluate(() => window.app.pronto);
+    const depois = await page.evaluate(() => window.app.estado.itens[0]);
+    assert.deepEqual([depois.tipo, depois.chave, depois.quantidade, depois.id], ["produto", ARROZ, 2, antes.id]);
+    assert.equal(await itemDe(page, "Arroz Tio João 1kg").locator(".melhor").textContent(), "Giassi R$ 21,80");
+    // E fica salvo como produto.
+    const salvo = await page.evaluate(() => JSON.parse(localStorage.getItem("lista-de-mercado")));
+    assert.equal(salvo.itens[0].tipo, "produto");
+  });
+
+  test("líquido aparece em litros na busca e por litro no detalhe", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "leite");
+    const cartao = page.locator('#resultados .cartao[data-chave="7896043400012"]');
+    assert.equal(await cartao.locator(".marca-peso").textContent(), "Tirol · 1 l");
+    assert.equal((await page.locator('#chips [data-ordem="porKg"]').textContent()).trim(), "Menor por kg/l");
+    await cartao.locator(".adicionar").click();
+    await irParaLista(page);
+    const leite = itemDe(page, "Leite Integral Tirol 1L");
+    await leite.locator(".detalhe summary").click();
+    assert.match(await leite.locator(".detalhe").textContent(), /R\$ 5,49\/l/);
+    assert.doesNotMatch(await leite.locator(".detalhe").textContent(), /\/kg/);
+  });
+
+  test("recado na Lista fica acima dos totais grudados", async () => {
+    // Lista comprida: os totais grudam no pé da tela, onde o recado aparece.
+    const itens = Array.from({ length: 15 }, (_, n) => ({
+      id: `t${n}`, tipo: "texto", nome: `item ${n}`, quantidade: 1, marcado: false, adicionadoEm: "2026-10-30T12:00:00.000Z",
+    }));
+    const { page } = await abrir({ guardado: { versao: 1, itens } });
+    await irParaLista(page);
+    await itemDe(page, "item 0").locator(".remover").click();
+    const a = await page.locator("#aviso").boundingBox();
+    const t = await page.locator("#totais").boundingBox();
+    // Confere que os totais estão mesmo grudados embaixo, senão o teste não prova nada.
+    assert.ok(t.y > 844 / 2, `totais em ${t.y}, não grudados embaixo`);
+    assert.ok(a.y + a.height <= t.y, `aviso (até ${a.y + a.height}) tampa os totais (desde ${t.y})`);
+  });
+
+  test("navegador que não guarda a lista avisa uma vez", async () => {
+    const { page } = await abrir({
+      antes: ({ contexto }) => contexto.addInitScript(() => {
+        // Imita Safari privado/quota cheia: ler funciona, gravar a lista não.
+        const original = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (k, v) {
+          if (k === "lista-de-mercado") throw new DOMException("cheio", "QuotaExceededError");
+          return original.call(this, k, v);
+        };
+      }),
+    });
+    const soOFixo = () => page.waitForFunction(
+      () => document.querySelector("#aviso").textContent === "Não consegui guardar a lista neste navegador.", null, { timeout: 4000 });
+    await adicionarTexto(page, "pão de queijo");
+    // A confirmação passa por cima e, ao sumir, o recado fixo fica (um só, sem repetir).
+    await soOFixo();
+    await adicionarTexto(page, "café");
+    await soOFixo();
+    assert.equal(await page.evaluate(() => window.app.estado.itens.length), 2);
+  });
+
   test("foto que não carrega vira o quadro neutro, na lista e na busca", async () => {
     const { page, contexto } = await abrir();
     // As fotos das fixtures apontam pro site da loja: aqui viram 404 de propósito.
@@ -477,6 +564,14 @@ describe("site", () => {
     assert.match(await page.locator("#itens").textContent(), /pão de queijo/);
     // Passada a confirmação, o recado de "sem preços" volta: ele só sai quando houver dados.
     await page.waitForFunction(() => /ainda sem preços/i.test(document.querySelector("#aviso").textContent), null, { timeout: 4000 });
+  });
+
+  test("sem internet e nada guardado, o recado fala da internet, não do robô", async () => {
+    const { page } = await abrir({
+      antes: ({ page }) => page.route(/\/dados\/resumo\.json/, (rota) => rota.abort("internetdisconnected")),
+    });
+    assert.equal(await page.locator("#aviso").textContent(), "Sem internet e nenhum preço guardado neste aparelho.");
+    assert.equal(await page.locator("#quando").textContent(), "Sem internet");
   });
 
   test("manifest e ícone respondem", async () => {
