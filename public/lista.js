@@ -113,6 +113,9 @@ function acharGrupo(item, indice) {
 // Nunca tira item da lista: a pessoa pôs lá de propósito. O que some do
 // catálogo fica marcado com `sumiu` e o último preço, pra interface avisar.
 export function refrescar(itens, indice) {
+  // Sem catálogo ainda (primeira carga ou falha de rede), a lista aparece como
+  // estava; marcar tudo como "sumiu" seria mentir.
+  if (!indice) return itens;
   return itens.map((item) => {
     if (item.tipo !== "produto") return item;
     const grupo = acharGrupo(item, indice);
@@ -123,6 +126,9 @@ export function refrescar(itens, indice) {
     }
     return {
       ...item,
+      // A chave segue o grupo: se a loja passou a informar o EAN, o `#chave`
+      // do texto copiado precisa ser o novo pra colar de volta e reencontrar.
+      ...(grupo && { chave: grupo.chave, ean: grupo.ean }),
       // Nome e foto ficam os que a pessoa viu ao adicionar; peso só é
       // completado se faltava, pra o R$/kg aparecer quando a loja passar a informar.
       gramas: item.gramas ?? grupo?.gramas ?? null,
@@ -142,6 +148,8 @@ function cabecalho(agora) {
 
 // Texto pra colar no WhatsApp. O `#chave` no fim da linha é o que permite
 // colar de volta e reencontrar o mesmo produto, não só um item de texto.
+// Contrato com a interface: as chaves de `nomes` definem quais mercados entram
+// nos totais e a ordem base deles (o desempate depois de faltam e total).
 export function comoTexto(itens, nomes, agora = new Date()) {
   const linhas = [cabecalho(agora)];
   for (const item of itens) {
@@ -193,6 +201,8 @@ export function deTexto(texto, indice, agora = new Date()) {
     }
 
     let resto = linha.slice(marcador[0].length);
+    // Marcador sozinho ("-" de separador numa conversa) não é item.
+    if (!resto) continue;
     const marcado = marcador[0].startsWith("✓");
     let quantidade = 1;
     // Exige espaço depois do "x" pra "2 xícaras de farinha" não virar

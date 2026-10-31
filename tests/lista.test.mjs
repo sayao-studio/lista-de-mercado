@@ -175,6 +175,9 @@ test("deTexto com conversa de WhatsApp vira itens de texto sem travar", () => {
     "   ",
     "e não esquece o pão!!",
     "• 0× nada #9999",
+    "-",
+    "•",
+    "✓",
   ].join("\n");
   const itens = deTexto(conversa, indice, agora);
   assert.deepEqual(itens.map((i) => [i.tipo, i.nome, i.quantidade, i.marcado]), [
@@ -197,4 +200,27 @@ test("alterarQuantidade não deixa ficar abaixo de 1 e marcar devolve item novo"
   assert.equal(marcado.marcado, true);
   assert.equal(item.marcado, false);
   assert.equal(marcar(marcado, false).marcado, false);
+});
+
+test("refrescar reencontra pelo id da loja quando a chave mudou e completa o peso", () => {
+  // Item salvo quando o Bistek ainda não informava EAN do arroz: chave bistek:b1, sem peso.
+  const antigo = {
+    ...novoItemProduto(arroz, agora),
+    chave: "bistek:b1", ean: "", gramas: null, granel: null,
+    ofertas: { bistek: { id: "b1", preco: 1000, promocao: 0, link: "x" } },
+  };
+  const [item] = refrescar([antigo], indice);
+  assert.equal(item.chave, "7896006700029");
+  assert.equal(item.ean, "7896006700029");
+  assert.equal(item.gramas, 1000);
+  assert.equal(item.granel, arroz.granel);
+  assert.equal(item.ofertas.bistek.preco, 1198);
+  assert.deepEqual(Object.keys(item.ofertas), ["bistek", "giassi", "angeloni"]);
+  assert.match(comoTexto([item], nomes, agora), /#7896006700029$/m);
+});
+
+test("refrescar sem índice devolve a lista como estava", () => {
+  const lista = listaExemplo();
+  assert.equal(refrescar(lista, null), lista);
+  assert.equal(refrescar(lista, undefined), lista);
 });
