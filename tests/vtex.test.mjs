@@ -296,6 +296,17 @@ test("rastrear trata total que falha como categoria sem total", async () => {
   assert.equal(pedidosDeTotal(chamadas, "14/35").length, 0); // não desce nos filhos
 });
 
+test("rastrear falha quando nenhum produto foi baixado", async () => {
+  // Árvore carrega mas todo total e toda página falham: sem total esperado a
+  // regra dos 30% não pega, e catálogo vazio não pode sair como ok.
+  const { fazerFetch } = lojaFalsa({ falhar: (url) => (url.includes("/products/search") ? 503 : undefined) });
+  await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada }), (e) => {
+    assert.ok(e instanceof ErroRastreio);
+    assert.equal(e.message, "Bistek: nenhum produto baixado");
+    return true;
+  });
+});
+
 test("rastrear falha quando estoura o prazo", async () => {
   let t = 0;
   const loja = lojaFalsa({ totais: { 14: 50 }, itens: { 14: produtos(1, 51) } });

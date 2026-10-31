@@ -73,7 +73,6 @@ export async function atualizar({
         const { totalEsperado, baixados, avisos, ...resto } = await rastrearMercado(mercado, {
           fazerFetch, esperar, agora, log, ...(limite !== undefined && { limite }),
         });
-        for (const aviso of avisos ?? []) log(`${mercado.nome}: ${aviso}`);
         const arquivo = { versao: 1, ...resto };
         await gravar(mercado.id, arquivo);
         log(`${mercado.nome}: ${arquivo.produtos.length} produtos (ok)`);

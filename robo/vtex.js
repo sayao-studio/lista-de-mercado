@@ -8,7 +8,7 @@
 // 01/11/2026 o Bistek dava 500 em _from=0 e 206 de _from=50 a 1000, e uma
 // página dessas fez perder o Bistek e o Angeloni inteiros. Quem decide se a
 // loja ainda presta é a regra dos 30% no fim do `rastrear`. Só a árvore, o
-// prazo e os 30% derrubam a loja.
+// prazo, os 30% e o zero produto derrubam a loja.
 
 import { linhasDoProduto, hostFoto } from "./produto.js";
 
@@ -139,7 +139,7 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
     } else if (no.children?.length) {
       for (const filho of no.children) await planejar(filho, [...caminho, filho.id], [...nomes, filho.name], planos);
     } else {
-      avisos.push(`${no.name}: mais de 2500 produtos, pode ter ficado buraco`);
+      avisar(`${no.name}: mais de 2500 produtos, pode ter ficado buraco`);
       planos.push({ caminho, nomes, total, ordens: ["ASC", "DESC"] });
     }
   }
@@ -180,6 +180,9 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
   if (totalEsperado > 0 && baixados < 0.3 * totalEsperado) {
     throw new ErroRastreio(`${mercado.nome}: baixou ${baixados} de ${totalEsperado} produtos esperados`);
   }
+  // Com todo total falhando não há esperado e a regra acima não pega; mesmo
+  // assim, zero produto é loja quebrada, não loja vazia.
+  if (baixados === 0) throw new ErroRastreio(`${mercado.nome}: nenhum produto baixado`);
 
   return {
     mercado: mercado.id,
