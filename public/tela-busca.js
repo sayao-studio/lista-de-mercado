@@ -60,9 +60,12 @@ function marcaPeso(grupo) {
 }
 
 function precos(grupo, nomes) {
+  // Verde quer dizer "mais barato que os outros": com uma loja só não há
+  // comparação, e o destaque passaria uma vantagem que não existe.
+  const compara = Object.keys(grupo.ofertas).length > 1;
   return Object.entries(grupo.ofertas)
     .map(([mercado, oferta]) => {
-      const melhor = oferta.preco === grupo.menor ? " melhor" : "";
+      const melhor = compara && oferta.preco === grupo.menor ? " melhor" : "";
       // Promoção vale só se o "de" for maior; a loja às vezes repete o preço.
       const de = oferta.promocao > oferta.preco ? `<s>${reais(oferta.promocao)}</s> ` : "";
       return `<span class="preco${melhor}" data-mercado="${escapar(mercado)}">`
@@ -122,21 +125,40 @@ function conteudoResultados(estado) {
     <div class="rodape-busca">${mais}${botaoTexto(termo)}</div>`;
 }
 
+// Seletor que reencontra o elemento focado depois do redesenho: teclado e
+// leitor de tela não podem ser jogados pro topo a cada toque.
+function seletorDoFoco() {
+  const ativo = document.activeElement;
+  const cartaoFocado = ativo?.closest?.("#resultados .cartao");
+  if (cartaoFocado) return `#resultados .cartao[data-chave="${CSS.escape(cartaoFocado.dataset.chave)}"] .adicionar`;
+  const chipFocado = ativo?.closest?.("#chips .chip");
+  if (chipFocado) {
+    for (const nome of ["filtro", "ordem", "mercado"]) {
+      const valor = chipFocado.dataset[nome];
+      if (valor) return `#chips .chip[data-${nome}="${CSS.escape(valor)}"]`;
+    }
+  }
+  return null;
+}
+
 // Idempotente: o app chama de novo sempre que a lista ou o catálogo muda. O
 // campo de busca fica de fora pra não perder o foco nem o cursor.
-export function renderizarBusca(estado) {
+// `focarCartao`: índice do cartão que deve receber o foco (o primeiro do lote
+// novo, depois de "Mostrar mais", que some ao ser redesenhado).
+export function renderizarBusca(estado, { focarCartao = null } = {}) {
   const resultados = el("#resultados");
-  // Se o foco estava num "+", volta pro "+" do mesmo cartão depois de redesenhar
-  // (teclado e leitor de tela não podem ser jogados pro topo a cada toque).
-  const focado = document.activeElement?.closest?.("#resultados .cartao")?.dataset.chave;
+  const foco = seletorDoFoco();
   gruposNaTela = new Map();
   renderizarChips(estado);
   resultados.innerHTML = conteudoResultados(estado);
   // Marca o termo que este desenho reflete: com o debounce, quem espera (os
   // testes, por exemplo) sabe quando o resultado já é do que foi digitado.
   resultados.dataset.termo = ui.termo;
-  if (focado) {
-    resultados.querySelector(`.cartao[data-chave="${CSS.escape(focado)}"] .adicionar`)?.focus();
+  if (focarCartao != null) {
+    const alvo = resultados.querySelectorAll(".cartao")[focarCartao] ?? resultados.querySelector("#adicionar-texto");
+    alvo?.querySelector?.(".adicionar")?.focus() ?? alvo?.focus();
+  } else if (foco) {
+    document.querySelector(foco)?.focus();
   }
 }
 
@@ -169,8 +191,9 @@ export function ligarBusca(estado, acoes) {
   el("#resultados").addEventListener("click", (e) => {
     if (e.target.closest("a")) return;
     if (e.target.closest("#mostrar-mais")) {
+      const antes = ui.mostrar;
       ui.mostrar += LOTE;
-      renderizarBusca(estado);
+      renderizarBusca(estado, { focarCartao: antes });
       return;
     }
     if (e.target.closest("#adicionar-texto")) {

@@ -196,4 +196,30 @@ describe("site", () => {
     assert.equal(itens[0].nome, "pão de queijo");
     assert.equal(await page.locator("#contador-lista").textContent(), "1");
   });
+
+  test("tocar duas vezes em 'Adicionar sem preço' soma a quantidade em vez de duplicar", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "pão de queijo");
+    await page.locator("#adicionar-texto").click();
+    await page.locator("#adicionar-texto").click();
+    const itens = await page.evaluate(() => window.app.estado.itens);
+    assert.equal(itens.length, 1);
+    assert.equal(itens[0].quantidade, 2);
+    assert.match(await page.locator("#aviso").textContent(), /pão de queijo ×2 na lista/);
+  });
+
+  test("cartão de uma loja só não tem preço em destaque", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    assert.equal(await page.locator('.cartao[data-chave="angeloni:a4"] .preco.melhor').count(), 0);
+  });
+
+  test("o foco volta pro chip tocado depois do redesenho", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    await page.locator('#chips [data-filtro="promocao"]').focus();
+    await page.keyboard.press("Enter");
+    const focado = await page.evaluate(() => document.activeElement?.dataset.filtro);
+    assert.equal(focado, "promocao");
+  });
 });

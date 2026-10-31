@@ -2,7 +2,7 @@
 // qualquer download, porque no mercado a pessoa precisa dela na hora.
 import { carregar, salvar } from "./armazenamento.js";
 import { carregarResumo, carregarMercado } from "./dados.js";
-import { indexar } from "./busca.js";
+import { indexar, normalizar } from "./busca.js";
 import { refrescar, novoItemProduto, novoItemTexto, alterarQuantidade } from "./lista.js";
 import { quandoFoi } from "./formato.js";
 import { el } from "./dom.js";
@@ -111,6 +111,16 @@ const acoesDaBusca = {
     mostrarAviso(`${grupo.nome} na lista`);
   },
   adicionarTexto(nome) {
+    // Tocar duas vezes no mesmo "sem preço" quer dizer "mais um", não uma
+    // segunda linha igual na lista; acento e caixa não fazem diferença.
+    const alvo = normalizar(nome);
+    const existente = estado.itens.find((i) => i.tipo === "texto" && normalizar(i.nome) === alvo);
+    if (existente) {
+      const atualizado = alterarQuantidade(existente, 1);
+      mudarItens(estado.itens.map((i) => (i === existente ? atualizado : i)));
+      mostrarAviso(`${atualizado.nome} ×${atualizado.quantidade} na lista`);
+      return;
+    }
     mudarItens([...estado.itens, novoItemTexto(nome)]);
     mostrarAviso(`${nome} na lista`);
   },
