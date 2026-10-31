@@ -54,22 +54,30 @@ export function indexar(catalogos) {
       // pegar o primeiro não-nulo evita perder o R$/kg do grupo inteiro.
       if (grupo.gramas == null && linha.gramas != null) grupo.gramas = linha.gramas;
       if (grupo.foto == null && linha.foto) grupo.foto = `${arquivo.fotos}${linha.foto}-120-120`;
-      grupo.ofertas[mercadoId] = {
-        id: linha.id,
-        preco: linha.preco,
-        promocao: linha.promocao,
-        link: `${arquivo.site}/${linha.link}/p`,
-        nome: linha.nome,
-        gramas: linha.gramas,
-      };
-      if (linha.preco < grupo.menor) grupo.menor = linha.preco;
+      // A loja pode ter dois SKUs com o mesmo EAN (o robô só tira duplicata
+      // por id). Fica o mais barato: é o que a pessoa compraria, e assim o
+      // menor preço do grupo é sempre o de uma oferta que aparece na tela.
+      const atual = grupo.ofertas[mercadoId];
+      if (!atual || linha.preco < atual.preco) {
+        grupo.ofertas[mercadoId] = {
+          id: linha.id,
+          preco: linha.preco,
+          promocao: linha.promocao,
+          link: `${arquivo.site}/${linha.link}/p`,
+          nome: linha.nome,
+          gramas: linha.gramas,
+        };
+      }
       porMercado.set(`${mercadoId}:${linha.id}`, grupo);
     }
   }
 
-  // O R$/kg só fecha depois de ver todas as lojas: depende do menor preço e
-  // do peso, que podem ter vindo de lojas diferentes.
-  for (const grupo of grupos) grupo.porKg = porKgDe(grupo.menor, grupo.gramas);
+  // Menor preço e R$/kg só fecham depois de ver todas as lojas: saem das
+  // ofertas que ficaram, e o peso pode ter vindo de outra loja.
+  for (const grupo of grupos) {
+    grupo.menor = Math.min(...Object.values(grupo.ofertas).map((o) => o.preco));
+    grupo.porKg = porKgDe(grupo.menor, grupo.gramas);
+  }
 
   return { grupos, porChave, porMercado, mercados: Object.keys(catalogos) };
 }
