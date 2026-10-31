@@ -285,7 +285,8 @@ test("rastrear trata total que falha como categoria sem total", async () => {
   const { fazerFetch, chamadas } = lojaFalsa({
     totais: { 2: 0 },
     itens: { 14: produtos(1, 71) },
-    falhar: (url) => (/fq=C:\/14\/&_from=0&_to=0$/.test(url) ? 503 : undefined),
+    // Sem depender da ordem dos parâmetros: só o pedido de total tem _to=0.
+    falhar: (url) => (url.includes("fq=C:/14/") && url.includes("_from=0") && url.includes("_to=0") ? 503 : undefined),
   });
   const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
   assert.deepEqual(r.avisos, ["Hortifrúti: total falhou (HTTP 503 depois de 5 tentativas)"]);
@@ -305,6 +306,40 @@ test("rastrear falha quando nenhum produto foi baixado", async () => {
     assert.equal(e.message, "Bistek: nenhum produto baixado");
     return true;
   });
+});
+
+test("paginação para no total conhecido sem pedir página vazia", async () => {
+  const { fazerFetch, chamadas } = lojaFalsa({ totais: { 14: 120 }, itens: { 14: produtos(1, 121) } });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
+  assert.equal(r.produtos.length, 120);
+  assert.deepEqual(pedidosDeBusca(chamadas, 14).map((c) => c.match(/_from=(\d+)/)[1]), ["0", "50", "100"]);
+});
+
+test("categoria é abandonada depois de 3 páginas seguidas falhando", async () => {
+  // Página que dá certo zera a contagem: 50 falha, 100 responde, 150..250 falham.
+  const { fazerFetch, chamadas } = lojaFalsa({
+    totais: { 2: 3000, "2/7": 1000, 14: 50 },
+    itens: { "2/7": produtos(1, 1001), 14: produtos(5001, 5051) },
+    falhar: (url) => (url.includes("fq=C:/2/7/&") && !/_from=(0|100)&/.test(url) ? 503 : undefined),
+  });
+  const logs = [];
+  await assert.rejects(rastrear(mercado, { fazerFetch, esperar: esperarNada, log: (m) => logs.push(m) }), ErroRastreio); // 150 de 1050 < 30%
+  const buscas = pedidosDeBusca(chamadas, "2/7");
+  assert.deepEqual([...new Set(buscas.map((c) => c.match(/_from=(\d+)/)[1]))], ["0", "50", "100", "150", "200", "250"]);
+  assert.equal(buscas.length, 2 + 4 * 5);
+  assert.ok(logs.includes("Bistek: Bebidas > Refrigerantes: abandonada depois de 3 páginas seguidas falhando"));
+  assert.equal(pedidosDeBusca(chamadas, 14).length, 1); // seguiu para o próximo nó
+});
+
+test("aviso de página diz a ordem quando baixa ASC e DESC", async () => {
+  const lista = produtos(1, 2601);
+  const { fazerFetch } = lojaFalsa({
+    totais: { 2: 3000, "2/7": 3000, "2/7/10": 3000 },
+    itens: { "2/7/10": (de, ate, ordem) => (ordem ? lista.slice(de, ate + 1) : []) },
+    falhar: (url) => (url.includes("_from=50&") && url.endsWith("DESC") ? 503 : undefined),
+  });
+  const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
+  assert.ok(r.avisos.includes("Bebidas > Refrigerantes > Zero, Light e Diet: página _from=50 (DESC) falhou (HTTP 503 depois de 5 tentativas)"));
 });
 
 test("rastrear falha quando estoura o prazo", async () => {

@@ -16,6 +16,9 @@ import { linhasDoProduto, hostFoto } from "./produto.js";
 const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robo de precos)" };
 const POR_PAGINA = 50; // a API recusa _to - _from maior que 49
 const TETO_FROM = 2500; // _from acima disso dá HTTP 400
+// Falha solta é a VTEX tropeçando; três seguidas no mesmo nó é o nó quebrado,
+// e insistir até o teto (50 páginas × 5 tentativas) come o prazo de 20 min.
+const FALHAS_SEGUIDAS = 3;
 
 export class ErroRastreio extends Error {
   constructor(mensagem) {
@@ -78,10 +81,14 @@ export async function totalDe(mercado, caminho, opcoes) {
 }
 
 // Sem `aoFalhar`, a primeira página que falha lança o erro. Com ele, a página
-// é pulada (`aoFalhar(de, erro)`) e a paginação segue; o prazo estourado
-// (ErroRastreio) sempre lança, porque aí não adianta seguir.
-export async function* paginas(mercado, caminho, { ordem, aoFalhar, ...opcoes }) {
-  for (let de = 0; de <= TETO_FROM; de += POR_PAGINA) {
+// é pulada (`aoFalhar(de, erro)`) e a paginação segue, até FALHAS_SEGUIDAS
+// seguidas: aí o nó é largado (`aoAbandonar()`). O prazo estourado
+// (ErroRastreio) sempre lança, porque aí não adianta seguir. Com `total`
+// conhecido para em `de >= total`: a página vazia seria um pedido a mais, e
+// com páginas falhando ela talvez nem chegasse.
+export async function* paginas(mercado, caminho, { ordem, total, aoFalhar, aoAbandonar, ...opcoes }) {
+  let falhasSeguidas = 0;
+  for (let de = 0; de <= TETO_FROM && !(total > 0 && de >= total); de += POR_PAGINA) {
     let url = urlBusca(mercado, caminho, de, de + POR_PAGINA - 1);
     if (ordem) url += `&O=OrderByPrice${ordem}`;
     let pagina;
@@ -90,8 +97,10 @@ export async function* paginas(mercado, caminho, { ordem, aoFalhar, ...opcoes })
     } catch (e) {
       if (!aoFalhar || e instanceof ErroRastreio) throw e;
       aoFalhar(de, e);
+      if (++falhasSeguidas >= FALHAS_SEGUIDAS) return aoAbandonar?.();
       continue;
     }
+    falhasSeguidas = 0;
     if (!Array.isArray(pagina) || pagina.length === 0) return;
     yield pagina;
   }
@@ -152,9 +161,12 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
       for (const plano of planos) {
         const indice = categorias.push(plano.nomes.join(" > ")) - 1;
         totalEsperado += plano.total; // conta uma vez mesmo baixando ASC e DESC
-        const aoFalhar = (de, e) => avisar(`${categorias[indice]}: página _from=${de} falhou (${e.message})`);
         for (const ordem of plano.ordens) {
-          for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem, aoFalhar })) {
+          const qual = ordem ? ` (${ordem})` : "";
+          const aoFalhar = (de, e) => avisar(`${categorias[indice]}: página _from=${de}${qual} falhou (${e.message})`);
+          const aoAbandonar = () => avisar(`${categorias[indice]}${qual}: abandonada depois de ${FALHAS_SEGUIDAS} páginas seguidas falhando`);
+          const total = plano.total || undefined; // 0 = sem cabeçalho: pagina até a vazia
+          for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem, total, aoFalhar, aoAbandonar })) {
             baixados += pagina.length;
             for (const produtoVtex of pagina) {
               fotos ??= hostFoto(produtoVtex);
