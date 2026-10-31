@@ -67,6 +67,19 @@ test("carregarResumo usa a rede e guarda cópia; sem rede usa a cópia", async (
   await assert.rejects(carregarResumo({ fazerFetch: fetchFalso({}), storage: storageFalso() }), /sem resumo/);
 });
 
+// O app fala coisas diferentes: sem rede a culpa é da conexão, com 404 o
+// robô ainda não publicou nada.
+test("carregarResumo diz se faltou rede ou se o site ainda não tem preços", async () => {
+  const semRede = fetchFalso({ "dados/resumo.json": new TypeError("Failed to fetch") });
+  const erroRede = await carregarResumo({ fazerFetch: semRede, storage: storageFalso() }).catch((e) => e);
+  assert.match(erroRede.message, /sem resumo/);
+  assert.equal(erroRede.semRede, true);
+
+  const erro404 = await carregarResumo({ fazerFetch: fetchFalso({}), storage: storageFalso() }).catch((e) => e);
+  assert.match(erro404.message, /sem resumo/);
+  assert.equal(erro404.semRede, false);
+});
+
 test("carregarResumo não guarda resumo em formato desconhecido", async () => {
   const storage = storageFalso({ [CHAVE_RESUMO]: lerTexto("resumo") });
   const f = fetchFalso({ "dados/resumo.json": () => resposta({ versao: 2, mercados: {} }) });
@@ -91,7 +104,7 @@ test("carregarMercado usa o cache quando a versão bate e apaga versões velhas"
 
   // Primeira vez: baixa, guarda a versão nova e some com a velha do mesmo mercado.
   assert.deepEqual(await carregarMercado("bistek", entrada, { fazerFetch: f, caches }), bistek);
-  assert.deepEqual(caches.abertos, ["catalogos"]);
+  assert.deepEqual(caches.abertos, ["lista-de-mercado-catalogos"]);
   assert.deepEqual([...caches.cache.mapa.keys()].sort(), ["dados/bistek.json?v=1", "dados/giassi.json?v=1"]);
 
   // Segunda vez: vem do cache, sem rede.

@@ -9,10 +9,12 @@ export function reais(centavos) {
   return moeda.format(centavos / 100).replace(/[  ]/g, " ");
 }
 
-export function peso(gramas) {
+// Líquido chega do robô em "gramas" equivalentes (1 ml = 1 g): só a unidade
+// mostrada muda, pra leite não aparecer como "1 kg".
+export function peso(gramas, liquido = false) {
   if (!gramas) return "";
-  if (gramas < 1000) return `${Math.round(gramas)} g`;
-  return `${quilos.format(gramas / 1000)} kg`;
+  if (gramas < 1000) return `${Math.round(gramas)} ${liquido ? "ml" : "g"}`;
+  return `${quilos.format(gramas / 1000)} ${liquido ? "l" : "kg"}`;
 }
 
 const doisDigitos = (n) => String(n).padStart(2, "0");

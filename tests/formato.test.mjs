@@ -54,3 +54,11 @@ test("quandoFoi ontem atravessa a virada do ano", () => {
 test("quandoFoi com data inválida devolve vazio", () => {
   assert.equal(quandoFoi("lixo", agora), "");
 });
+
+test("peso de líquido sai em ml e l, com o mesmo arredondamento", () => {
+  assert.equal(peso(900, true), "900 ml");
+  assert.equal(peso(1000, true), "1 l");
+  assert.equal(peso(1500, true), "1,5 l");
+  assert.equal(peso(null, true), "");
+  assert.equal(peso(1000, false), "1 kg");
+});

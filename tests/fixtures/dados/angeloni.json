@@ -9,7 +9,7 @@
   "produtos": [
     { "id": "a1", "nome": "Arroz Tio João 1kg", "marca": "Tio João", "ean": "7896006700029", "gramas": 1000, "granel": false, "preco": 1249, "promocao": 0, "foto": "301", "link": "arroz-tio-joao-1kg-a1", "categoria": 0 },
     { "id": "a2", "nome": "Feijão Carioca Camil 1kg", "marca": "Camil", "ean": "7896006711117", "gramas": 1000, "granel": false, "preco": 849, "promocao": 0, "foto": "302", "link": "feijao-carioca-camil-1kg-a2", "categoria": 1 },
-    { "id": "a3", "nome": "Leite Integral Tirol 1L", "marca": "Tirol", "ean": "7896043400012", "gramas": 1000, "granel": false, "preco": 549, "promocao": 0, "foto": "303", "link": "leite-integral-tirol-1l-a3", "categoria": 2 },
+    { "id": "a3", "nome": "Leite Integral Tirol 1L", "marca": "Tirol", "ean": "7896043400012", "gramas": 1000, "granel": false, "liquido": true, "preco": 549, "promocao": 0, "foto": "303", "link": "leite-integral-tirol-1l-a3", "categoria": 2 },
     { "id": "a4", "nome": "Farinha de Arroz Urbano", "marca": "Urbano", "ean": "", "gramas": null, "granel": false, "preco": 650, "promocao": 0, "foto": "304", "link": "farinha-de-arroz-urbano-a4", "categoria": 3 }
   ]
 }

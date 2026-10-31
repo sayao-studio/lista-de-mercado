@@ -3,15 +3,26 @@
 // parâmetro pra o módulo rodar também nos testes em Node.
 
 export const CHAVE_RESUMO = "lista-de-mercado.resumo";
-const NOME_CACHE = "catalogos";
+// Prefixado: o domínio brenisio.github.io é o mesmo dos outros sites do
+// dono, e o Cache API é por origem, não por caminho.
+const NOME_CACHE = "lista-de-mercado-catalogos";
 
 const resumoValido = (r) =>
   r && typeof r === "object" && r.versao === 1 && r.mercados && typeof r.mercados === "object" && !Array.isArray(r.mercados);
 
 export async function carregarResumo({ fazerFetch, storage }) {
+  // Separa "sem rede" de "o site ainda não tem preços" (404): o app diz
+  // coisas diferentes pra cada um.
+  let semRede = false;
   try {
-    // no-store: o resumo é o que diz se há catálogo novo; nunca pode vir velho.
-    const r = await fazerFetch("dados/resumo.json", { cache: "no-store" });
+    let r;
+    try {
+      // no-store: o resumo é o que diz se há catálogo novo; nunca pode vir velho.
+      r = await fazerFetch("dados/resumo.json", { cache: "no-store" });
+    } catch (erro) {
+      semRede = true;
+      throw erro;
+    }
     if (r.ok) {
       const texto = await r.text();
       const resumo = JSON.parse(texto);
@@ -27,7 +38,7 @@ export async function carregarResumo({ fazerFetch, storage }) {
     if (resumoValido(resumo)) return { resumo, semInternet: true };
   } catch { /* nada guardado que preste */ }
   // Também é o caso "site ainda sem preços" (404 e nunca carregou antes).
-  throw new Error("sem resumo");
+  throw Object.assign(new Error("sem resumo"), { semRede });
 }
 
 function conferir(id, arquivo) {

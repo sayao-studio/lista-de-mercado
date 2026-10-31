@@ -40,6 +40,8 @@ export function indexar(catalogos) {
           marca: linha.marca ?? "",
           gramas: null,
           granel: linha.granel,
+          // Peso em ml/l. Arquivo de antes do campo não tem: vale "não líquido".
+          liquido: false,
           foto: null,
           categoria: arquivo.categorias[linha.categoria] ?? "",
           texto: normalizar(`${linha.nome} ${linha.marca ?? ""}`),
@@ -52,7 +54,12 @@ export function indexar(catalogos) {
       }
       // Uma loja pode não informar o peso de um produto que outra informa;
       // pegar o primeiro não-nulo evita perder o R$/kg do grupo inteiro.
-      if (grupo.gramas == null && linha.gramas != null) grupo.gramas = linha.gramas;
+      // O líquido vem junto com o peso, da mesma loja: a unidade tem que ser a
+      // daquele número. `porKg` continua numérico, por quilo ou por litro.
+      if (grupo.gramas == null && linha.gramas != null) {
+        grupo.gramas = linha.gramas;
+        grupo.liquido = Boolean(linha.liquido);
+      }
       if (grupo.foto == null && linha.foto) grupo.foto = `${arquivo.fotos}${linha.foto}-120-120`;
       // A loja pode ter dois SKUs com o mesmo EAN (o robô só tira duplicata
       // por id). Fica o mais barato: é o que a pessoa compraria, e assim o
@@ -63,7 +70,8 @@ export function indexar(catalogos) {
           id: linha.id,
           preco: linha.preco,
           promocao: linha.promocao,
-          link: `${arquivo.site}/${linha.link}/p`,
+          // Há slug com espaço no catálogo de verdade; cru, o link abriria quebrado.
+          link: `${arquivo.site}/${encodeURI(linha.link)}/p`,
           nome: linha.nome,
           gramas: linha.gramas,
         };

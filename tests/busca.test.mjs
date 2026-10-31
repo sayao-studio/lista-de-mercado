@@ -73,6 +73,20 @@ test("indexar fica com o SKU mais barato quando a loja repete o EAN", () => {
   assert.equal(outro.menor, 900);
 });
 
+// Link de verdade com espaço no slug: sem codificar, o navegador abriria
+// um endereço quebrado na loja.
+test("indexar codifica o link da loja e marca o grupo líquido pelo peso", () => {
+  const bistek = structuredClone(catalogos.bistek);
+  bistek.produtos[0].link = "arroz tio joao-b1";
+  const arroz = indexar({ bistek }).porChave.get("7896006700029");
+  assert.equal(arroz.ofertas.bistek.link, "https://www.bistek.com.br/arroz%20tio%20joao-b1/p");
+  assert.equal(arroz.liquido, false);
+  const leite = indice.porChave.get("7896043400012");
+  assert.equal(leite.liquido, true);
+  // R$/l continua no mesmo campo numérico, por litro.
+  assert.equal(leite.porKg, 549);
+});
+
 test("indexar deixa granel sem EAN como grupo de uma loja", () => {
   const banana = indice.porChave.get("bistek:b3");
   assert.equal(banana.granel, true);
