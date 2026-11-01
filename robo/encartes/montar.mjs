@@ -38,6 +38,9 @@ export function linhaDoRecorte(rec, encarte) {
   if (!rec.preco) return null;
   const nome = semMarca(rec.titulo) || rec.titulo;
   if (!nome) return null;
+  // "Cerveja" ou "Pizza" sem marca (o Atacadão tem vários): não diz qual
+  // produto é e só polui a busca com seis preços diferentes de "Cerveja".
+  if (!/\s/.test(nome.trim()) && !rec.marca) return null;
   const peso = pesoDoNome(nome);
   // "Salsicha Kg" é preço por quilo; "Arroz 5 Kg" é embalagem de 5 kg.
   const granel = /\bkg\s*$/i.test(semAcento(nome)) && !/\d\s*kg\s*$/i.test(semAcento(nome));
@@ -89,15 +92,17 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
 
   // A mesma rede aparece em várias páginas; local ganha de nacional.
   const encartes = new Map();
+  const foraDoSite = new Set();
   for (const p of PAGINAS_TIENDEO) {
     try {
       for (const e of validosHoje(listaEncartes(await (await pedir(`${TIENDEO}/florianopolis/${p}`)).text()), hoje)) {
         if (encartes.has(e.id)) continue;
-        if (ehMercadoDoSite(e.mercado)) { log(`${e.mercado}: fica de fora (o site já tem o preço)`); continue; }
+        if (ehMercadoDoSite(e.mercado)) { foraDoSite.add(e.mercado); continue; }
         encartes.set(e.id, e);
       }
     } catch (e) { avisos.push(`Tiendeo ${p}: ${e.message}`); }
   }
+  if (foraDoSite.size) log(`De fora (o site já tem o preço): ${[...foraDoSite].join(", ")}`);
   log(`${encartes.size} encartes válidos hoje fora de Bistek, Giassi e Angeloni`);
 
   const porMercado = new Map();
@@ -158,4 +163,23 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
 
   ia.custo = Math.round(ia.custo * 10000) / 10000;
   return { versao: 1, geradoEm: agora.toISOString(), mercados: Object.fromEntries(porMercado), avisos, ia };
+}
+
+// Rodada com falha (página do Tiendeo que deu 500): o encarte que estava no
+// arquivo anterior e ainda vale continua, em vez de sumir do site até a
+// próxima rodada boa. Encarte que a rodada nova trouxe vale o novo.
+export function juntarComAnterior(novo, anterior, hoje) {
+  if (!anterior || anterior.versao !== 1 || !anterior.mercados) return novo;
+  const mercados = structuredClone(novo.mercados);
+  const vistos = new Set(Object.values(mercados).flatMap((m) => m.encartes.map((e) => String(e.id))));
+  for (const [id, cat] of Object.entries(anterior.mercados)) {
+    if (!Array.isArray(cat?.encartes) || !Array.isArray(cat.produtos)) continue;
+    const guardar = cat.encartes.filter((e) => e?.fim >= hoje && !vistos.has(String(e.id)));
+    if (!guardar.length) continue;
+    const ids = new Set(guardar.map((e) => String(e.id)));
+    const destino = mercados[id] ??= { ...cat, encartes: [], produtos: [] };
+    destino.encartes.push(...guardar);
+    destino.produtos.push(...cat.produtos.filter((p) => ids.has(String(p.encarte))));
+  }
+  return { ...novo, mercados };
 }

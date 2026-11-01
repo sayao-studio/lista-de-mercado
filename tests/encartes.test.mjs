@@ -126,7 +126,7 @@ test("linhaDoRecorte: tira a marca do título, preço do Tiendeo, foto só https
   const l = linhaDoRecorte({ id: "g1", encarte: "77", titulo: "Araguaia - Farinha De Trigo 1kg", marca: "Araguaia", preco: 299, imagem: foto }, encarte);
   assert.deepEqual([l.nome, l.marca, l.gramas, l.granel, l.preco, l.fotoUrl], ["Farinha De Trigo 1kg", "Araguaia", 1000, false, 299, foto]);
   // Foto de outro host não entra.
-  assert.equal(linhaDoRecorte({ id: "g1", titulo: "Farinha", preco: 1, imagem: "https://outro.site/x.webp" }, encarte).fotoUrl, null);
+  assert.equal(linhaDoRecorte({ id: "g1", titulo: "Farinha Araguaia", preco: 1, imagem: "https://outro.site/x.webp" }, encarte).fotoUrl, null);
   // "5 Kg" é embalagem, não preço por quilo.
   const arroz = linhaDoRecorte({ id: "g4", titulo: "Tio João - Arroz Branco 5 Kg", preco: 2599 }, encarte);
   assert.deepEqual([arroz.granel, arroz.gramas], [false, 5000]);
@@ -189,4 +189,24 @@ test("montarEncartes: recortes sem IA, páginas pela IA, Bistek de fora, avisos 
 test("recortes lê nome, marca, preço em centavos e imagem", () => {
   const [g] = recortes(paginaNext({ x: { flyerGibs: [{ id: "g1", flyer_id: "77", retailerName: "Carrefour", title: " Araguaia - Farinha ", image: "https://img/g1.webp", settings: { brand: "Araguaia", flyer_page: "2", price_extended: { digits: "2.99" } } }] } }));
   assert.deepEqual(g, { id: "g1", encarte: "77", mercado: "Carrefour", titulo: "Araguaia - Farinha", marca: "Araguaia", preco: 299, pagina: 2, imagem: "https://img/g1.webp" });
+});
+
+test("juntarComAnterior guarda o encarte que ainda vale e a rodada nova não trouxe", async () => {
+  const { juntarComAnterior } = await import("../robo/encartes/montar.mjs");
+  const cat = (id, encartes, produtos) => ({ versao: 1, mercado: id, nome: id, site: TIENDEO, fotos: "", atualizadoEm: "2026-11-01T00:00:00.000Z", categorias: ["Encarte"], encartes, produtos });
+  const anterior = { versao: 1, mercados: {
+    imperatriz: cat("imperatriz", [{ id: "1", fim: "2026-11-03" }, { id: "9", fim: "2026-10-30" }], [{ id: "1-a", encarte: "1" }, { id: "9-a", encarte: "9" }]),
+    magia: cat("magia", [{ id: "2", fim: "2026-11-04" }], [{ id: "2-a", encarte: "2" }]),
+  } };
+  const novo = { versao: 1, mercados: { magia: cat("magia", [{ id: "2", fim: "2026-11-04" }], [{ id: "2-b", encarte: "2" }]) } };
+  const r = juntarComAnterior(novo, anterior, "2026-11-01");
+  assert.deepEqual(r.mercados.imperatriz.encartes.map((e) => e.id), ["1"], "o vencido não volta");
+  assert.deepEqual(r.mercados.imperatriz.produtos.map((p) => p.id), ["1-a"]);
+  assert.deepEqual(r.mercados.magia.produtos.map((p) => p.id), ["2-b"], "o que a rodada nova trouxe vale o novo");
+  assert.equal(juntarComAnterior(novo, null, "2026-11-01"), novo);
+});
+
+test("recorte de uma palavra só e sem marca não entra", () => {
+  assert.equal(linhaDoRecorte({ id: "g", titulo: "Cerveja", preco: 399 }, encarte), null);
+  assert.equal(linhaDoRecorte({ id: "g", titulo: "Heineken - Cerveja", marca: "Heineken", preco: 399 }, encarte).nome, "Cerveja");
 });

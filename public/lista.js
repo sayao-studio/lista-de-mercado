@@ -190,22 +190,19 @@ function cabecalho(agora) {
 // colar de volta e reencontrar o mesmo produto, não só um item de texto.
 // Contrato com a interface: as chaves de `nomes` definem quais mercados entram
 // nos totais e a ordem base deles (o desempate depois de faltam e total).
+// As chaves (que religam cada linha ao produto ao colar de volta) vão numa
+// linha só no fim, "ref: …", na ordem dos itens ("-" pra item sem chave):
+// no meio de cada linha, "#7896006700029" ficava estranho numa conversa.
 export function comoTexto(itens, nomes, agora = new Date()) {
   const linhas = [cabecalho(agora)];
+  const refs = [];
   for (const item of itens) {
     const inicio = `${item.marcado ? "✓" : "•"} ${item.quantidade}× ${item.nome}`;
-    if (item.tipo !== "produto") {
-      // Texto que ainda espera o catálogo leva a chave adiante, senão copiar
-      // de novo antes da carga perderia o produto.
-      linhas.push(item.chave ? `${inicio} #${item.chave}` : inicio);
-      continue;
-    }
-    const melhor = melhorOferta(item);
-    linhas.push(
-      melhor
-        ? `${inicio} — ${nomes[melhor.mercado] ?? melhor.mercado} ${reais(melhor.total)} #${item.chave}`
-        : `${inicio} #${item.chave}`,
-    );
+    // Texto que ainda espera o catálogo também leva a chave adiante, senão
+    // copiar de novo antes da carga perderia o produto.
+    refs.push(item.chave || "-");
+    const melhor = item.tipo === "produto" ? melhorOferta(item) : null;
+    linhas.push(melhor ? `${inicio} — ${nomes[melhor.mercado] ?? melhor.mercado} ${reais(melhor.total)}` : inicio);
   }
 
   const t = totais(itens, Object.keys(nomes));
@@ -215,6 +212,7 @@ export function comoTexto(itens, nomes, agora = new Date()) {
   }
   linhas.push(`Cada item no mais barato: ${reais(t.separado)}`);
   if (t.semPreco > 0) linhas.push(`${t.semPreco} sem preço`);
+  if (refs.some((r) => r !== "-")) linhas.push(`ref: ${refs.join(" ")}`);
   return linhas.join("\n");
 }
 
@@ -232,9 +230,14 @@ function ehResumo(linha) {
 // nada aqui pode lançar erro, no pior caso a linha vira um item de texto.
 export function deTexto(texto, indice, agora = new Date()) {
   const itens = [];
-  for (const bruta of String(texto ?? "").split(/\r?\n/)) {
+  const linhasBrutas = String(texto ?? "").split(/\r?\n/);
+  // "ref: 789… bistek:b3 -": uma chave por linha de item com marcador, na ordem.
+  const ref = linhasBrutas.map((l) => /^\s*ref:\s*(.*)$/i.exec(l)).find(Boolean);
+  const refs = ref ? ref[1].trim().split(/\s+/) : [];
+  let comMarcador = 0;
+  for (const bruta of linhasBrutas) {
     const linha = bruta.trim();
-    if (!linha || ehResumo(linha)) continue;
+    if (!linha || ehResumo(linha) || /^ref:/i.test(linha)) continue;
 
     const marcador = /^[•✓\-*]\s*/.exec(linha);
     if (!marcador) {
@@ -259,7 +262,10 @@ export function deTexto(texto, indice, agora = new Date()) {
       resto = resto.slice(qtd[0].length);
     }
 
-    const comChave = /\s*#(\S+)$/.exec(resto);
+    // Chave no fim da linha (formato antigo) ou na linha "ref:".
+    const daRef = refs[comMarcador++];
+    const comChave = /\s*#(\S+)$/.exec(resto)
+      ?? (daRef && daRef !== "-" ? Object.assign([`#${daRef}`, daRef], { index: resto.length }) : null);
     const grupo = comChave ? indice?.porChave.get(comChave[1]) : null;
     let item;
     if (grupo) {

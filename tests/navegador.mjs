@@ -666,7 +666,8 @@ describe("site", () => {
     await page.waitForFunction(() => typeof window.copiado === "string");
     assert.match(await page.locator("#aviso").textContent(), /Lista copiada/);
     const texto = await page.evaluate(() => window.copiado);
-    assert.match(texto, new RegExp(`2× Arroz Tio João 1kg — Giassi R\\$ 21,80 #${ARROZ}`));
+    assert.match(texto, /2× Arroz Tio João 1kg — Giassi R\$ 21,80\n/);
+    assert.match(texto, new RegExp(`\\nref: ${ARROZ} -$`));
 
     // Sem área de transferência, o texto aparece selecionado pra copiar à mão.
     await page.evaluate(() => {

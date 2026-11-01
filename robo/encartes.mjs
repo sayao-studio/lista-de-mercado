@@ -7,8 +7,8 @@
 //
 // Saída 0: gravou. 1: não achou nenhum encarte (o arquivo velho fica).
 import { parseArgs } from "node:util";
-import { writeFile, rename } from "node:fs/promises";
-import { montarEncartes, MAX_PAGINAS } from "./encartes/montar.mjs";
+import { writeFile, rename, readFile } from "node:fs/promises";
+import { montarEncartes, juntarComAnterior, MAX_PAGINAS } from "./encartes/montar.mjs";
 import { lerPaginas } from "./encartes/leitura.mjs";
 
 const { values } = parseArgs({
@@ -20,10 +20,13 @@ const { values } = parseArgs({
 });
 
 const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
-const r = await montarEncartes({
+const novo = await montarEncartes({
   lerPaginas, hoje, semIa: values["sem-ia"], maxPaginas: Number(values["max-paginas"]) || MAX_PAGINAS,
   log: (m) => console.log(m),
 });
+let anterior = null;
+try { anterior = JSON.parse(await readFile(values.saida, "utf8")); } catch { /* primeira vez */ }
+const r = juntarComAnterior(novo, anterior, hoje);
 
 for (const a of r.avisos) console.log("aviso: " + a);
 const mercados = Object.values(r.mercados);

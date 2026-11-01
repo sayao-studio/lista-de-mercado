@@ -121,14 +121,15 @@ test("refrescar atualiza preço, marca oferta que sumiu e não perde item", () =
 
 const textoEsperado = [
   "Lista de mercado (31/10 14h00)",
-  "• 2× Arroz Tio João 1kg — Giassi R$ 21,80 #7896006700029",
-  "✓ 1× Banana Caturra Kg — Bistek R$ 4,89 #bistek:b3",
+  "• 2× Arroz Tio João 1kg — Giassi R$ 21,80",
+  "✓ 1× Banana Caturra Kg — Bistek R$ 4,89",
   "• 1× pão de queijo",
   "Tudo no Bistek: R$ 28,85",
   "Tudo no Giassi: R$ 21,80 (falta 1)",
   "Tudo no Angeloni: R$ 24,98 (falta 1)",
   "Cada item no mais barato: R$ 26,69",
   "1 sem preço",
+  "ref: 7896006700029 bistek:b3 -",
 ].join("\n");
 
 test("comoTexto no formato combinado", () => {
@@ -139,8 +140,9 @@ test("comoTexto no formato combinado", () => {
   assert.ok(!comoTexto(soArroz, nomes, agora).includes("sem preço"));
   const sumido = { ...soArroz[0], ofertas: { bistek: { ...soArroz[0].ofertas.bistek, sumiu: true } } };
   const linhas = comoTexto([sumido, novoItemTexto("x", agora)], nomes, agora).split("\n");
-  assert.equal(linhas[1], "• 1× Arroz Tio João 1kg #7896006700029");
-  assert.equal(linhas.at(-1), "2 sem preço");
+  assert.equal(linhas[1], "• 1× Arroz Tio João 1kg");
+  assert.equal(linhas.at(-2), "2 sem preço");
+  assert.equal(linhas.at(-1), "ref: 7896006700029 -");
 });
 
 test("deTexto lê o próprio texto de volta e liga pelo índice", () => {
@@ -175,7 +177,7 @@ test("deTexto sem índice guarda a chave e refrescar promove a produto", () => {
     ["texto", null],
   ]);
   // O texto copiado de novo antes da carga continua levando a chave.
-  assert.match(comoTexto(semIndice, nomes, agora), /• 2× Arroz Tio João 1kg #7896006700029/);
+  assert.match(comoTexto(semIndice, nomes, agora), /^ref: 7896006700029 bistek:b3 -$/m);
 
   const depois = refrescar(semIndice, indice);
   assert.equal(depois[0].tipo, "produto");
@@ -262,7 +264,9 @@ test("refrescar reencontra pelo id da loja quando a chave mudou e completa o pes
   assert.equal(item.granel, arroz.granel);
   assert.equal(item.ofertas.bistek.preco, 1198);
   assert.deepEqual(Object.keys(item.ofertas), ["bistek", "giassi", "angeloni"]);
-  assert.match(comoTexto([item], nomes, agora), /#7896006700029$/m);
+  assert.match(comoTexto([item], nomes, agora), /^ref: 7896006700029$/m);
+  // O formato antigo, com "#chave" no fim da linha, continua sendo lido.
+  assert.equal(deTexto("• 2× Arroz #7896006700029", indice, agora)[0].chave, "7896006700029");
 });
 
 test("refrescar sem índice devolve a lista como estava", () => {
