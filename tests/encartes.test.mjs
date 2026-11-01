@@ -111,7 +111,10 @@ const encarte = { id: "77", mercado: "Imperatriz", titulo: "Ofertas", inicio: "2
 test("linhaDoItem: quilo vira granel de 1 kg, peso do nome ganha do lido, lido absurdo não vale", () => {
   const kg = linhaDoItem({ produto: "Alcatra Bovina", gramas: null, preco: 49.9, unidade: "kg", condicao: "no app" }, encarte, 2, 0);
   assert.deepEqual([kg.gramas, kg.granel, kg.preco, kg.condicao, kg.ate, kg.encarte, kg.url], [1000, true, 4990, "no app", "2026-11-04", "77", `${TIENDEO}/Catalogos/77`]);
-  assert.equal(kg.id, "77-p2-0");
+  // Id estável: o mesmo nome dá o mesmo id em outra leitura, em qualquer posição.
+  assert.match(kg.id, /^77-[0-9a-f]{10}$/);
+  assert.equal(linhaDoItem({ produto: "alcatra  bovina", preco: 1, unidade: "kg" }, encarte).id, linhaDoItem({ produto: "Alcatra Bovina", preco: 2, unidade: "kg" }, encarte).id);
+  assert.notEqual(linhaDoItem({ produto: "Açúcar 1kg", preco: 1 }, encarte).id, kg.id);
   assert.equal(linhaDoItem({ produto: "Café Pilão 500g", gramas: 250, preco: 22.99, unidade: "embalagem" }, encarte, 1, 1).gramas, 500);
   assert.equal(linhaDoItem({ produto: "Leite", gramas: 99999, preco: 5, unidade: "embalagem" }, encarte, 1, 2).gramas, null);
   assert.equal(linhaDoItem({ produto: "Óleo Soya 900ml", gramas: null, preco: 7, unidade: "embalagem" }, encarte, 1, 3).liquido, true);
@@ -119,8 +122,14 @@ test("linhaDoItem: quilo vira granel de 1 kg, peso do nome ganha do lido, lido a
 });
 
 test("linhaDoRecorte: tira a marca do título, preço do Tiendeo, foto só https", () => {
-  const l = linhaDoRecorte({ id: "g1", encarte: "77", titulo: "Araguaia - Farinha De Trigo 1kg", marca: "Araguaia", preco: 299, imagem: "https://img/g1.webp" }, encarte);
-  assert.deepEqual([l.nome, l.marca, l.gramas, l.granel, l.preco, l.fotoUrl], ["Farinha De Trigo 1kg", "Araguaia", 1000, false, 299, "https://img/g1.webp"]);
+  const foto = "https://pt-br-media.shopfully.cloud/images/flyergibs/g1.webp";
+  const l = linhaDoRecorte({ id: "g1", encarte: "77", titulo: "Araguaia - Farinha De Trigo 1kg", marca: "Araguaia", preco: 299, imagem: foto }, encarte);
+  assert.deepEqual([l.nome, l.marca, l.gramas, l.granel, l.preco, l.fotoUrl], ["Farinha De Trigo 1kg", "Araguaia", 1000, false, 299, foto]);
+  // Foto de outro host não entra.
+  assert.equal(linhaDoRecorte({ id: "g1", titulo: "Farinha", preco: 1, imagem: "https://outro.site/x.webp" }, encarte).fotoUrl, null);
+  // "5 Kg" é embalagem, não preço por quilo.
+  const arroz = linhaDoRecorte({ id: "g4", titulo: "Tio João - Arroz Branco 5 Kg", preco: 2599 }, encarte);
+  assert.deepEqual([arroz.granel, arroz.gramas], [false, 5000]);
   assert.equal(linhaDoRecorte({ id: "g2", titulo: "Queijo Prato Kg", preco: 3990, imagem: "javascript:x" }, encarte).granel, true);
   assert.equal(linhaDoRecorte({ id: "g2", titulo: "Queijo Prato Kg", preco: 3990, imagem: "javascript:x" }, encarte).fotoUrl, null);
   assert.equal(linhaDoRecorte({ id: "g3", titulo: "Sem preço", preco: null }, encarte), null);
@@ -133,6 +142,7 @@ test("montarEncartes: recortes sem IA, páginas pela IA, Bistek de fora, avisos 
     flyer("1", { retailerName: "Supermercados Imperatriz", publication_url: "http://viewer.zmags.com/publication/pt_br_877179" }),
     flyer("2", { retailerName: "Atacadão" }),
     flyer("3", { retailerName: "Bistek Supermercados" }),
+    flyer("5", { retailerName: "Giassi Supermercados" }),
     flyer("4", { retailerName: "Fort Atacadista" }),
   ] });
   const comRecortes = paginaNext({ x: { flyerGibs: [
@@ -151,17 +161,19 @@ test("montarEncartes: recortes sem IA, páginas pela IA, Bistek de fora, avisos 
     return new Response("?", { status: 404 });
   };
   const lerPaginas = async (imagens) => ({
-    paginas: Object.fromEntries(imagens.slice(0, 2).map((i) => [i.hash, { inicio: null, fim: null, itens: [{ produto: `Café p${i.pagina} 500g`, gramas: 500, preco: 19.9, unidade: "embalagem", condicao: null }] }])),
+    // As duas primeiras páginas trazem produtos diferentes; a terceira repete o café da primeira, mais caro.
+    paginas: Object.fromEntries(imagens.slice(0, 3).map((i, n) => [i.hash, { inicio: null, fim: null, itens: [{ produto: `Café p${n % 2 + 1} 500g`, gramas: 500, preco: 19.9 + n, unidade: "embalagem", condicao: null }] }])),
     erros: ["lote 2: caiu"], lotes: [{ custo: 0.05, paginas: imagens.length }],
   });
   const r = await montarEncartes({ fazerFetch, lerPaginas, hoje: "2026-10-31", agora: new Date("2026-10-31T15:00:00Z"), esperar: async () => {} });
   assert.deepEqual(Object.keys(r.mercados).sort(), ["atacadao", "imperatriz"]);
   assert.ok(!pedidos.some((u) => u.endsWith("/Catalogos/3")), "Bistek nem é aberto");
+  assert.ok(!pedidos.some((u) => u.endsWith("/Catalogos/5")), "Giassi com outro nome também fica de fora");
   const at = r.mercados.atacadao;
   assert.deepEqual(at.produtos.map((p) => [p.nome, p.preco, p.gramas]), [["Arroz 5kg", 2490, 5000]]);
   assert.deepEqual([at.encartes[0].fonte, at.encartes[0].fim, at.versao, at.categorias], ["recortes", "2026-11-04", 1, ["Encarte"]]);
   const im = r.mercados.imperatriz;
-  assert.deepEqual(im.produtos.map((p) => p.nome), ["Café p1 500g", "Café p2 500g"]);
+  assert.deepEqual(im.produtos.map((p) => [p.nome, p.preco]), [["Café p1 500g", 1990], ["Café p2 500g", 2090]], "repetido fica o mais barato");
   assert.equal(im.encartes[0].fonte, "ia");
   assert.equal(r.ia.custo, 0.05);
   assert.ok(r.avisos.some((a) => /Fort Atacadista.*503/.test(a)));

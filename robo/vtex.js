@@ -131,6 +131,9 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
   };
   const produtos = [];
   const vistos = new Set();
+  // Categorias que saíram com buraco (página pulada ou abandonada): o site
+  // não pode dizer "não achei mais" de um produto que só não foi baixado.
+  const incompletas = new Set();
   const avisos = [];
   let totalEsperado = 0;
   let baixados = 0;
@@ -174,8 +177,8 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
         totalEsperado += plano.total; // conta uma vez mesmo baixando ASC e DESC
         for (const ordem of plano.ordens) {
           const qual = ordem ? ` (${ordem})` : "";
-          const aoFalhar = (de, e) => avisar(`${caminhoDoPlano}: página _from=${de}${qual} falhou (${e.message})`);
-          const aoAbandonar = () => avisar(`${caminhoDoPlano}${qual}: abandonada depois de ${FALHAS_SEGUIDAS} páginas seguidas falhando`);
+          const aoFalhar = (de, e) => { incompletas.add(caminhoDoPlano); avisar(`${caminhoDoPlano}: página _from=${de}${qual} falhou (${e.message})`); };
+          const aoAbandonar = () => { incompletas.add(caminhoDoPlano); avisar(`${caminhoDoPlano}${qual}: abandonada depois de ${FALHAS_SEGUIDAS} páginas seguidas falhando`); };
           const total = plano.total || undefined; // 0 = sem cabeçalho: pagina até a vazia
           for await (const pagina of paginas(mercado, plano.caminho, { ...opcoes, ordem, total, aoFalhar, aoAbandonar })) {
             baixados += pagina.length;
@@ -213,10 +216,12 @@ export async function rastrear(mercado, { fazerFetch, esperar, agora = Date.now,
     mercado: mercado.id,
     nome: mercado.nome,
     site: mercado.site,
-    fotos,
+    // Sem nenhuma foto válida fica "", nunca null: quem consome concatena.
+    fotos: fotos ?? "",
     atualizadoEm: new Date(inicio).toISOString(),
     categorias,
     produtos,
+    incompletas: [...incompletas],
     totalEsperado,
     baixados,
     avisos,

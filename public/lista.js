@@ -10,7 +10,9 @@ function copiarOferta(oferta) {
   return {
     id: oferta.id, preco: oferta.preco, promocao: oferta.promocao, link: oferta.link,
     // Encarte: até quando vale e a condição; aparecem no detalhe do item.
-    ...(oferta.ate && { ate: oferta.ate }),
+    // O nome do mercado vai junto: quando o encarte vence, o mercado sai do
+    // resumo de hoje e a tela ainda precisa dizer "Imperatriz", não "imperatriz".
+    ...(oferta.ate && { ate: oferta.ate, mercadoNome: oferta.mercadoNome }),
     ...(oferta.condicao && { condicao: oferta.condicao }),
   };
 }
@@ -62,7 +64,7 @@ export function marcar(item, marcado) {
 function ofertaViva(item, mercado) {
   // `?.`: item mexido à mão pode chegar sem ofertas; melhor "sem preço" que tela morta.
   const oferta = item.tipo === "produto" ? item.ofertas?.[mercado] : null;
-  return oferta && !oferta.sumiu && !oferta.indisponivel ? oferta : null;
+  return oferta && !oferta.sumiu && !oferta.indisponivel && !oferta.venceu ? oferta : null;
 }
 
 export function melhorOferta(item) {
@@ -135,19 +137,26 @@ function promover(item, indice) {
 // - `indisponivel`: o catálogo do mercado nem chegou hoje (robô ou rede
 //   falharam), então não dá pra dizer que o produto sumiu; a interface mostra
 //   "Angeloni: sem preços hoje" e a marca cai sozinha na próxima carga boa.
-export function refrescar(itens, indice) {
+// `hoje` (AAAA-MM-DD): oferta de encarte com `ate` antes dele fica
+// `venceu`, mesmo que o mercado nunca mais publique outro encarte (sem isso
+// ela ficaria "sem preços hoje" pra sempre).
+export function refrescar(itens, indice, hoje = null) {
   // Sem catálogo ainda (primeira carga ou falha de rede), a lista aparece como
   // estava; marcar tudo como "sumiu" seria mentir.
   if (!indice) return itens;
-  const carregados = new Set(indice.mercados);
+  // Catálogo pela metade conta como "não chegou inteiro": quem falta lá fica
+  // indisponível, não sumido.
+  const incompletos = new Set(indice.incompletos ?? []);
+  const carregados = new Set(indice.mercados.filter((m) => !incompletos.has(m)));
   return itens.map((item) => {
     if (item.tipo !== "produto") return promover(item, indice);
     const grupo = acharGrupo(item, indice);
     const ofertas = {};
     for (const [m, antiga] of Object.entries(item.ofertas ?? {})) {
       // Tira as marcas da carga anterior antes de pôr a de hoje.
-      const { sumiu, indisponivel, ...oferta } = antiga;
-      ofertas[m] = carregados.has(m) ? { ...oferta, sumiu: true } : { ...oferta, indisponivel: true };
+      const { sumiu, indisponivel, venceu, ...oferta } = antiga;
+      if (hoje && oferta.ate && oferta.ate < hoje) ofertas[m] = { ...oferta, venceu: true };
+      else ofertas[m] = carregados.has(m) ? { ...oferta, sumiu: true } : { ...oferta, indisponivel: true };
     }
     if (grupo) {
       for (const [m, oferta] of Object.entries(grupo.ofertas)) ofertas[m] = copiarOferta(oferta);
@@ -229,7 +238,11 @@ export function deTexto(texto, indice, agora = new Date()) {
 
     const marcador = /^[•✓\-*]\s*/.exec(linha);
     if (!marcador) {
-      itens.push(novoItemTexto(linha, agora));
+      // "2 ovos", "3x leite", "2 × pão": número no começo é quantidade, a não
+      // ser que venha unidade ("1 kg de tomate" é o item inteiro).
+      const qtd = /^(\d{1,2})\s*(?:[×xX]\s+|\s+)(?!(?:kg|g|gr|l|lt|ml|un|und|unid|unidades?|pct|pacotes?|cx|caixas?|dz|duzias?)\b)(\S.*)$/i.exec(linha);
+      const item = novoItemTexto(qtd ? qtd[2] : linha, agora);
+      itens.push(qtd ? { ...item, quantidade: Math.max(1, parseInt(qtd[1], 10)) } : item);
       continue;
     }
 

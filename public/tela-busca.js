@@ -1,7 +1,7 @@
 // Tela Buscar: campo, chips, catálogo (com o campo vazio) e cartões. Não
 // mexe na lista nem salva nada: quem é dono de `estado.itens` é o app.js,
 // que recebe os pedidos por `acoes`.
-import { buscar, catalogar, filtrar } from "./busca.js";
+import { buscar, catalogar, filtrar, normalizar } from "./busca.js";
 import { PREPAROS } from "./preparo.js";
 import { reais, peso, diaMes } from "./formato.js";
 import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
@@ -63,7 +63,10 @@ function renderizarChips(estado) {
     chip('data-ordem="preco"', "Menor preço", ui.ordem === "preco"),
     // Um chip só pros dois: R$/kg e R$/l são o mesmo número (por mil gramas ou ml).
     chip('data-ordem="porKg"', "Menor por kg/l", ui.ordem === "porKg"),
-    ...mercados.map((m) => chip(`data-mercado="${escapar(m.id)}"`, m.nome, ui.mercados.has(m.id))),
+    // Mercado escolhido vai pro começo da fila: lá no fim, fora da tela, o
+    // filtro ligado sumia de vista e a lista encolhia sem explicação.
+    ...[...mercados].sort((a, b) => ui.mercados.has(b.id) - ui.mercados.has(a.id))
+      .map((m) => chip(`data-mercado="${escapar(m.id)}"`, m.nome, ui.mercados.has(m.id))),
   ].join("");
 }
 
@@ -112,25 +115,36 @@ function marcaPeso(grupo) {
 }
 
 function precos(grupo, nomes) {
+  // Com chip de mercado ligado, os outros mercados ficam apagados e fora da
+  // comparação: destacar o Bistek com o filtro "Giassi" parecia filtro quebrado.
+  const escolhidos = ui.mercados.size ? (m) => ui.mercados.has(m) : () => true;
+  const dentro = Object.entries(grupo.ofertas).filter(([m]) => escolhidos(m));
   // Verde quer dizer "mais barato que os outros": com uma loja só não há
   // comparação, e o destaque passaria uma vantagem que não existe.
-  const compara = Object.keys(grupo.ofertas).length > 1;
+  const compara = dentro.length > 1;
+  const menor = Math.min(...dentro.map(([, o]) => o.preco));
   const unidade = grupo.liquido ? "l" : "kg";
+  const porQuilo = grupo.liquido ? "por litro" : "por quilo";
   return Object.entries(grupo.ofertas)
     .map(([mercado, oferta]) => {
-      const melhor = compara && oferta.preco === grupo.menor ? " melhor" : "";
+      const fora = !escolhidos(mercado);
+      const ehMelhor = !fora && compara && oferta.preco === menor;
+      const melhor = ehMelhor ? " melhor" : fora ? " fora" : "";
       // Promoção vale só se o "de" for maior; a loja às vezes repete o preço.
-      const de = oferta.promocao > oferta.preco ? `<s>${reais(oferta.promocao)}</s> ` : "";
+      // O "de"/"por" e o "mais barato" vão escritos pro leitor de tela: só
+      // a cor e o risco não dizem nada a ele.
+      const de = oferta.promocao > oferta.preco ? `<s><span class="sr">de </span>${reais(oferta.promocao)}</s> <span class="sr">por </span>` : "";
       // O preço por quilo (ou litro) de cada loja é o que compara acém a
       // R$ 5,39 por 100 g com acém a R$ 81,69 por 1,5 kg. O peso pode ter
       // vindo só de outra loja do mesmo EAN.
       const gramas = oferta.gramas ?? grupo.gramas;
-      const porKg = gramas > 0 ? ` <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}/${unidade}</span>` : "";
+      const porKg = gramas > 0 ? ` <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}<span aria-hidden="true">/${unidade}</span><span class="sr"> ${porQuilo}</span></span>` : "";
       // Encarte vale até um dia e às vezes só com clube ou app: a pessoa
       // precisa saber antes de ir; a condição vai numa linha própria.
       const ate = oferta.ate ? ` <span class="ate">até ${diaMes(oferta.ate)}</span>` : "";
-      return `<span class="preco${melhor}" data-mercado="${escapar(mercado)}">`
-        + `<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b>${porKg}${ate}</span>`;
+      const selo = ehMelhor ? '<span aria-hidden="true">✓</span><span class="sr">mais barato:</span> ' : "";
+      return `<span class="preco${melhor}" data-mercado="${escapar(mercado)}"${oferta.ate ? " data-encarte" : ""}>`
+        + `${selo}<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b>${porKg}${ate}</span>`;
     })
     .join("");
 }
@@ -138,7 +152,11 @@ function precos(grupo, nomes) {
 function condicoes(grupo, nomes) {
   const linhas = Object.entries(grupo.ofertas)
     .filter(([, o]) => o.condicao)
-    .map(([m, o]) => `${escapar(nomes[m] ?? m)}: ${escapar(o.condicao)}`);
+    // "Oferta Clube Magia: R$ 6,49" já diz o mercado; não repete "Magia:".
+    .map(([m, o]) => {
+      const nome = nomes[m] ?? m;
+      return normalizar(o.condicao).includes(normalizar(nome)) ? escapar(o.condicao) : `${escapar(nome)}: ${escapar(o.condicao)}`;
+    });
   return linhas.length ? `<p class="condicao">${linhas.join(" · ")}</p>` : "";
 }
 
@@ -402,6 +420,16 @@ export function ligarBusca(estado, acoes) {
     renderizarBusca(estado);
   }, 120);
   campo.addEventListener("input", aoDigitar);
+  // A tecla "Buscar" do teclado do celular mostra o resultado e baixa o
+  // teclado, que tampava metade da tela.
+  campo.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    ui.termo = campo.value;
+    ui.mostrar = LOTE;
+    renderizarBusca(estado);
+    campo.blur();
+  });
 
   // Recarregar a aba no meio do catálogo começa da raiz: o estado velho do
   // histórico não vale mais (entrada de outra carga conta como raiz).

@@ -126,6 +126,9 @@ function guardar() {
 
 // Recado que some sozinho: confirma o toque sem ficar tampando a tela.
 export function mostrarAviso(texto, ms = 1500) {
+  // O "Desfazer" de um toque na busca é fraco: uma confirmação nova (Lista
+  // copiada) passa por cima dele; o de remover ou limpar continua valendo.
+  if (acaoViva?.fraca) acaoViva.encerrar(true);
   if (acaoViva) return;
   avisar(texto);
   fimDoAviso = setTimeout(() => avisar(""), ms);
@@ -137,7 +140,7 @@ export function mostrarAviso(texto, ms = 1500) {
 // `aoExpirar`: chamado quando o prazo acaba sem o toque (ou outro recado com
 // ação toma o lugar), pra quem pediu soltar o que guardava pra desfazer.
 // `focoDepois`: pra onde vai o teclado se o foco ainda estava no botão.
-export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = false, id, aoExpirar, focoDepois } = {}) {
+export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = false, id, aoExpirar, focoDepois, fraca = false } = {}) {
   acaoViva?.encerrar(true);
   clearTimeout(fimDoAviso);
   const aviso = el("#aviso");
@@ -150,6 +153,7 @@ export function mostrarAvisoComAcao(texto, rotulo, acao, { ms = 6000, focar = fa
 
   let prazo;
   const viva = {
+    fraca,
     encerrar(expirou) {
       clearTimeout(prazo);
       if (acaoViva === viva) acaoViva = null;
@@ -177,10 +181,22 @@ function mudarItens(itens) {
   renderizarTudo();
 }
 
+// O cartão inteiro da busca adiciona: um toque sem querer (quem tocou na
+// pílula pra "ver") precisa de volta fácil. Desfazer devolve a lista de antes
+// desse toque, só se ninguém mexeu nela depois. O foco não vai pro botão: a
+// pessoa segue tocando nos cartões.
+function desfazerToque(texto, chave, antes) {
+  const depois = estado.itens;
+  mostrarAvisoComAcao(texto, "Desfazer", () => {
+    if (estado.itens === depois) mudarItens(antes);
+  }, { ms: 4000, fraca: true, focoDepois: () => document.querySelector(`#resultados .cartao[data-chave="${CSS.escape(chave)}"] .adicionar`) });
+}
+
 const acoesDaBusca = {
   adicionarProduto(grupo) {
-    mudarItens([...estado.itens, novoItemProduto(grupo)]);
-    mostrarAviso(`${grupo.nome} na lista`);
+    const antes = estado.itens;
+    mudarItens([...antes, novoItemProduto(grupo)]);
+    desfazerToque(`${grupo.nome} na lista`, grupo.chave, antes);
   },
   adicionarTexto(nome) {
     // Tocar duas vezes no mesmo "sem preço" quer dizer "mais um", não uma
@@ -197,13 +213,14 @@ const acoesDaBusca = {
     mostrarAviso(`${nome} na lista`);
   },
   incrementar(chave) {
+    const antes = estado.itens;
     let atualizado;
     mudarItens(estado.itens.map((i) => {
       if (i.tipo !== "produto" || i.chave !== chave) return i;
       atualizado = alterarQuantidade(i, 1);
       return atualizado;
     }));
-    if (atualizado) mostrarAviso(`${atualizado.nome} ×${atualizado.quantidade} na lista`);
+    if (atualizado) desfazerToque(`${atualizado.nome} ×${atualizado.quantidade} na lista`, chave, antes);
   },
   // O voltar do navegador mexe no catálogo, que vive na tela Buscar.
   mostrarBusca() {
@@ -291,7 +308,17 @@ const acoesDaLista = {
       mostrarAviso("Não achei itens nesse texto");
       return;
     }
-    mudarItens([...estado.itens, ...novos]);
+    // Colar o que já está na lista soma a quantidade em vez de criar outra
+    // linha igual (mesmo produto, ou mesmo texto sem acento e sem caixa).
+    const itens = [...estado.itens];
+    const igual = (a, b) => (a.tipo === "produto" && b.tipo === "produto" ? a.chave === b.chave
+      : a.tipo === "texto" && b.tipo === "texto" && normalizar(a.nome) === normalizar(b.nome));
+    for (const novo of novos) {
+      const n = itens.findIndex((i) => igual(i, novo));
+      if (n >= 0) itens[n] = { ...itens[n], quantidade: itens[n].quantidade + novo.quantidade };
+      else itens.push(novo);
+    }
+    mudarItens(itens);
     mostrarAviso(novos.length === 1 ? "1 item adicionado" : `${novos.length} itens adicionados`);
   },
   irParaBusca() {
@@ -397,7 +424,7 @@ async function carregarPrecos() {
   estado.carregando = false;
   if (Object.keys(porId).length) {
     estado.indice = indexar(porId);
-    estado.itens = refrescar(estado.itens, estado.indice);
+    estado.itens = refrescar(estado.itens, estado.indice, hoje);
     guardar();
   } else {
     // Nenhum mercado chegou: um índice vazio marcaria tudo como indisponível

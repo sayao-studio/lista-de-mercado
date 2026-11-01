@@ -35,7 +35,7 @@ catálogos de Bistek, Giassi e Angeloni e grava JSON em `public/dados/`. O
 GitHub Pages publica o site estático de `public/`, que lê esses JSON. O
 navegador nunca fala com os mercados.
 
-Site previsto: https://brenisio.github.io/lista-de-mercado/
+Site previsto: https://sayao-studio.github.io/lista-de-mercado/
 
 No site, a busca pelo nome compara o preço nos três mercados; com o campo
 vazio aparece o **catálogo** inteiro, separado por departamento e seção

@@ -3,7 +3,7 @@
 // parâmetro pra o módulo rodar também nos testes em Node.
 
 export const CHAVE_RESUMO = "lista-de-mercado.resumo";
-// Prefixado: o domínio brenisio.github.io é o mesmo dos outros sites do
+// Prefixado: o domínio sayao-studio.github.io é o mesmo dos outros sites do
 // dono, e o Cache API é por origem, não por caminho.
 const NOME_CACHE = "lista-de-mercado-catalogos";
 

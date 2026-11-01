@@ -358,6 +358,7 @@ test("aviso de página diz a ordem quando baixa ASC e DESC", async () => {
   });
   const r = await rastrear(mercado, { fazerFetch, esperar: esperarNada });
   assert.ok(r.avisos.includes("Bebidas > Refrigerantes > Zero, Light e Diet: página _from=50 (DESC) falhou (HTTP 503 depois de 5 tentativas)"));
+  assert.deepEqual(r.incompletas, ["Bebidas > Refrigerantes > Zero, Light e Diet"]);
 });
 
 test("rastrear falha quando estoura o prazo", async () => {

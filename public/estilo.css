@@ -3,7 +3,8 @@
   color-scheme: light dark;
   --fundo: #f7f6f2;
   --tinta: #121212;
-  --verde: #1b7f3b;
+  /* #176f35: 5,3:1 sobre o verde-fundo (o #1b7f3b dava 4,43, abaixo do AA). */
+  --verde: #176f35;
   --cinza: #6b6b6b;
   --borda: #e2e0da;
   --cartao: #ffffff;
@@ -323,11 +324,15 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
 }
 
 .preco {
+  /* Quebra linha dentro da pílula: com "de", preço, R$/kg e validade ela
+     passava da coluna e o R$/kg sumia embaixo do "+". */
+  flex-wrap: wrap;
+  max-width: 100%;
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--pilula);
   font-size: 13px;
   white-space: nowrap;
@@ -689,6 +694,10 @@ section[data-tela="lista"] { container-type: inline-size; }
   font-size: 14px;
 }
 
+/* Fechado, o "Ver preços" não passa por baixo da quantidade (3 × 44 px). */
+.item .detalhe:not([open]) { padding-right: 136px; }
+.item .detalhe summary { white-space: nowrap; }
+
 .item .detalhe summary {
   display: inline-flex;
   align-items: center;
@@ -739,10 +748,15 @@ section[data-tela="lista"] { container-type: inline-size; }
 .item .detalhe b { font-weight: 600; }
 
 .item .detalhe a {
+  /* 44 px de toque sem crescer o texto: o padding vertical fica na área. */
+  display: inline-block;
+  padding: 12px 0;
+  margin: -12px 0;
   color: inherit;
   font-weight: 600;
   text-underline-offset: 3px;
 }
+.item .detalhe li { min-height: 32px; }
 
 .item .quantidade {
   grid-area: baixo;
@@ -755,8 +769,8 @@ section[data-tela="lista"] { container-type: inline-size; }
 }
 
 .item .quantidade button {
-  width: 36px;
-  min-width: 36px;
+  width: 44px;
+  min-width: 44px;
   height: 44px;
   padding: 0;
   border: 0;
@@ -852,7 +866,10 @@ dialog button:focus-visible {
   bottom: calc(var(--altura-barra) + 8px + env(safe-area-inset-bottom));
   z-index: 4;
   margin-top: 12px;
-  padding: 8px 14px;
+  padding: 0 14px;
+  /* Rede de segurança: aberto, nunca toma mais de um terço da tela. */
+  max-height: 40vh;
+  overflow: auto;
   border: 1px solid var(--borda);
   border-radius: 12px;
   background: var(--cartao);
@@ -860,6 +877,27 @@ dialog button:focus-visible {
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
+
+#totais summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  min-height: 44px;
+  padding: 10px 0;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+#totais summary::-webkit-details-marker { display: none; }
+/* Seta que diz "abre": gira quando aberto. */
+#totais summary::after { content: "▾"; color: var(--cinza); order: 3; }
+#totais details[open] summary::after { content: "▴"; }
+#totais summary span { order: 0; }
+#totais summary b { order: 2; margin-left: auto; }
+#totais summary .dica { order: 4; flex-basis: 100%; font-weight: 400; color: var(--cinza); font-size: 12px; }
+#totais .por-mercado { padding-bottom: 6px; border-top: 1px solid var(--borda); }
+#totais p.incompleto b { color: var(--cinza); font-weight: 400; }
 
 #totais p {
   display: flex;
@@ -876,11 +914,6 @@ dialog button:focus-visible {
 #totais p b { order: 2; margin-left: auto; font-weight: 600; }
 #totais p.primeiro b { color: var(--verde); }
 
-#totais .separado {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px solid var(--borda);
-}
 
 #totais .sem-preco {
   display: block;
@@ -1007,3 +1040,36 @@ dialog .botoes .perigo {
   /* Em tela larga a busca está sempre ao lado: o atalho não tem razão de ser. */
   #itens .vazio button { display: none; }
 }
+
+/* Celular, tela Lista: o cabeçalho não gruda (a lista precisa da altura
+   toda no corredor); na Buscar ele gruda porque o campo depende dele. */
+@media (max-width: 899px) {
+  body:has([data-tela="lista"][data-ativa]) #cabecalho { position: static; }
+}
+
+/* O voltar e o título do nível ficam à vista ao rolar uma seção longa. */
+.cabecalho-nivel {
+  position: sticky;
+  top: calc(var(--altura-cabecalho, 64px) + 60px);
+  z-index: 4;
+  background: var(--fundo);
+}
+
+#quando { min-height: 44px; display: flex; align-items: center; }
+
+/* Texto só pra leitor de tela ("mais barato", "de", "por quilo"). */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Preço de mercado fora do filtro escolhido: fica, mas apagado e sem verde. */
+.preco.fora { opacity: 0.55; }
+
+/* Item de encarte: borda tracejada distingue do preço do site. */
+.preco[data-encarte] { outline: 1px dashed var(--borda); outline-offset: -1px; }
+.item .melhor .ate { color: var(--cinza); font-weight: 400; }

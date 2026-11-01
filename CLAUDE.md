@@ -35,7 +35,7 @@ GitHub Actions, 3x/dia, e publica os JSON em `public/dados/`.
 - Comentário explica o porquê, não o quê.
 - Sem dependência npm. `package.json` só tem `type`, `engines` e scripts.
 - Sem build e sem framework. Toda URL do site é relativa (o site vive num
-  subcaminho: `https://brenisio.github.io/lista-de-mercado/`).
+  subcaminho: `https://sayao-studio.github.io/lista-de-mercado/`).
 - Commit: primeira linha é o efeito pra quem usa; termina com
   `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 - Remoto por SSH (`Host github.com`, conta `brenisio`). Nunca usar `gh` neste

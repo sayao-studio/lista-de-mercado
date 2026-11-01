@@ -134,14 +134,18 @@ test("buscar filtra só promoções e por mercado", () => {
   ]);
 });
 
-test("buscar ordena por preço e por preço/kg com nulos no fim", () => {
+test("buscar ordena por preço e por preço/kg, primeiro o que começa pelo termo, nulos no fim", () => {
+  // O "Arroz Tio João" começa por "arroz": vem antes do biscoito e da
+  // farinha de arroz, mesmo mais caro (senão "arroz" abria com ração).
   assert.deepEqual(nomes(buscar(indice, "arroz", { ordem: "preco" })), [
-    "Biscoito de Arroz Camil 150g", "Farinha de Arroz Urbano", "Arroz Tio João 1kg",
+    "Arroz Tio João 1kg", "Biscoito de Arroz Camil 150g", "Farinha de Arroz Urbano",
   ]);
   // Biscoito: 399 por 150 g = R$ 26,60/kg; a farinha não tem peso e vai pro fim.
   assert.deepEqual(nomes(buscar(indice, "arroz", { ordem: "porKg" })), [
     "Arroz Tio João 1kg", "Biscoito de Arroz Camil 150g", "Farinha de Arroz Urbano",
   ]);
+  // Entre os que não começam pelo termo, vale o preço.
+  assert.deepEqual(nomes(buscar(indice, "de arroz", { ordem: "preco" })), ["Biscoito de Arroz Camil 150g", "Farinha de Arroz Urbano"]);
 });
 
 // Gerador congruencial com semente fixa: o catálogo sintético sai sempre igual,
@@ -328,13 +332,13 @@ test("preparos só em carnes, e o filtro de preparo vale na busca e no catálogo
 
 test("linha de encarte: link do Tiendeo, foto https, validade e condição na oferta", () => {
   const i = indexar({
-    imperatriz: { ...arquivoBase, site: "https://www.tiendeo.com.br", fotos: "", categorias: ["Encarte"], produtos: [
+    imperatriz: { ...arquivoBase, nome: "Imperatriz Teste", site: "https://www.tiendeo.com.br", fotos: "", categorias: ["Encarte"], produtos: [
       { ...linhaBase, ean: "", nome: "Açúcar Globo 1kg", url: "https://www.tiendeo.com.br/Catalogos/1", fotoUrl: "https://img/a.webp", ate: "2026-11-03", condicao: "no app" },
       { ...linhaBase, id: "2", ean: "", nome: "Café Pilão 500g", url: "javascript:alert(1)", fotoUrl: "http://inseguro/x.jpg" },
     ] },
   });
   const acucar = i.porMercado.get("imperatriz:1");
-  assert.deepEqual(acucar.ofertas.imperatriz, { id: "1", preco: 100, promocao: 0, link: "https://www.tiendeo.com.br/Catalogos/1", nome: "Açúcar Globo 1kg", gramas: 500, ate: "2026-11-03", condicao: "no app" });
+  assert.deepEqual(acucar.ofertas.imperatriz, { id: "1", preco: 100, promocao: 0, link: "https://www.tiendeo.com.br/Catalogos/1", nome: "Açúcar Globo 1kg", gramas: 500, ate: "2026-11-03", mercadoNome: "Imperatriz Teste", condicao: "no app" });
   assert.equal(acucar.foto, "https://img/a.webp");
   assert.equal(acucar.departamento, "mercearia"); // pelo nome: "Encarte" não é caminho conhecido
   const cafe = i.porMercado.get("imperatriz:2");

@@ -113,6 +113,9 @@ export async function atualizar({
           nome,
           atualizadoEm: arquivo.atualizadoEm,
           produtos: arquivo.produtos.length,
+          // Catálogo com categoria pela metade (página da VTEX que falhou): quem
+          // consome não deve tomar ausência como "o produto sumiu".
+          ...(arquivo.incompletas?.length && { incompletas: arquivo.incompletas }),
           // O ?v= muda a cada atualização e fura o cache de 10 min do Pages.
           arquivo: `${id}.json?v=${Math.floor(Date.parse(arquivo.atualizadoEm) / 1000)}`,
         };

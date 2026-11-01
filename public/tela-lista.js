@@ -12,8 +12,15 @@ const CONTROLES = ["marcar", "menos", "mais", "remover"];
 const ICONE_TEXTO = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">'
   + '<path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
 
+// Nomes de hoje e, pros mercados de encarte que já saíram do resumo, o nome
+// guardado na própria oferta.
 function nomesDosMercados(estado) {
-  return Object.fromEntries(estado.mercados.map((m) => [m.id, m.nome]));
+  const nomes = {};
+  for (const item of estado.itens) {
+    for (const [id, o] of Object.entries(item.ofertas ?? {})) if (o?.mercadoNome) nomes[id] = o.mercadoNome;
+  }
+  for (const m of estado.mercados) nomes[m.id] = m.nome;
+  return nomes;
 }
 
 // Só mercados com catálogo de hoje entram nos totais: somar o preço velho de
@@ -25,11 +32,12 @@ export function mercadosCarregados(estado) {
 }
 
 // Mercados que entram nos totais ("Tudo no X"). Encarte cobre poucos
-// produtos: "Tudo no Imperatriz · faltam 12" pra uma lista sem nada de lá só
-// ocuparia o rodapé; ele entra quando tem ao menos um item da lista.
+// produtos: "Tudo no Imperatriz · faltam 12" só ocuparia o rodapé; ele entra
+// quando tem pelo menos metade dos itens da lista.
 export function mercadosDosTotais(estado) {
+  const produtos = estado.itens.filter((i) => i.tipo === "produto");
   return mercadosCarregados(estado).filter((m) => !m.encarte
-    || estado.itens.some((i) => i.tipo === "produto" && i.ofertas?.[m.id] && !i.ofertas[m.id].sumiu && !i.ofertas[m.id].indisponivel));
+    || produtos.filter((i) => viva(i.ofertas?.[m.id])).length * 2 >= produtos.length && produtos.some((i) => viva(i.ofertas?.[m.id])));
 }
 
 // Ordem dos mercados no item: a do resumo (sempre a mesma na tela) e, depois,
@@ -42,7 +50,7 @@ function mercadosDoItem(item, estado) {
   return ids;
 }
 
-const viva = (oferta) => oferta && !oferta.sumiu && !oferta.indisponivel;
+const viva = (oferta) => Boolean(oferta) && !oferta.sumiu && !oferta.indisponivel && !oferta.venceu;
 
 // Link só se for endereço web: o catálogo vem de fora e um `javascript:` no
 // href rodaria ao toque mesmo escapado.
@@ -71,7 +79,9 @@ function linhasDePreco(item, estado, nomes) {
       // valor do outro confunde. O "·" vem do CSS, só entre spans, e o espaço
       // entre eles é o único lugar onde a linha pode quebrar.
       .map((m) => `<span>${escapar(nomes[m] ?? m)} ${reais(item.ofertas[m].preco * item.quantidade)}</span>`);
-    return `<p class="melhor">${escapar(nomes[melhor.mercado] ?? melhor.mercado)} ${reais(melhor.total)}</p>`
+    // Encarte acaba num dia: a validade aparece já na linha, sem abrir o detalhe.
+    const ate = item.ofertas[melhor.mercado]?.ate ? ` <small class="ate">até ${diaMes(item.ofertas[melhor.mercado].ate)}</small>` : "";
+    return `<p class="melhor">${escapar(nomes[melhor.mercado] ?? melhor.mercado)} ${reais(melhor.total)}${ate}</p>`
       + (outros.length ? `<p class="outros">${outros.join(" ")}</p>` : "");
   }
   // Nenhum mercado confirma hoje: o último preço visto ajuda a ter noção do
@@ -95,6 +105,7 @@ function detalhe(item, estado, nomes, aberto) {
   const linhas = mercadosDoItem(item, estado).map((m) => {
     const oferta = item.ofertas[m];
     const nome = escapar(nomes[m] ?? m);
+    if (oferta.venceu) return `<li class="apagado">encarte do ${nome} acabou em ${diaMes(oferta.ate)}</li>`;
     if (oferta.sumiu) return `<li class="apagado">não achei mais no ${nome}</li>`;
     if (oferta.indisponivel) return `<li class="apagado">${nome}: sem preços hoje (era ${reais(oferta.preco)})</li>`;
     const link = linkSeguro(oferta.link);
@@ -152,20 +163,31 @@ function conteudoItens(estado, abertos) {
   }).join("");
 }
 
+// Os totais ficam numa linha grudada ("Cada item no mais barato"), que é a
+// resposta da pergunta da pessoa; o "Tudo no X" de cada mercado abre ao
+// tocar. Abertos, os sete totais tomavam um quarto da tela e sobravam dois
+// itens à vista no corredor.
+let totaisAbertos = false;
+
 function conteudoTotais(estado) {
   const mercados = mercadosDosTotais(estado);
   const t = totais(estado.itens, mercados.map((m) => m.id));
   const nomes = nomesDosMercados(estado);
   const linhas = t.porMercado.map(({ mercado, total, faltam }, n) => {
     const falta = faltam === 1 ? "falta 1" : faltam > 1 ? `faltam ${faltam}` : "";
-    // O primeiro é o melhor pra ir num mercado só (completo e mais barato).
-    const primeiro = n === 0 && t.porMercado.length > 1 ? ' class="primeiro"' : "";
-    return `<p data-mercado="${escapar(mercado)}"${primeiro}><span>Tudo no ${escapar(nomes[mercado] ?? mercado)}</span> <b>${reais(total)}</b>`
+    // Destaque só pra quem tem tudo e é o mais barato: um total que deixa
+    // itens de fora não é comparável e fica em cinza.
+    const classe = falta ? ' class="incompleto"' : n === 0 && t.porMercado.length > 1 ? ' class="primeiro"' : "";
+    return `<p data-mercado="${escapar(mercado)}"${classe}><span>Tudo no ${escapar(nomes[mercado] ?? mercado)}</span> <b>${reais(total)}</b>`
       + (falta ? ` <small>· ${falta}</small>` : "") + "</p>";
   });
-  linhas.push(`<p class="separado"><span>Cada item no mais barato</span> <b>${reais(t.separado)}</b></p>`);
   if (t.semPreco > 0) linhas.push(`<small class="sem-preco">${t.semPreco} sem preço</small>`);
-  return linhas.join("");
+  const completo = t.porMercado.find((m) => m.faltam === 0);
+  const dica = completo ? `<small class="dica">Tudo no ${escapar(nomes[completo.mercado] ?? completo.mercado)} ${reais(completo.total)}</small>` : "";
+  return `<details class="totais"${totaisAbertos ? " open" : ""}>
+      <summary class="separado"><span>Cada item no mais barato</span> <b>${reais(t.separado)}</b>${dica}</summary>
+      <div class="por-mercado">${linhas.join("")}</div>
+    </details>`;
 }
 
 // Guarda qual controle estava focado pra devolver o foco depois do redesenho;
@@ -204,6 +226,7 @@ export function renderizarLista(estado) {
   const blocoTotais = el("#totais");
   blocoTotais.hidden = vazia;
   blocoTotais.innerHTML = vazia ? "" : conteudoTotais(estado);
+  blocoTotais.querySelector("details")?.addEventListener("toggle", (e) => { totaisAbertos = e.target.open; });
 
   // Colar fica sempre: receber a lista de alguém começa com a lista vazia.
   el("#menu-lista").classList.toggle("so-colar", vazia);

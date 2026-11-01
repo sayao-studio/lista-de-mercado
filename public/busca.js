@@ -124,7 +124,7 @@ export function indexar(catalogos) {
           nome: linha.nome,
           gramas: linha.gramas,
           // Só encarte: até quando vale e a condição pra ter o preço (clube, app…).
-          ...(linha.ate && { ate: linha.ate }),
+          ...(linha.ate && { ate: linha.ate, mercadoNome: arquivo.nome }),
           ...(linha.condicao && { condicao: linha.condicao }),
         };
       }
@@ -141,7 +141,10 @@ export function indexar(catalogos) {
     grupo.preparos = grupo.departamento === "carnes" ? preparosDe(grupo.nome) : [];
   }
 
-  return { grupos, porChave, porMercado, mercados: Object.keys(catalogos), catalogo: montarCatalogo(grupos) };
+  // Mercado cujo catálogo saiu com categoria pela metade: ausência ali não
+  // prova que o produto sumiu.
+  const incompletos = Object.entries(catalogos).filter(([, a]) => a.incompletas?.length).map(([id]) => id);
+  return { grupos, porChave, porMercado, mercados: Object.keys(catalogos), incompletos, catalogo: montarCatalogo(grupos) };
 }
 
 // Mesmo efeito de `(" " + texto).includes(" " + palavra)`, sem criar uma
@@ -194,7 +197,13 @@ export function buscar(indice, termo, { promocao = false, ordem = "relevancia", 
     }
     if (bate && passa(grupo, { promocao, mercados, preparo })) achados.push(grupo);
   }
-  if (ordem === "preco" || ordem === "porKg") return ordenar(achados, ordem);
+  // Por preço, mas só dentro do que começa pelo termo: senão "arroz" por
+  // R$/kg abria com ração "Arroz para Cães" e flocos de arroz.
+  if (ordem === "preco" || ordem === "porKg") {
+    const comeca = achados.filter((g) => g.texto.startsWith(normal));
+    const resto = achados.filter((g) => !g.texto.startsWith(normal));
+    return [...ordenar(comeca, ordem), ...ordenar(resto, ordem)];
+  }
 
   // Quem começa pelo que foi digitado é o que a pessoa quis dizer; depois,
   // produto em mais lojas, porque é o que dá pra comparar.

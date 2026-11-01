@@ -147,10 +147,10 @@ describe("site", () => {
     assert.equal(await primeiro.locator(".preco.melhor").count(), 1);
     assert.equal(await primeiro.locator('.preco.melhor[data-mercado="giassi"]').count(), 1);
     assert.match(await primeiro.locator('.preco[data-mercado="giassi"]').textContent(), /Giassi\s+R\$ 10,90/);
-    assert.equal(await primeiro.locator('.preco[data-mercado="bistek"] s').textContent(), "R$ 13,99");
+    assert.equal(await primeiro.locator('.preco[data-mercado="bistek"] s').textContent(), "de R$ 13,99");
     // R$/kg em cada loja; o Giassi não informa o peso, mas o EAN é o mesmo (1 kg pelo Bistek).
-    assert.equal(await primeiro.locator('.preco[data-mercado="giassi"] .por-kg').textContent(), "R$ 10,90/kg");
-    assert.equal(await primeiro.locator('.preco[data-mercado="angeloni"] .por-kg').textContent(), "R$ 12,49/kg");
+    assert.equal(await primeiro.locator('.preco[data-mercado="giassi"] .por-kg').textContent(), "R$ 10,90/kg por quilo");
+    assert.equal(await primeiro.locator('.preco[data-mercado="angeloni"] .por-kg').textContent(), "R$ 12,49/kg por quilo");
     // Com termo, sempre há como pôr o texto livre na lista.
     assert.match(await page.locator("#adicionar-texto").textContent(), /Adicionar "arroz" sem preço/);
     const largura = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -398,6 +398,67 @@ describe("site", () => {
     assert.ok(await page.locator("#preparos").isHidden());
   });
 
+  // ---- Revisão de UX (01/11/2026) ----
+
+  test("a tecla Buscar do teclado mostra o resultado e baixa o teclado", async () => {
+    const { page } = await abrir();
+    await page.locator("#busca").fill("arroz");
+    await page.locator("#busca").press("Enter");
+    assert.equal(await page.locator("#resultados").getAttribute("data-termo"), "arroz");
+    assert.notEqual(await page.evaluate(() => document.activeElement?.id), "busca");
+  });
+
+  test("adicionar pela busca tem Desfazer, e copiar a lista passa por cima dele", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    await page.locator(`#resultados .cartao[data-chave="${ARROZ}"] .adicionar`).click();
+    await page.locator("#aviso button", { hasText: "Desfazer" }).click();
+    assert.equal(await page.locator("#contador-lista").textContent(), "0");
+    assert.equal((await page.locator(`#resultados .cartao[data-chave="${ARROZ}"] .adicionar`).textContent()).trim(), "+");
+  });
+
+  test("totais: uma linha grudada que abre ao tocar; total incompleto em cinza", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await adicionar(page, "banana", BANANA);
+    await irParaLista(page);
+    const detalhes = page.locator("#totais details");
+    assert.equal(await detalhes.getAttribute("open"), null);
+    assert.match(await page.locator("#totais summary").textContent(), /Cada item no mais barato\s+R\$/);
+    assert.ok(await page.locator('#totais [data-mercado="giassi"]').isHidden());
+    await page.locator("#totais summary").click();
+    assert.ok(await page.locator('#totais [data-mercado="giassi"]').isVisible());
+    assert.equal(await page.locator('#totais [data-mercado="giassi"]').getAttribute("class"), "incompleto");
+    // Continua aberto depois de mexer na lista.
+    await itemDe(page, "Arroz Tio João 1kg").locator(".mais").click();
+    assert.equal(await page.locator("#totais details").getAttribute("open"), "");
+  });
+
+  test("chip de mercado ligado vai pro começo e apaga os outros preços, sem verde neles", async () => {
+    const { page } = await abrir();
+    await buscarPor(page, "arroz");
+    await page.locator('#chips [data-mercado="angeloni"]').click();
+    const primeiroMercado = await page.locator("#chips [data-mercado]").first().getAttribute("data-mercado");
+    assert.equal(primeiroMercado, "angeloni");
+    const cartao = page.locator(`#resultados .cartao[data-chave="${ARROZ}"]`);
+    assert.match(await cartao.locator('.preco[data-mercado="giassi"]').getAttribute("class"), /fora/);
+    assert.equal(await cartao.locator(".preco.melhor").count(), 0, "só o Angeloni conta: sem comparação, sem verde");
+    // O leitor de tela ouve "mais barato" no destaque.
+    await page.locator('#chips [data-mercado="angeloni"]').click();
+    assert.match(await cartao.locator(".preco.melhor").textContent(), /mais barato:/);
+  });
+
+  test("colar o que já está na lista soma a quantidade", async () => {
+    const { page } = await abrir();
+    await adicionar(page, "arroz", ARROZ);
+    await irParaLista(page);
+    await page.locator("#colar").click();
+    await page.locator("#dialogo-colar textarea").fill(`• 2× Arroz Tio João 1kg #${ARROZ}\n2 ovos\novos`);
+    await page.locator('#dialogo-colar button[value="adicionar"]').click();
+    const itens = await page.evaluate(() => window.app.estado.itens.map((i) => [i.nome, i.quantidade]));
+    assert.deepEqual(itens, [["Arroz Tio João 1kg", 3], ["ovos", 3]]);
+  });
+
   // ---- Encartes ----
 
   const ENCARTES = "tests/fixtures/encartes/encartes.json";
@@ -408,7 +469,7 @@ describe("site", () => {
     assert.equal((await page.locator('#chips [data-mercado="imperatriz"]').textContent()).trim(), "Imperatriz");
     await buscarPor(page, "acucar");
     const cartao = page.locator('#resultados .cartao[data-chave="imperatriz:1406650-p1-0"]');
-    assert.match(await cartao.locator(".preco").textContent(), /Imperatriz\s+R\$ 3,49\s+R\$ 3,49\/kg\s+até 31\/12/);
+    assert.match(await cartao.locator(".preco").textContent(), /Imperatriz\s+R\$ 3,49\s+R\$ 3,49\/kg por quilo\s+até 31\/12/);
     assert.equal(await cartao.locator(".condicao").textContent(), "Imperatriz: R$ 3,29 ativando no app");
     await buscarPor(page, "arroz");
     const nomes = await page.locator("#resultados .cartao .nome").allTextContents();
@@ -666,7 +727,7 @@ describe("site", () => {
     await buscarPor(page, "leite");
     const cartao = page.locator('#resultados .cartao[data-chave="7896043400012"]');
     assert.equal(await cartao.locator(".marca-peso").textContent(), "Tirol · 1 l");
-    assert.equal(await cartao.locator(".por-kg").textContent(), "R$ 5,49/l");
+    assert.equal(await cartao.locator(".por-kg").textContent(), "R$ 5,49/l por litro");
     assert.equal((await page.locator('#chips [data-ordem="porKg"]').textContent()).trim(), "Menor por kg/l");
     await cartao.locator(".adicionar").click();
     await irParaLista(page);

@@ -299,3 +299,42 @@ test("mercado que não carregou deixa a oferta indisponível, não sumida, e vol
   assert.equal(deVolta.ofertas.angeloni.sumiu, undefined);
   assert.equal(melhorOferta(deVolta).mercado, "giassi");
 });
+
+test("encarte vencido com o item na lista vira `venceu`, sai das contas e guarda o nome do mercado", () => {
+  const item = {
+    id: "x", tipo: "produto", chave: "imperatriz:77-abc", ean: "", nome: "Açúcar Globo 1kg", marca: "", gramas: 1000, granel: false,
+    quantidade: 2, marcado: false, adicionadoEm: "2026-10-30T12:00:00.000Z",
+    ofertas: { imperatriz: { id: "77-abc", preco: 349, promocao: 0, link: "https://www.tiendeo.com.br/Catalogos/77", ate: "2026-11-03", mercadoNome: "Imperatriz" } },
+  };
+  const indice = indexar({ bistek: JSON.parse(readFileSync(new URL("./fixtures/dados/bistek.json", import.meta.url), "utf8")) });
+  // Ainda vale: o mercado não carregou hoje, então fica indisponível (não vencido).
+  const [antes] = refrescar([item], indice, "2026-11-03");
+  assert.equal(antes.ofertas.imperatriz.indisponivel, true);
+  assert.equal(antes.ofertas.imperatriz.venceu, undefined);
+  // Passou do `ate`: vencida, mesmo sem o mercado carregar nunca mais; e não conta nos totais.
+  const [depois] = refrescar([antes], indice, "2026-11-04");
+  assert.equal(depois.ofertas.imperatriz.venceu, true);
+  assert.equal(depois.ofertas.imperatriz.indisponivel, undefined);
+  assert.equal(depois.ofertas.imperatriz.mercadoNome, "Imperatriz");
+  assert.equal(melhorOferta(depois), null);
+  assert.deepEqual(totais([depois], ["imperatriz"]).porMercado, [{ mercado: "imperatriz", total: 0, faltam: 1 }]);
+});
+
+test("mercado com catálogo incompleto não marca como sumido o que faltou", () => {
+  const bistek = JSON.parse(readFileSync(new URL("./fixtures/dados/bistek.json", import.meta.url), "utf8"));
+  const item = {
+    id: "y", tipo: "produto", chave: "bistek:sumido", ean: "", nome: "Algo", marca: "", gramas: null, granel: false,
+    quantidade: 1, marcado: false, adicionadoEm: "2026-10-30T12:00:00.000Z",
+    ofertas: { bistek: { id: "sumido", preco: 100, promocao: 0, link: "https://x" } },
+  };
+  const [completo] = refrescar([item], indexar({ bistek }), "2026-11-01");
+  assert.equal(completo.ofertas.bistek.sumiu, true);
+  const [incompleto] = refrescar([item], indexar({ bistek: { ...bistek, incompletas: ["Mercearia"] } }), "2026-11-01");
+  assert.equal(incompleto.ofertas.bistek.indisponivel, true);
+  assert.equal(incompleto.ofertas.bistek.sumiu, undefined);
+});
+
+test("deTexto lê a quantidade do começo da linha sem marcador, mas não a unidade", () => {
+  const itens = deTexto("2 ovos\n3x leite integral\n1 kg de tomate\npão francês", null, new Date("2026-11-01T12:00:00Z"));
+  assert.deepEqual(itens.map((i) => [i.nome, i.quantidade]), [["ovos", 2], ["leite integral", 3], ["1 kg de tomate", 1], ["pão francês", 1]]);
+});

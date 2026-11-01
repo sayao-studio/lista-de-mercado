@@ -16,10 +16,10 @@ on:
         default: true
         description: "Rastrear os mercados (desligado = só republicar)"
 
+# Por job: o que roda o robô (e baixa dados de terceiros) só lê o repo; só
+# quem publica escreve no Pages.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Um deploy de cada vez; o que está rodando termina (não cancela no meio).
 concurrency:
@@ -33,6 +33,9 @@ env:
 jobs:
   atualizar:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     # Cada mercado tem prazo de 40 min; o resto é folga para baixar e empacotar.
     timeout-minutes: 50
     steps:
@@ -41,6 +44,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      # Sem dependência e em segundos: um erro de sintaxe num módulo não vai
+      # ao ar (o teste de navegador precisa de Playwright e fica de fora).
+      - name: Testes
+        run: npm test
 
       - name: Descobrir a URL do site
         run: |
@@ -68,7 +76,7 @@ jobs:
           # dados, e uma falha ao baixá-los não pode virar site vazio por cima.
           status_anterior=""
           if [[ -n "$extra" ]]; then
-            status_anterior=$(curl -s -o /dev/null -w "%{http_code}" "$SITE_URL/dados/resumo.json" || true)
+            status_anterior=$(curl -s --max-time 30 -o /dev/null -w "%{http_code}" "$SITE_URL/dados/resumo.json" || true)
             echo "resumo publicado: HTTP $status_anterior"
           fi
 
@@ -86,9 +94,8 @@ jobs:
           fi
           exit $codigo
 
+      # Só lê a configuração do Pages (ligado à mão em Settings > Pages).
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -97,6 +104,9 @@ jobs:
   publicar:
     needs: atualizar
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

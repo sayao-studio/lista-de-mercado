@@ -9,16 +9,25 @@
 // Bistek, Giassi e Angeloni ficam de fora: o site já tem o preço deles, e o
 // do encarte é o da loja física, que confundiria a comparação.
 import { TIENDEO, PAGINAS_TIENDEO, PAGINAS_PUBLICACAO, listaEncartes, validosHoje, recortes, paginasDaPublicacao } from "./tiendeo.js";
+import { createHash } from "node:crypto";
 import { pesoDoNome, semAcento } from "../produto.js";
+import { MERCADOS } from "../mercados.js";
 import { hashDe } from "./leitura.mjs";
 
-export const MERCADOS_DO_SITE = ["Bistek", "Giassi", "Angeloni"];
+// O site já tem o preço destes; encarte deles (preço de loja física) só
+// confundiria. Casa por palavra do id ("Giassi Supermercados" também sai).
+export const ehMercadoDoSite = (nome) => idDoMercado(nome).split("-").some((p) => MERCADOS.some((m) => m.id === p));
 // Encarte de 40 páginas é catálogo de bazar, não oferta da semana; 24 cobre os de mercado.
 export const MAX_PAGINAS = 24;
 const CABECALHOS = { "user-agent": "Mozilla/5.0 (lista-de-mercado; robo de precos)" };
 
 // "Fort Atacadista" → "fort-atacadista": id do mercado no site.
 export const idDoMercado = (nome) => semAcento(nome).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+// Id estável do produto no encarte: o mesmo produto tem o mesmo id quando a
+// página é lida de novo (a posição na resposta da IA muda de uma leitura
+// pra outra, e um id por posição faria o "Açúcar" da lista virar "Arroz").
+const idEstavel = (encarte, nome) => `${encarte.id}-${createHash("sha256").update(semAcento(nome).replace(/\s+/g, " ").trim()).digest("hex").slice(0, 10)}`;
 
 // O título do recorte vem "Marca - Produto"; a marca já vem à parte.
 const semMarca = (titulo) => String(titulo ?? "").replace(/^[^-]*?\s+-\s+/, "").trim();
@@ -30,13 +39,14 @@ export function linhaDoRecorte(rec, encarte) {
   const nome = semMarca(rec.titulo) || rec.titulo;
   if (!nome) return null;
   const peso = pesoDoNome(nome);
-  const granel = /\bkg\s*$/i.test(semAcento(nome));
+  // "Salsicha Kg" é preço por quilo; "Arroz 5 Kg" é embalagem de 5 kg.
+  const granel = /\bkg\s*$/i.test(semAcento(nome)) && !/\d\s*kg\s*$/i.test(semAcento(nome));
   return {
-    id: `${encarte.id}-${rec.id}`, nome, marca: rec.marca || "", ean: "",
+    id: idEstavel(encarte, nome), nome, marca: rec.marca || "", ean: "",
     gramas: granel ? 1000 : peso.gramas, granel, liquido: !granel && peso.liquido,
     preco: rec.preco, promocao: 0, foto: "",
-    // A foto do recorte é do próprio Tiendeo (https); o site só aceita https.
-    fotoUrl: /^https:\/\//.test(rec.imagem || "") ? rec.imagem : null,
+    // Só a foto do próprio Tiendeo (o mesmo host das páginas), em https.
+    fotoUrl: /^https:\/\/[\w.-]+\.shopfully\.cloud\//.test(rec.imagem || "") ? rec.imagem : null,
     link: "", url: `${TIENDEO}/Catalogos/${encarte.id}`, categoria: 0,
     condicao: null, ate: encarte.fim, encarte: encarte.id,
   };
@@ -45,16 +55,19 @@ export function linhaDoRecorte(rec, encarte) {
 // Linha de catálogo de um item lido pela IA numa página. Preço por quilo
 // vira granel de 1 kg; peso do nome ganha do lido; lido fora de 1 g a 50 kg
 // não vale.
-export function linhaDoItem(item, encarte, pagina, n) {
+export function linhaDoItem(item, encarte) {
   const reais = Math.round(Number(item.preco) * 100);
   if (!item.produto || !(reais > 0)) return null;
   const porKg = item.unidade === "kg";
   const peso = pesoDoNome(item.produto);
   const lido = Number(item.gramas);
   const gramas = porKg ? 1000 : peso.gramas ?? (lido >= 1 && lido <= 50000 ? lido : null);
+  // Sem unidade no nome, o peso lido de bebida é ml ("Cerveja Heineken" 269):
+  // sem isso aparecia "269 g · R$ 14,83/kg".
+  const bebida = /\b(cerveja|refrigerante|refri|suco|nectar|agua|leite|bebida|vinho|espumante|energetico|cha pronto|isotonico)\b/.test(semAcento(item.produto));
   return {
-    id: `${encarte.id}-p${pagina}-${n}`, nome: item.produto, marca: "", ean: "",
-    gramas, granel: porKg, liquido: !porKg && peso.liquido,
+    id: idEstavel(encarte, item.produto), nome: item.produto, marca: "", ean: "",
+    gramas, granel: porKg, liquido: !porKg && (peso.liquido || (peso.gramas == null && gramas != null && bebida)),
     preco: reais, promocao: 0, foto: "", fotoUrl: null,
     link: "", url: `${TIENDEO}/Catalogos/${encarte.id}`, categoria: 0,
     condicao: item.condicao || null, ate: encarte.fim, encarte: encarte.id,
@@ -79,7 +92,9 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
   for (const p of PAGINAS_TIENDEO) {
     try {
       for (const e of validosHoje(listaEncartes(await (await pedir(`${TIENDEO}/florianopolis/${p}`)).text()), hoje)) {
-        if (!MERCADOS_DO_SITE.includes(e.mercado) && !encartes.has(e.id)) encartes.set(e.id, e);
+        if (encartes.has(e.id)) continue;
+        if (ehMercadoDoSite(e.mercado)) { log(`${e.mercado}: fica de fora (o site já tem o preço)`); continue; }
+        encartes.set(e.id, e);
       }
     } catch (e) { avisos.push(`Tiendeo ${p}: ${e.message}`); }
   }
@@ -113,7 +128,7 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
         for (const img of imagens) {
           const p = lidas.paginas[img.hash];
           if (!p) continue;
-          p.itens.forEach((item, n) => { const l = linhaDoItem(item, e, img.pagina, n); if (l) linhas.push(l); });
+          for (const item of p.itens) { const l = linhaDoItem(item, e); if (l) linhas.push(l); }
         }
         if (linhas.length) info.fonte = "ia";
       } catch (err) { avisos.push(`páginas do encarte ${e.mercado} "${e.titulo}": ${err.message}`); }
@@ -122,6 +137,11 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
     }
     if (!linhas.length) continue;
 
+    // O mesmo produto duas vezes no encarte (duas páginas) dá o mesmo id:
+    // fica o mais barato, como faz a busca com o mesmo EAN.
+    const porId = new Map();
+    for (const l of linhas) if (!porId.has(l.id) || l.preco < porId.get(l.id).preco) porId.set(l.id, l);
+    linhas = [...porId.values()];
     info.produtos = linhas.length;
     const id = idDoMercado(e.mercado);
     if (!porMercado.has(id)) {
