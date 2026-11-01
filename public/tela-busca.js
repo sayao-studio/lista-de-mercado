@@ -3,7 +3,7 @@
 // que recebe os pedidos por `acoes`.
 import { buscar, catalogar, filtrar } from "./busca.js";
 import { PREPAROS } from "./preparo.js";
-import { reais, peso } from "./formato.js";
+import { reais, peso, diaMes } from "./formato.js";
 import { el, escapar, debounce, trocarFotoQuebrada } from "./dom.js";
 // A mesma regra dos totais: chip de mercado sem catálogo filtraria pra lista
 // vazia sem explicar por quê. tela-lista não importa nada daqui (sem ciclo).
@@ -126,10 +126,20 @@ function precos(grupo, nomes) {
       // vindo só de outra loja do mesmo EAN.
       const gramas = oferta.gramas ?? grupo.gramas;
       const porKg = gramas > 0 ? ` <span class="por-kg">${reais(Math.round((oferta.preco / gramas) * 1000))}/${unidade}</span>` : "";
+      // Encarte vale até um dia e às vezes só com clube ou app: a pessoa
+      // precisa saber antes de ir; a condição vai numa linha própria.
+      const ate = oferta.ate ? ` <span class="ate">até ${diaMes(oferta.ate)}</span>` : "";
       return `<span class="preco${melhor}" data-mercado="${escapar(mercado)}">`
-        + `<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b>${porKg}</span>`;
+        + `<span class="mercado">${escapar(nomes[mercado] ?? mercado)}</span> ${de}<b>${reais(oferta.preco)}</b>${porKg}${ate}</span>`;
     })
     .join("");
+}
+
+function condicoes(grupo, nomes) {
+  const linhas = Object.entries(grupo.ofertas)
+    .filter(([, o]) => o.condicao)
+    .map(([m, o]) => `${escapar(nomes[m] ?? m)}: ${escapar(o.condicao)}`);
+  return linhas.length ? `<p class="condicao">${linhas.join(" · ")}</p>` : "";
 }
 
 function cartao(grupo, estado, nomes) {
@@ -144,6 +154,7 @@ function cartao(grupo, estado, nomes) {
       <p class="nome">${escapar(grupo.nome)}</p>
       ${grupo.marca || grupo.gramas ? `<p class="marca-peso">${marcaPeso(grupo)}</p>` : ""}
       <div class="precos">${precos(grupo, nomes)}</div>
+      ${condicoes(grupo, nomes)}
     </div>
     <button type="button" class="adicionar${qtd ? " na-lista" : ""}" aria-label="${escapar(rotulo)}">${qtd ? `×${qtd}` : "+"}</button>
   </article>`;

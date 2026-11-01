@@ -172,3 +172,25 @@ test("carregarMercado tira do cache o arquivo de formato desconhecido", async ()
   assert.equal(boa.chamadas.length, 1);
   assert.deepEqual(await (await comLixo.cache.match("dados/bistek.json?v=1")).json(), bistek);
 });
+
+// ---- Encartes ----
+import { encartesValidos, carregarEncartes } from "../public/dados.js";
+const encartesFixture = JSON.parse(readFileSync(new URL("./fixtures/encartes/encartes.json", import.meta.url), "utf8"));
+
+test("encartesValidos tira encarte vencido e mercado que o site já tem", () => {
+  const c = encartesValidos(encartesFixture, "2026-10-31", ["bistek", "giassi", "angeloni"]);
+  assert.deepEqual(Object.keys(c), ["imperatriz"]);
+  assert.deepEqual(c.imperatriz.produtos.map((p) => p.nome), ["Açúcar Refinado Globo 1kg", "Arroz Prato Fino 1kg"]);
+  assert.deepEqual(c.imperatriz.encartes.map((e) => e.id), ["1406650"]);
+  assert.equal(c.imperatriz.ate, "2099-12-31");
+  // Tudo vencido: o mercado some.
+  assert.deepEqual(Object.keys(encartesValidos(encartesFixture, "2100-01-01", ["bistek"])), []);
+  for (const lixo of [null, {}, { versao: 2, mercados: {} }, { versao: 1, mercados: [] }]) assert.deepEqual(encartesValidos(lixo, "2026-10-31"), {});
+});
+
+test("carregarEncartes: 404 ou sem rede é nenhum encarte, sem erro", async () => {
+  assert.deepEqual(await carregarEncartes({ fazerFetch: async () => new Response("", { status: 404 }), hoje: "2026-10-31" }), {});
+  assert.deepEqual(await carregarEncartes({ fazerFetch: async () => { throw new TypeError("rede"); }, hoje: "2026-10-31" }), {});
+  const ok = await carregarEncartes({ fazerFetch: async () => new Response(JSON.stringify(encartesFixture)), hoje: "2026-10-31", jaTem: ["bistek"] });
+  assert.deepEqual(Object.keys(ok), ["imperatriz"]);
+});

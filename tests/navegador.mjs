@@ -22,10 +22,11 @@ async function servidorPara(opcoes) {
 
 // `antes`: roda antes do goto (rotas, scripts); `esperar: false` volta sem
 // esperar o catálogo, pra testar o que a pessoa faz enquanto ele carrega.
-async function abrir({ width = 390, height = 844, resumo, dados, guardado, escuro = false, antes, esperar = true } = {}) {
+async function abrir({ width = 390, height = 844, resumo, dados, encartes, guardado, escuro = false, antes, esperar = true } = {}) {
   const opcoes = {};
   if (dados !== undefined) opcoes.dados = dados;
   if (resumo !== undefined) opcoes.resumo = resumo;
+  if (encartes !== undefined) opcoes.encartes = encartes;
   const { url } = await servidorPara(opcoes);
   const celular = width < 900;
   const contexto = await navegador.newContext({
@@ -395,6 +396,46 @@ describe("site", () => {
     await page.locator("#resultados .voltar").click();
     await page.waitForSelector("#resultados .secoes");
     assert.ok(await page.locator("#preparos").isHidden());
+  });
+
+  // ---- Encartes ----
+
+  const ENCARTES = "tests/fixtures/encartes/encartes.json";
+
+  test("encarte entra como mercado: cabeçalho, chip, validade e condição no cartão, vencido fora", async () => {
+    const { page } = await abrir({ encartes: ENCARTES });
+    assert.match(await page.locator("#quando").textContent(), /Encartes: Imperatriz$/);
+    assert.equal((await page.locator('#chips [data-mercado="imperatriz"]').textContent()).trim(), "Imperatriz");
+    await buscarPor(page, "acucar");
+    const cartao = page.locator('#resultados .cartao[data-chave="imperatriz:1406650-p1-0"]');
+    assert.match(await cartao.locator(".preco").textContent(), /Imperatriz\s+R\$ 3,49\s+R\$ 3,49\/kg\s+até 31\/12/);
+    assert.equal(await cartao.locator(".condicao").textContent(), "Imperatriz: R$ 3,29 ativando no app");
+    await buscarPor(page, "arroz");
+    const nomes = await page.locator("#resultados .cartao .nome").allTextContents();
+    assert.ok(nomes.includes("Arroz Prato Fino 1kg"));
+    assert.ok(!nomes.includes("Arroz Vencido 1kg"), "encarte vencido não aparece");
+    assert.ok(!nomes.includes("Arroz Bistek Loja"), "encarte de mercado que o site já tem não entra");
+    const largura = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(largura <= 390, `scrollWidth ${largura} > 390`);
+  });
+
+  test("totais só mostram o mercado de encarte quando a lista tem algo dele", async () => {
+    const { page } = await abrir({ encartes: ENCARTES });
+    await adicionar(page, "arroz", ARROZ);
+    await irParaLista(page);
+    assert.equal(await page.locator('#totais [data-mercado="imperatriz"]').count(), 0);
+    await adicionar(page, "acucar", "imperatriz:1406650-p1-0");
+    await irParaLista(page);
+    assert.match(await page.locator('#totais [data-mercado="imperatriz"]').textContent(), /Tudo no Imperatriz\s+R\$ 3,49\s+· falta 1/);
+    const item = itemDe(page, "Açúcar Refinado Globo 1kg");
+    await item.locator(".detalhe summary").click();
+    assert.match(await item.locator(".detalhe").textContent(), /encarte até 31\/12 · R\$ 3,29 ativando no app/);
+  });
+
+  test("sem encartes.json o site segue igual", async () => {
+    const { page } = await abrir();
+    assert.doesNotMatch(await page.locator("#quando").textContent(), /Encartes/);
+    assert.equal(await page.locator('#chips [data-mercado="imperatriz"]').count(), 0);
   });
 
   // ---- Tela Lista ----

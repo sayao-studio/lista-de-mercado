@@ -2,10 +2,13 @@
   "name": "lista-de-mercado",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",
     "test:navegador": "node --test --test-concurrency=1 tests/navegador.mjs",
-    "robo": "node robo/catalogo.mjs"
+    "robo": "node robo/catalogo.mjs",
+    "encartes": "node robo/encartes.mjs"
   }
 }

@@ -42,3 +42,9 @@ export function quandoFoi(iso, agora) {
   if (dias === 1) return `ontem ${hora}`;
   return `${doisDigitos(data.getDate())}/${doisDigitos(data.getMonth() + 1)} ${hora}`;
 }
+
+// "2026-11-02" → "02/11": validade de encarte, sem ano (é sempre desta semana).
+export function diaMes(iso) {
+  const m = /^\d{4}-(\d\d)-(\d\d)/.exec(String(iso ?? ""));
+  return m ? `${m[2]}/${m[1]}` : "";
+}

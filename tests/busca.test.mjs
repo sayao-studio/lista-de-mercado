@@ -325,3 +325,19 @@ test("preparos só em carnes, e o filtro de preparo vale na busca e no catálogo
   assert.equal(filtrar(i.grupos, { preparo: "temperada" }).length, 1);
   assert.equal(filtrar(i.grupos, { preparo: null }).length, 9);
 });
+
+test("linha de encarte: link do Tiendeo, foto https, validade e condição na oferta", () => {
+  const i = indexar({
+    imperatriz: { ...arquivoBase, site: "https://www.tiendeo.com.br", fotos: "", categorias: ["Encarte"], produtos: [
+      { ...linhaBase, ean: "", nome: "Açúcar Globo 1kg", url: "https://www.tiendeo.com.br/Catalogos/1", fotoUrl: "https://img/a.webp", ate: "2026-11-03", condicao: "no app" },
+      { ...linhaBase, id: "2", ean: "", nome: "Café Pilão 500g", url: "javascript:alert(1)", fotoUrl: "http://inseguro/x.jpg" },
+    ] },
+  });
+  const acucar = i.porMercado.get("imperatriz:1");
+  assert.deepEqual(acucar.ofertas.imperatriz, { id: "1", preco: 100, promocao: 0, link: "https://www.tiendeo.com.br/Catalogos/1", nome: "Açúcar Globo 1kg", gramas: 500, ate: "2026-11-03", condicao: "no app" });
+  assert.equal(acucar.foto, "https://img/a.webp");
+  assert.equal(acucar.departamento, "mercearia"); // pelo nome: "Encarte" não é caminho conhecido
+  const cafe = i.porMercado.get("imperatriz:2");
+  assert.equal(cafe.ofertas.imperatriz.link, "https://www.tiendeo.com.br/m/p", "url que não é https cai no link padrão");
+  assert.equal(cafe.foto, null);
+});

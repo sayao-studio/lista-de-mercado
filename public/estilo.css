@@ -339,6 +339,15 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
 .preco s { color: var(--cinza); font-size: 12px; }
 /* R$/kg menor e em cinza: é a conta de apoio, não o que a pessoa vai pagar. */
 .preco .por-kg { color: var(--cinza); font-size: 12px; }
+/* Encarte: validade na pílula, condição (clube, app) na linha de baixo. */
+.preco .ate { color: var(--cinza); font-size: 12px; }
+.cartao .condicao {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--cinza);
+  overflow-wrap: anywhere;
+}
+.detalhe .encarte { color: var(--cinza); }
 
 .preco.melhor {
   background: var(--verde-fundo);
@@ -346,7 +355,8 @@ body:has([data-tela="lista"][data-ativa]) #aviso {
 }
 
 .preco.melhor .mercado,
-.preco.melhor .por-kg { color: inherit; }
+.preco.melhor .por-kg,
+.preco.melhor .ate { color: inherit; }
 
 .cartao .adicionar {
   width: 44px;

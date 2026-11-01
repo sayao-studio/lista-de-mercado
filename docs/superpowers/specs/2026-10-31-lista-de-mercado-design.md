@@ -34,7 +34,14 @@ atraso, e a busca só acha o que o robô já baixou.
 - Validade da promoção (só vem nos encartes em imagem do Tiendeo).
 - Preço da loja física, preço de clube, escolher loja/região (o preço é o do
   site, no canal padrão).
-- Outros mercados (Imperatriz, Fort, Pradão não têm catálogo acessível).
+- Outros mercados pelo site (Imperatriz, Fort, Pradão não têm catálogo
+  acessível). Desde 31/10/2026 eles entram pelos **encartes da semana** do
+  Tiendeo (`public/encartes.json`, gerado na máquina do dono com
+  `npm run encartes`): cada rede vira um mercado a mais na busca, no
+  catálogo e na lista, com "até DD/MM" na pílula e a condição (clube, app)
+  numa linha do cartão; encarte vencido some sozinho; nos totais, o mercado
+  de encarte só aparece se a lista tiver algo dele. Instagram (Pradão, É de
+  Casa) fica de fora por enquanto.
 - Histórico de preço, alerta de preço.
 - Casar produtos "equivalentes" por IA (marca diferente, mesmo produto). Só
   o EAN casa entre lojas nesta versão.

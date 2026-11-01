@@ -1,13 +1,13 @@
 // Ponto de entrada do site. A ordem importa: a lista salva aparece antes de
 // qualquer download, porque no mercado a pessoa precisa dela na hora.
 import { carregar, salvar } from "./armazenamento.js";
-import { carregarResumo, carregarMercado } from "./dados.js";
+import { carregarResumo, carregarMercado, carregarEncartes } from "./dados.js";
 import { indexar, normalizar } from "./busca.js";
 import { refrescar, novoItemProduto, novoItemTexto, alterarQuantidade, marcar, comoTexto, deTexto } from "./lista.js";
 import { quandoFoi } from "./formato.js";
 import { el } from "./dom.js";
 import { renderizarBusca, ligarBusca } from "./tela-busca.js";
-import { renderizarLista, ligarLista, mercadosCarregados } from "./tela-lista.js";
+import { renderizarLista, ligarLista, mercadosDosTotais } from "./tela-lista.js";
 
 const CHAVE_TELA = "lista-de-mercado.tela";
 
@@ -47,11 +47,11 @@ export function irPara(tela, { lembrar = false } = {}) {
 // Agrupa por texto de quandoFoi pra não repetir "hoje 12h05" três vezes numa
 // linha que precisa caber no celular.
 export function textoDoCabecalho(mercados, semInternet, agora = new Date()) {
-  if (!mercados.length) return semInternet ? "Sem internet" : "Ainda sem preços";
+  if (!mercados.some((m) => !m.encarte)) return semInternet ? "Sem internet" : "Ainda sem preços";
   const grupos = new Map();
   let maisRecente = null;
   for (const m of mercados) {
-    if (m.erro) continue;
+    if (m.erro || m.encarte) continue;
     const quando = quandoFoi(m.atualizadoEm, agora);
     if (!grupos.has(quando)) grupos.set(quando, []);
     grupos.get(quando).push(m);
@@ -67,6 +67,8 @@ export function textoDoCabecalho(mercados, semInternet, agora = new Date()) {
     for (const m of lista) partes.push(`${m.nome}: ${quando}`);
   }
   for (const m of mercados) if (m.erro) partes.push(`${m.nome}: sem preços`);
+  const deEncarte = mercados.filter((m) => m.encarte).map((m) => m.nome);
+  if (deEncarte.length) partes.push(`Encartes: ${deEncarte.join(", ")}`);
   return (semInternet ? "Sem internet · " : "") + partes.join(" · ");
 }
 
@@ -215,7 +217,7 @@ const trocarItem = (id, fazer) => estado.itens.map((i) => (i.id === id ? fazer(i
 // Nomes só dos mercados com catálogo de hoje: as chaves decidem quais
 // "Tudo no …" entram no texto copiado, igual ao rodapé da tela.
 function nomesCarregados() {
-  return Object.fromEntries(mercadosCarregados(estado).map((m) => [m.id, m.nome]));
+  return Object.fromEntries(mercadosDosTotais(estado).map((m) => [m.id, m.nome]));
 }
 
 // A lista de antes do "Limpar", guardada só na memória durante o "Desfazer".
@@ -361,6 +363,10 @@ async function carregarPrecos() {
   avisar(avisoDeCarga());
   renderizarBusca(estado);
 
+  // Os encartes vêm em paralelo com os catálogos; sem eles, nada muda.
+  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  const encartes = carregarEncartes({ fazerFetch: deps.fazerFetch, hoje, jaTem: estado.mercados.map((m) => m.id) });
+
   const catalogos = await Promise.all(estado.mercados.map(async (m) => {
     if (m.erro) return null;
     try {
@@ -382,6 +388,12 @@ async function carregarPrecos() {
   // Ordem do resumo, pra os mercados aparecerem sempre na mesma sequência.
   const porId = {};
   estado.mercados.forEach((m, i) => { if (catalogos[i]) porId[m.id] = catalogos[i]; });
+  // Mercado de encarte entra depois dos do site, marcado: o cabeçalho e os
+  // totais tratam diferente (vale até um dia, cobre poucos produtos).
+  for (const [id, cat] of Object.entries(await encartes)) {
+    estado.mercados.push({ id, nome: cat.nome, atualizadoEm: cat.atualizadoEm, encarte: true, ate: cat.ate, carregado: true });
+    porId[id] = cat;
+  }
   estado.carregando = false;
   if (Object.keys(porId).length) {
     estado.indice = indexar(porId);

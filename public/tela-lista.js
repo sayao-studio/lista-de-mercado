@@ -2,7 +2,7 @@
 // nem salva: cada toque vira um pedido em `acoes`, e o app.js (dono da lista)
 // muda, salva e manda redesenhar.
 import { melhorOferta, totais } from "./lista.js";
-import { reais, peso } from "./formato.js";
+import { reais, peso, diaMes } from "./formato.js";
 import { el, escapar, trocarFotoQuebrada } from "./dom.js";
 
 const CONTROLES = ["marcar", "menos", "mais", "remover"];
@@ -22,6 +22,14 @@ export function mercadosCarregados(estado) {
   if (!estado.indice) return [];
   const carregados = new Set(estado.indice.mercados);
   return estado.mercados.filter((m) => carregados.has(m.id));
+}
+
+// Mercados que entram nos totais ("Tudo no X"). Encarte cobre poucos
+// produtos: "Tudo no Imperatriz · faltam 12" pra uma lista sem nada de lá só
+// ocuparia o rodapé; ele entra quando tem ao menos um item da lista.
+export function mercadosDosTotais(estado) {
+  return mercadosCarregados(estado).filter((m) => !m.encarte
+    || estado.itens.some((i) => i.tipo === "produto" && i.ofertas?.[m.id] && !i.ofertas[m.id].sumiu && !i.ofertas[m.id].indisponivel));
 }
 
 // Ordem dos mercados no item: a do resumo (sempre a mesma na tela) e, depois,
@@ -94,7 +102,10 @@ function detalhe(item, estado, nomes, aberto) {
     // A loja às vezes repete o preço no "de": só é promoção se o "de" for maior.
     const de = oferta.promocao > oferta.preco ? `<s>${reais(oferta.promocao)}</s> ` : "";
     const destaque = melhor?.mercado === m && Object.values(item.ofertas).filter(viva).length > 1 ? ' class="mais-barato"' : "";
-    return `<li${destaque}>${rotulo} ${de}<b>${reais(oferta.preco)}</b>${porQuilo(oferta, item.gramas, item.liquido)}</li>`;
+    const encarte = oferta.ate
+      ? ` <small class="encarte">encarte até ${diaMes(oferta.ate)}${oferta.condicao ? ` · ${escapar(oferta.condicao)}` : ""}</small>`
+      : "";
+    return `<li${destaque}>${rotulo} ${de}<b>${reais(oferta.preco)}</b>${porQuilo(oferta, item.gramas, item.liquido)}${encarte}</li>`;
   });
   return `<details class="detalhe"${aberto ? " open" : ""}>
       <summary>Ver preços</summary>
@@ -142,7 +153,7 @@ function conteudoItens(estado, abertos) {
 }
 
 function conteudoTotais(estado) {
-  const mercados = mercadosCarregados(estado);
+  const mercados = mercadosDosTotais(estado);
   const t = totais(estado.itens, mercados.map((m) => m.id));
   const nomes = nomesDosMercados(estado);
   const linhas = t.porMercado.map(({ mercado, total, faltam }, n) => {

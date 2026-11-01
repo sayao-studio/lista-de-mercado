@@ -1,0 +1,24 @@
+{
+  "versao": 1,
+  "geradoEm": "2026-10-31T12:00:00.000Z",
+  "mercados": {
+    "imperatriz": {
+      "versao": 1, "mercado": "imperatriz", "nome": "Imperatriz", "site": "https://www.tiendeo.com.br", "fotos": "",
+      "atualizadoEm": "2026-10-31T12:00:00.000Z", "categorias": ["Encarte"],
+      "encartes": [
+        { "id": "1406650", "titulo": "Oportunidades da semana", "inicio": "2026-01-01", "fim": "2099-12-31", "link": "https://www.tiendeo.com.br/Catalogos/1406650", "fonte": "ia", "produtos": 2 },
+        { "id": "999", "titulo": "Vencido", "inicio": "2020-01-01", "fim": "2020-01-07", "link": "https://www.tiendeo.com.br/Catalogos/999", "fonte": "ia", "produtos": 1 }
+      ],
+      "produtos": [
+        { "id": "1406650-p1-0", "nome": "Açúcar Refinado Globo 1kg", "marca": "", "ean": "", "gramas": 1000, "granel": false, "liquido": false, "preco": 349, "promocao": 0, "foto": "", "fotoUrl": null, "link": "", "url": "https://www.tiendeo.com.br/Catalogos/1406650", "categoria": 0, "condicao": "R$ 3,29 ativando no app", "ate": "2099-12-31", "encarte": "1406650" },
+        { "id": "1406650-p1-1", "nome": "Arroz Prato Fino 1kg", "marca": "", "ean": "", "gramas": 1000, "granel": false, "liquido": false, "preco": 899, "promocao": 0, "foto": "", "fotoUrl": null, "link": "", "url": "https://www.tiendeo.com.br/Catalogos/1406650", "categoria": 0, "condicao": null, "ate": "2099-12-31", "encarte": "1406650" },
+        { "id": "999-p1-0", "nome": "Arroz Vencido 1kg", "marca": "", "ean": "", "gramas": 1000, "granel": false, "liquido": false, "preco": 100, "promocao": 0, "foto": "", "fotoUrl": null, "link": "", "url": "https://www.tiendeo.com.br/Catalogos/999", "categoria": 0, "condicao": null, "ate": "2020-01-07", "encarte": "999" }
+      ]
+    },
+    "bistek": {
+      "versao": 1, "mercado": "bistek", "nome": "Bistek", "site": "https://www.tiendeo.com.br", "fotos": "", "atualizadoEm": "2026-10-31T12:00:00.000Z", "categorias": ["Encarte"],
+      "encartes": [{ "id": "5", "titulo": "Bistek loja", "inicio": "2026-01-01", "fim": "2099-12-31" }],
+      "produtos": [{ "id": "5-1", "nome": "Arroz Bistek Loja", "marca": "", "ean": "", "gramas": 1000, "granel": false, "preco": 1, "promocao": 0, "foto": "", "link": "", "categoria": 0, "encarte": "5" }]
+    }
+  }
+}

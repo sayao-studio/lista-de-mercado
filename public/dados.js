@@ -104,3 +104,36 @@ export async function carregarMercado(id, entrada, { fazerFetch, caches }) {
   }
   return arquivo;
 }
+
+// Encartes da semana (public/encartes.json, gravado na máquina do dono e
+// publicado junto do site): um catálogo por mercado, no mesmo formato dos
+// mercados VTEX. Fica só o que vale em `hoje` (AAAA-MM-DD): um arquivo
+// esquecido sem atualizar não pode mostrar oferta vencida. Mercado que o
+// resumo já traz fica de fora (o preço do site vale mais).
+export function encartesValidos(json, hoje, jaTem = []) {
+  const catalogos = {};
+  if (!json || json.versao !== 1 || !json.mercados || typeof json.mercados !== "object") return catalogos;
+  for (const [id, cat] of Object.entries(json.mercados)) {
+    if (jaTem.includes(id) || !cat || cat.versao !== 1 || !Array.isArray(cat.produtos) || !Array.isArray(cat.encartes)) continue;
+    const validos = new Set(cat.encartes.filter((e) => e && e.fim >= hoje && (!e.inicio || e.inicio <= hoje)).map((e) => String(e.id)));
+    const produtos = cat.produtos.filter((p) => p && validos.has(String(p.encarte)));
+    if (!produtos.length) continue;
+    const encartes = cat.encartes.filter((e) => validos.has(String(e.id)));
+    // A data do mercado no cabeçalho é o fim do encarte que acaba por último.
+    const ate = encartes.map((e) => e.fim).sort().at(-1);
+    catalogos[id] = { ...cat, encartes, produtos, ate };
+  }
+  return catalogos;
+}
+
+// Sem arquivo (404) ou sem rede: nenhum encarte, sem erro; o resto do site segue.
+export async function carregarEncartes({ fazerFetch, hoje, jaTem = [] }) {
+  try {
+    // no-cache: confere com o servidor, mas reaproveita se não mudou.
+    const r = await fazerFetch("encartes.json", { cache: "no-cache" });
+    if (!r.ok) return {};
+    return encartesValidos(await r.json(), hoje, jaTem);
+  } catch {
+    return {};
+  }
+}

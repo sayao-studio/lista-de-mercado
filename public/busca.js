@@ -108,6 +108,8 @@ export function indexar(catalogos) {
         grupo.liquido = Boolean(linha.liquido);
       }
       if (grupo.foto == null && linha.foto) grupo.foto = `${arquivo.fotos}${linha.foto}-120-120`;
+      // Encarte traz a foto inteira do recorte (só https, que é o que o CSP aceita).
+      if (grupo.foto == null && /^https:\/\//.test(linha.fotoUrl ?? "")) grupo.foto = linha.fotoUrl;
       // A loja pode ter dois SKUs com o mesmo EAN (o robô só tira duplicata
       // por id). Fica o mais barato: é o que a pessoa compraria, e assim o
       // menor preço do grupo é sempre o de uma oferta que aparece na tela.
@@ -118,9 +120,12 @@ export function indexar(catalogos) {
           preco: linha.preco,
           promocao: linha.promocao,
           // Há slug com espaço no catálogo de verdade; cru, o link abriria quebrado.
-          link: `${arquivo.site}/${encodeURI(linha.link)}/p`,
+          link: /^https:\/\//.test(linha.url ?? "") ? linha.url : `${arquivo.site}/${encodeURI(linha.link)}/p`,
           nome: linha.nome,
           gramas: linha.gramas,
+          // Só encarte: até quando vale e a condição pra ter o preço (clube, app…).
+          ...(linha.ate && { ate: linha.ate }),
+          ...(linha.condicao && { condicao: linha.condicao }),
         };
       }
       porMercado.set(`${mercadoId}:${linha.id}`, grupo);

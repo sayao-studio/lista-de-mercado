@@ -31,7 +31,8 @@ function dentroDe(base, relativo) {
   return alvo === raiz || alvo.startsWith(raiz + sep) ? alvo : null;
 }
 
-export function servir({ pasta = "public", dados = "tests/fixtures/dados", resumo = dados + "/resumo.json" } = {}) {
+// `encartes`: arquivo servido em /encartes.json; sem ele, 404 (o site segue sem encartes).
+export function servir({ pasta = "public", dados = "tests/fixtures/dados", resumo = dados + "/resumo.json", encartes = null } = {}) {
   const servidor = createServer(async (req, res) => {
     // A query (?v=1) só serve pra furar cache; o arquivo é o mesmo.
     let caminho;
@@ -42,7 +43,9 @@ export function servir({ pasta = "public", dados = "tests/fixtures/dados", resum
       return responder(res, 400, "text/plain", "caminho inválido");
     }
     let arquivo;
-    if (caminho === "/dados/resumo.json") {
+    if (caminho === "/encartes.json") {
+      arquivo = encartes ? resolve(encartes) : null;
+    } else if (caminho === "/dados/resumo.json") {
       arquivo = resumo ? resolve(resumo) : null;
     } else if (caminho.startsWith("/dados/")) {
       arquivo = dentroDe(dados, caminho.slice("/dados/".length));

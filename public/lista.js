@@ -7,7 +7,12 @@ import { reais } from "./formato.js";
 // catálogo novo não carregar (ou o produto sumir), a lista continua mostrando
 // o último preço conhecido em vez de ficar em branco.
 function copiarOferta(oferta) {
-  return { id: oferta.id, preco: oferta.preco, promocao: oferta.promocao, link: oferta.link };
+  return {
+    id: oferta.id, preco: oferta.preco, promocao: oferta.promocao, link: oferta.link,
+    // Encarte: até quando vale e a condição; aparecem no detalhe do item.
+    ...(oferta.ate && { ate: oferta.ate }),
+    ...(oferta.condicao && { condicao: oferta.condicao }),
+  };
 }
 
 export function novoItemProduto(grupo, agora = new Date()) {
