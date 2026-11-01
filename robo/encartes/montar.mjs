@@ -16,6 +16,9 @@ import { hashDe } from "./leitura.mjs";
 
 // O site já tem o preço destes; encarte deles (preço de loja física) só
 // confundiria. Casa por palavra do id ("Giassi Supermercados" também sai).
+// Redes que o Tiendeo diz serem perto mas o dono não tem por perto (01/11/2026).
+export const REDES_FORA = ["magia"];
+
 export const ehMercadoDoSite = (nome) => idDoMercado(nome).split("-").some((p) => MERCADOS.some((m) => m.id === p));
 // Encarte de 40 páginas é catálogo de bazar, não oferta da semana; 24 cobre os de mercado.
 export const MAX_PAGINAS = 24;
@@ -97,12 +100,12 @@ export async function montarEncartes({ fazerFetch = fetch, lerPaginas, hoje, ago
     try {
       for (const e of validosHoje(listaEncartes(await (await pedir(`${TIENDEO}/florianopolis/${p}`)).text()), hoje)) {
         if (encartes.has(e.id)) continue;
-        if (ehMercadoDoSite(e.mercado)) { foraDoSite.add(e.mercado); continue; }
+        if (ehMercadoDoSite(e.mercado) || REDES_FORA.includes(idDoMercado(e.mercado))) { foraDoSite.add(e.mercado); continue; }
         encartes.set(e.id, e);
       }
     } catch (e) { avisos.push(`Tiendeo ${p}: ${e.message}`); }
   }
-  if (foraDoSite.size) log(`De fora (o site já tem o preço): ${[...foraDoSite].join(", ")}`);
+  if (foraDoSite.size) log(`De fora (site já tem o preço, ou rede longe): ${[...foraDoSite].join(", ")}`);
   log(`${encartes.size} encartes válidos hoje fora de Bistek, Giassi e Angeloni`);
 
   const porMercado = new Map();
@@ -173,6 +176,7 @@ export function juntarComAnterior(novo, anterior, hoje) {
   const mercados = structuredClone(novo.mercados);
   const vistos = new Set(Object.values(mercados).flatMap((m) => m.encartes.map((e) => String(e.id))));
   for (const [id, cat] of Object.entries(anterior.mercados)) {
+    if (REDES_FORA.includes(id)) continue;
     if (!Array.isArray(cat?.encartes) || !Array.isArray(cat.produtos)) continue;
     const guardar = cat.encartes.filter((e) => e?.fim >= hoje && !vistos.has(String(e.id)));
     if (!guardar.length) continue;

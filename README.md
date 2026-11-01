@@ -139,7 +139,7 @@ Se um mercado ficar em falha por dias (VTEX bloqueando o GitHub, API mudou):
 - O user-agent é só ASCII (`Mozilla/5.0 (lista-de-mercado; robo de precos)`):
   com acento a VTEX responde 400.
 
-## Encartes (Imperatriz, Magia, Atacadão…)
+## Encartes (Imperatriz, Atacadão…)
 
 Os mercados que o site não tem entram pelos encartes da semana do Tiendeo,
 gravados em `public/encartes.json` (esse arquivo vai pro git e sai no site
@@ -154,12 +154,14 @@ git add public/encartes.json && git commit -m "Encartes da semana" && git push
 
 - Encarte com recortes (Atacadão): preço do Tiendeo, sem IA; o peso só
   aparece quando está no nome.
-- Encarte sem recortes (Imperatriz, Magia): as páginas vêm do visualizador
+- Encarte sem recortes (Imperatriz): as páginas vêm do visualizador
   público e o `claude -p` (Sonnet, caixa fechada: só Read na pasta) lê
   produto, peso, preço e condição (clube, app). Cache pelo conteúdo da página
   em `~/.cache/lista-de-mercado/encartes.json`: página lida não volta pra IA.
   Em 31/10/2026: 10 páginas, US$ 0,19.
-- Bistek, Giassi e Angeloni ficam de fora (o preço do site vale mais).
+- Bistek, Giassi e Angeloni ficam de fora (o preço do site vale mais), e
+  também as redes de `REDES_FORA` em `robo/encartes/montar.mjs` (o Magia:
+  o Tiendeo diz que é perto, mas não tem loja por aqui).
 - O site esconde encarte vencido sozinho; sem rodar o comando, os encartes
   somem quando vencem.
 

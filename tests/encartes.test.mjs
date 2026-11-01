@@ -210,3 +210,10 @@ test("recorte de uma palavra só e sem marca não entra", () => {
   assert.equal(linhaDoRecorte({ id: "g", titulo: "Cerveja", preco: 399 }, encarte), null);
   assert.equal(linhaDoRecorte({ id: "g", titulo: "Heineken - Cerveja", marca: "Heineken", preco: 399 }, encarte).nome, "Cerveja");
 });
+
+test("rede longe (Magia) fica de fora, também na junção com o arquivo anterior", async () => {
+  const { juntarComAnterior, REDES_FORA } = await import("../robo/encartes/montar.mjs");
+  assert.ok(REDES_FORA.includes("magia"));
+  const anterior = { versao: 1, mercados: { magia: { versao: 1, mercado: "magia", encartes: [{ id: "2", fim: "2099-01-01" }], produtos: [{ id: "2-a", encarte: "2" }] } } };
+  assert.deepEqual(Object.keys(juntarComAnterior({ versao: 1, mercados: {} }, anterior, "2026-11-01").mercados), []);
+});
